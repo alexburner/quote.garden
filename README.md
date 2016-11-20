@@ -1,20 +1,18 @@
 # quote.garden
 
-A place to save & serve your favorite quotes.
+A place to save & serve your favorite quotes
 
-## Development
-
-**Installation**
+### Installation
 ```
 $ npm install
 ```
 
-**Development**
+### Development
 ```
 $ npm dev
 ```
 
-**Production**
+### Production
 ```
 $ npm build
 ```
