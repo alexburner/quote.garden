@@ -9,10 +9,10 @@ $ npm install
 
 ### Development
 ```
-$ npm dev
+$ npm run dev
 ```
 
 ### Production
 ```
-$ npm build
+$ npm run build
 ```
