@@ -10,9 +10,10 @@ module.exports = {
   entry: {
     // these are where webpack looks
     // for dependency trees to build
-    entry1: './docs/entry1/index.js',
-    entry2: './docs/entry2/index.js',
-    entry3: './docs/entry3/index.js',
+    all: './docs/all/app.jsx',
+    edit: './docs/edit/app.jsx',
+    index: './docs/index/app.jsx',
+    random: './docs/random/app.jsx',
   },
   output: {
     // this is where individual built chunks live
