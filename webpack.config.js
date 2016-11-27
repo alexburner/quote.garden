@@ -4,16 +4,16 @@ var webpack = require('webpack');
 module.exports = {
   resolve: {
     root: [
-      path.resolve('./docs')
+      path.resolve('./src')
     ]
   },
   entry: {
     // these are where webpack looks
     // for dependency trees to build
-    all: './docs/all/app.jsx',
-    edit: './docs/edit/app.jsx',
-    index: './docs/index/app.jsx',
-    random: './docs/random/app.jsx',
+    all: './src/all/app.jsx',
+    edit: './src/edit/app.jsx',
+    index: './src/index/app.jsx',
+    random: './src/random/app.jsx',
   },
   output: {
     // this is where individual built chunks live
