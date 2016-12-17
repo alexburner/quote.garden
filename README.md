@@ -16,3 +16,8 @@ $ npm run dev
 ```
 $ npm run build
 ```
+
+### Serving Locally
+```
+$ cd docs && http-server
+```
