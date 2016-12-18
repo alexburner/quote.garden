@@ -3,6 +3,7 @@ import React from 'react';
 import fireapp from 'shared/fireapp.jsx';
 
 import QuoteAdd from 'edit/quote-add.jsx';
+import TopNav from 'shared/top-nav.jsx';
 
 export default class Edit extends React.Component {
   constructor() {
@@ -24,9 +25,10 @@ export default class Edit extends React.Component {
   render() {
     return (
       <div>
+        <TopNav />
         <h1>Hello edit app</h1>
         <p>Test: {this.state.test ? this.state.test : 'Loading...'}</p>
-        <QuoteAdd></QuoteAdd>
+        <QuoteAdd />
       </div>
     );
   }

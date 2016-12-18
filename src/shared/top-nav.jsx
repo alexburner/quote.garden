@@ -17,9 +17,9 @@ export default class TopNav extends React.Component {
             ]
         ;
         const items = tuples.map((tuple, i) => [
-            tuple[0] === path ?
-                tuple[1] :
-                <a href={tuple[0]}>{tuple[1]}</a>
+            tuple[0] !== path ?
+                <a href={tuple[0]}>{tuple[1]}</a> :
+                tuple[1]
             ,
             i < tuples.length - 1 ?
                 <span>&nbsp;|&nbsp;</span> :

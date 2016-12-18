@@ -2,7 +2,7 @@ import React from 'react';
 
 import fireapp from 'shared/fireapp.jsx';
 
-import TopNav from 'shared/top-nav.jsx'
+import TopNav from 'shared/top-nav.jsx';
 
 export default class Account extends React.Component {
   constructor() {
