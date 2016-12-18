@@ -32,19 +32,31 @@ export default class Register extends React.Component {
           <div>
             <label>
               Email:&nbsp;
-              <input type="email" onChange={this.handleEmail} />
+              <input
+                type="email"
+                value={this.state.email}
+                onChange={this.handleEmail}
+              />
             </label>
           </div>
           <div>
             <label>
               Password:&nbsp;
-              <input type="password" onChange={this.handlePass} />
+              <input
+                type="password"
+                value={this.state.pass}
+                onChange={this.handlePass}
+              />
             </label>
           </div>
           <div>
             <label>
               Repeat password:&nbsp;
-              <input type="password" onChange={this.handleRpass} />
+              <input
+                type="password"
+                value={this.state.rpass}
+                onChange={this.handleRpass}
+              />
             </label>
           </div>
           <input type="submit" value="Submit" />

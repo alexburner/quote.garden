@@ -28,13 +28,21 @@ export default class Login extends React.Component {
           <div>
             <label>
               Email:&nbsp;
-              <input type="email" onChange={this.handleEmail} />
+              <input
+                type="email"
+                value={this.state.email}
+                onChange={this.handleEmail}
+              />
             </label>
           </div>
           <div>
             <label>
               Password:&nbsp;
-              <input type="password" onChange={this.handlePass} />
+              <input
+                type="password"
+                value={this.state.password}
+                onChange={this.handlePass}
+              />
             </label>
           </div>
           <input type="submit" value="Submit" />
