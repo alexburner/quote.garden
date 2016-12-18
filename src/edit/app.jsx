@@ -3,31 +3,19 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 import fireapp from 'shared/fireapp.jsx';
-import QuoteAdd from 'edit/quote-add.jsx';
+
+import Edit from 'edit/edit.jsx';
 
 class App extends React.Component {
-  constructor() {
-    super();
-    this.firedb = fireapp.database();
-    this.state = {
-      test: null,
-    };
-  }
-  componentWillMount() {
-    this.firedb.ref('test').on('value', (snapshot) => {
-      this.setState({
-        test: snapshot.val(),
-      });
-    });
-  }
   render() {
-    return (
-      <div>
-        <h1>Hello edit app</h1>
-        <p>Test: {this.state.test}</p>
-        <QuoteAdd></QuoteAdd>
-      </div>
-    );
+    return fireapp.auth().currentUser ?
+      <Edit /> :
+      <p>
+        You must&nbsp;
+        <a href="/account">Login or Register</a>
+        &nbsp;to use this page.
+      </p>
+    ;
   }
 }
 

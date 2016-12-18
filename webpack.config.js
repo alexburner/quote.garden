@@ -16,6 +16,7 @@ module.exports = {
   entry: {
     // these are where webpack looks
     // for dependency trees to build
+    account: './src/account/app.jsx',
     all: './src/all/app.jsx',
     edit: './src/edit/app.jsx',
     index: './src/index/app.jsx',
