@@ -8,6 +8,7 @@ export default class QuoteForm extends React.Component {
     this.state = {
       words: props.quote ? props.quote.words : '',
       source: props.quote ? props.quote.source : '',
+      isSubmitting: false,
     };
     this.handleWords = (event) => this.setState({words: event.target.value});
     this.handleSource = (event) => this.setState({source: event.target.value});
@@ -18,6 +19,7 @@ export default class QuoteForm extends React.Component {
     ;
     this.handleSubmit = (event) => {
       event.preventDefault();
+      this.setState({isSubmitting: true});
       if (props.quote) {
         // Update existing quote
         quoteRef.set({
@@ -26,7 +28,9 @@ export default class QuoteForm extends React.Component {
         }).catch((err) => {
           console.error('Update error', err);
           alert(err.message);
-        });
+        }).then(this.setState({
+          isSubmitting: false
+        }));
       } else {
         // Create new quote
         quoteRef.push().set({
@@ -38,7 +42,9 @@ export default class QuoteForm extends React.Component {
         })).catch((err) => {
           console.error('Create error', err);
           alert(err.message);
-        });
+        }).then(this.setState({
+          isSubmitting: false
+        }));
       }
     };
     this.handleDelete = (event) => {
@@ -74,6 +80,7 @@ export default class QuoteForm extends React.Component {
           type="submit"
           value={this.props.quote ? 'Update' : 'Create'}
           disabled={
+            this.state.isSubmitting ||
             !this.state.words.length ||
             !this.state.source.length ||
             (
@@ -88,7 +95,12 @@ export default class QuoteForm extends React.Component {
           <button
             className="btn btn-red"
             onClick={this.handleDelete}
+            disabled={this.state.isSubmitting}
           >Delete</button>
+        }
+        {
+          this.state.isSubmitting &&
+          <i className="fa fa-refresh fa-spin"></i>
         }
       </form>
     );

@@ -10,3 +10,10 @@ h1 {
 .quote-form .btn {
     margin-right: 0.5em;
 }
+
+.quote-form .fa-spin {
+    color: #444;
+    position: relative;
+    top: 0.1em;
+    left: 0.1em;
+}
