@@ -3,21 +3,31 @@ import React from 'react';
 import fireapp from 'shared/fireapp.jsx';
 
 import QuoteAdd from 'edit/quote-add.jsx';
+import QuoteEdit from 'edit/quote-edit.jsx';
 import TopNav from 'shared/top-nav.jsx';
 
 export default class Edit extends React.Component {
   constructor() {
     super();
-    this.firedb = fireapp.database();
     this.state = {
-      test: null,
+      quotesLoaded: false,
+      quotes: [],
     };
+    let userId = fireapp.auth().currentUser.uid;
+    this.quotesRef = fireapp.database().ref('quotes/' + userId);
   }
 
   componentDidMount() {
-    this.firedb.ref('test').on('value', (snapshot) => {
+    this.quotesRef.on('value', (snapshot) => {
+      const quotes = [];
+      snapshot.forEach((snapshot) => {
+        const quote = snapshot.val();
+        quote.key = snapshot.key;
+        quotes.unshift(quote);
+      });
       this.setState({
-        test: snapshot.val(),
+        quotesLoaded: true,
+        quotes: quotes,
       });
     });
   }
@@ -26,9 +36,18 @@ export default class Edit extends React.Component {
     return (
       <div>
         <TopNav />
-        <h1>Hello edit app</h1>
-        <p>Test: {this.state.test ? this.state.test : 'Loading...'}</p>
+        <h1>New quote</h1>
         <QuoteAdd />
+        <h1>Existing quotes</h1>
+        {
+          !this.state.quotesLoaded ?
+            <p>Loading...</p> :
+            this.state.quotes.length ?
+              this.state.quotes.map((quote) => (
+                <QuoteEdit key={quote.key} quote={quote} />
+              )) :
+              <small>No quotes exist yet :(</small>
+        }
       </div>
     );
   }

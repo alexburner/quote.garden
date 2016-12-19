@@ -5,7 +5,10 @@ import fireapp from 'shared/fireapp.jsx';
 export default class Login extends React.Component {
   constructor() {
     super();
-    this.state = {email: '', pass: ''};
+    this.state = {
+      email: '',
+      pass: '',
+    };
     this.handleEmail = (event) => this.setState({email: event.target.value});
     this.handlePass = (event) => this.setState({pass: event.target.value});
     this.handleSubmit = (event) => {
@@ -40,12 +43,12 @@ export default class Login extends React.Component {
               Password:&nbsp;
               <input
                 type="password"
-                value={this.state.password}
+                value={this.state.pass}
                 onChange={this.handlePass}
               />
             </label>
           </div>
-          <input type="submit" value="Submit" />
+          <input type="submit" value="Login" />
         </fieldset>
       </form>
     );

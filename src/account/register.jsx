@@ -5,7 +5,11 @@ import fireapp from 'shared/fireapp.jsx';
 export default class Register extends React.Component {
   constructor() {
     super();
-    this.state = {email: '', pass: '', rpass: ''};
+    this.state = {
+      email: '',
+      pass: '',
+      rpass: '',
+    };
     this.handleEmail = (event) => this.setState({email: event.target.value});
     this.handlePass = (event) => this.setState({pass: event.target.value});
     this.handleRpass = (event) => this.setState({rpass: event.target.value});
@@ -59,7 +63,7 @@ export default class Register extends React.Component {
               />
             </label>
           </div>
-          <input type="submit" value="Submit" />
+          <input type="submit" value="Register" />
         </fieldset>
       </form>
     );

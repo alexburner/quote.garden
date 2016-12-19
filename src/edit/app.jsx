@@ -11,7 +11,7 @@ class App extends React.Component {
   constructor() {
     super();
     this.state = {
-      isLoaded: false,
+      userLoaded: false,
       user: fireapp.auth().currentUser,
     };
   }
@@ -19,14 +19,14 @@ class App extends React.Component {
   componentDidMount() {
     fireapp.auth().onAuthStateChanged((user) => {
       this.setState({
-        isLoaded: true,
+        userLoaded: true,
         user: user,
       })
     });
   }
 
   render() {
-    return !this.state.isLoaded ?
+    return !this.state.userLoaded ?
       <Loading /> :
       this.state.user ?
         <Edit /> :
