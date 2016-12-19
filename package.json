@@ -13,7 +13,6 @@
     "dev": "webpack --progress --watch"
   },
   "dependencies": {
-    "baseguide": "1.7.1",
     "firebase": "3.6.1",
     "react": "15.3.2",
     "react-dom": "15.3.2"

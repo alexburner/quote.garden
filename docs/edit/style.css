@@ -1,0 +1,12 @@
+h1 {
+    margin-bottom: 0.3em;
+}
+
+.quote-form {
+    background: #EEE;
+    padding: 1em;
+}
+
+.quote-form .btn {
+    margin-right: 0.5em;
+}

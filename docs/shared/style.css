@@ -1,0 +1,9 @@
+.btn-red {
+  background-color: #e63a3a;
+}
+
+.btn-red:hover,
+.btn-red:focus,
+.btn-red:active {
+  background-color: #d21b1b;
+}

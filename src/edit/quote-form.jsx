@@ -1,0 +1,96 @@
+import React from 'react';
+
+import fireapp from 'shared/fireapp.jsx';
+
+export default class QuoteForm extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      words: props.quote ? props.quote.words : '',
+      source: props.quote ? props.quote.source : '',
+    };
+    this.handleWords = (event) => this.setState({words: event.target.value});
+    this.handleSource = (event) => this.setState({source: event.target.value});
+    let userId = fireapp.auth().currentUser.uid;
+    let quoteRef = props.quote ?
+      fireapp.database().ref(`quotes/${userId}/${props.quote.key}`) :
+      fireapp.database().ref(`quotes/${userId}`)
+    ;
+    this.handleSubmit = (event) => {
+      event.preventDefault();
+      if (props.quote) {
+        // Update existing quote
+        quoteRef.set({
+          words: this.state.words,
+          source: this.state.source,
+        }).catch((err) => {
+          console.error('Update error', err);
+          alert(err.message);
+        });
+      } else {
+        // Create new quote
+        quoteRef.push().set({
+          words: this.state.words,
+          source: this.state.source,
+        }).then(this.setState({
+          words: '',
+          source: '',
+        })).catch((err) => {
+          console.error('Create error', err);
+          alert(err.message);
+        });
+      }
+    };
+    this.handleDelete = (event) => {
+      event.preventDefault();
+      quoteRef.remove().catch((err) => {
+        console.error('Delete error', err);
+        alert(err.message);
+      });
+    };
+  }
+
+  render() {
+    return (
+      <form className="quote-form" onSubmit={this.handleSubmit}>
+        <div className="form-group">
+          <textarea
+            rows="4"
+            placeholder="Quote..."
+            value={this.state.words}
+            onChange={this.handleWords}
+          />
+        </div>
+        <div className="form-group">
+          <input
+            type="text"
+            placeholder="Source..."
+            value={this.state.source}
+            onChange={this.handleSource}
+          />
+        </div>
+        <input
+          className="btn"
+          type="submit"
+          value={this.props.quote ? 'Update' : 'Create'}
+          disabled={
+            !this.state.words.length ||
+            !this.state.source.length ||
+            (
+              this.props.quote &&
+              this.props.quote.words === this.state.words &&
+              this.props.quote.source === this.state.source
+            )
+          }
+        />
+        {
+          this.props.quote &&
+          <button
+            className="btn btn-red"
+            onClick={this.handleDelete}
+          >Delete</button>
+        }
+      </form>
+    );
+  }
+};
