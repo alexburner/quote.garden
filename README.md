@@ -1,4 +1,4 @@
-# Quote Garden
+# quote.garden
 
 A place to save & serve your favorite quotes
 
