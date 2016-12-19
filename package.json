@@ -2,13 +2,18 @@
   "name": "quote.garden",
   "version": "0.0.1",
   "description": "A place to save & serve your favorite quotes.",
+  "author": "aburner",
+  "license": "MIT",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/npm/npm.git"
+  },
   "scripts": {
     "build": "NODE_ENV=production webpack --progress",
     "dev": "webpack --progress --watch"
   },
-  "author": "aburner",
-  "license": "MIT",
   "dependencies": {
+    "baseguide": "1.7.1",
     "firebase": "3.6.1",
     "react": "15.3.2",
     "react-dom": "15.3.2"
