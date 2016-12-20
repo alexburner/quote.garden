@@ -23,8 +23,8 @@ export default class QuoteForm extends React.Component {
       if (props.quote) {
         // Update existing quote
         quoteRef.set({
-          words: this.state.words,
-          source: this.state.source,
+          words: this.state.words.trim(),
+          source: this.state.source.trim(),
         }).catch((err) => {
           console.error('Update error', err);
           alert(err.message);
@@ -34,8 +34,8 @@ export default class QuoteForm extends React.Component {
       } else {
         // Create new quote
         quoteRef.push().set({
-          words: this.state.words,
-          source: this.state.source,
+          words: this.state.words.trim(),
+          source: this.state.source.trim(),
         }).then(this.setState({
           words: '',
           source: '',
@@ -49,10 +49,12 @@ export default class QuoteForm extends React.Component {
     };
     this.handleDelete = (event) => {
       event.preventDefault();
-      quoteRef.remove().catch((err) => {
-        console.error('Delete error', err);
-        alert(err.message);
-      });
+      if (window.confirm('Delete quote? This cannot be undone.')) {
+        quoteRef.remove().catch((err) => {
+          console.error('Delete error', err);
+          alert(err.message);
+        });
+      }
     };
   }
 

@@ -17,7 +17,12 @@ export default class Account extends React.Component {
       pass: '',
     };
     this.handleLogout = () => fireapp.auth().signOut();
-    this.handleDelete = () => fireapp.auth().currentUser.delete();
+    this.handleDelete = () => {
+      if (window.confirm('Delete account? This cannot be undone.')) {
+        fireapp.auth().currentUser.delete();
+        // TODO delete quotes n such
+      }
+    };
   }
 
   componentDidMount() {
