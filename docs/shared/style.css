@@ -13,6 +13,10 @@
   margin-top: 0;
 }
 
+h1:first-child {
+  margin-top: 0.8em; /* unset Baseguide */
+}
+
 form {
   background: #EEE;
   padding: 1em 1em 0.1em;

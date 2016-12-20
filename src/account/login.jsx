@@ -6,6 +6,7 @@ export default class Login extends React.Component {
   constructor() {
     super();
     this.state = {
+      isSubmitting: false,
       email: '',
       pass: '',
     };
@@ -13,44 +14,58 @@ export default class Login extends React.Component {
     this.handlePass = (event) => this.setState({pass: event.target.value});
     this.handleSubmit = (event) => {
       event.preventDefault();
+      this.setState({isSubmitting: true});
       fireapp.auth().signInWithEmailAndPassword(
         this.state.email,
         this.state.pass
       ).catch((err) => {
         console.error('Login error', err);
         alert(err.message);
-      });
+      }).then(() => this.setState({
+        isSubmitting: false
+      }));
     };
   }
 
   render() {
     return (
-      <form onSubmit={this.handleSubmit}>
-        <fieldset>
-          <legend>Login</legend>
-          <div>
-            <label>
-              Email:&nbsp;
-              <input
-                type="email"
-                value={this.state.email}
-                onChange={this.handleEmail}
-              />
-            </label>
+      <div>
+        <h1>Login</h1>
+        <form onSubmit={this.handleSubmit}>
+          <div className="form-group">
+            <input
+              type="email"
+              placeholder="Email"
+              value={this.state.email}
+              onChange={this.handleEmail}
+            />
           </div>
-          <div>
-            <label>
-              Password:&nbsp;
-              <input
-                type="password"
-                value={this.state.pass}
-                onChange={this.handlePass}
-              />
-            </label>
+          <div className="form-group">
+            <input
+              type="password"
+              placeholder="Password"
+              value={this.state.pass}
+              onChange={this.handlePass}
+            />
           </div>
-          <input type="submit" value="Login" />
-        </fieldset>
-      </form>
+          <div className="form-group">
+            <input
+              className="btn"
+              type="submit"
+              value="Login"
+              disabled={
+                this.state.isSubmitting ||
+                !this.state.email.length ||
+                !this.state.pass.length
+              }
+            />
+            {
+              this.state.isSubmitting &&
+              <i className="fa fa-refresh fa-spin"></i>
+            }
+          </div>
+        </form>
+      </div>
     );
   }
 }

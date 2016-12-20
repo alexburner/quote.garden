@@ -6,9 +6,9 @@ export default class QuoteForm extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      isSubmitting: false,
       words: props.quote ? props.quote.words : '',
       source: props.quote ? props.quote.source : '',
-      isSubmitting: false,
     };
     this.handleWords = (event) => this.setState({words: event.target.value});
     this.handleSource = (event) => this.setState({source: event.target.value});
@@ -28,7 +28,7 @@ export default class QuoteForm extends React.Component {
         }).catch((err) => {
           console.error('Update error', err);
           alert(err.message);
-        }).then(this.setState({
+        }).then(() => this.setState({
           isSubmitting: false
         }));
       } else {
@@ -36,13 +36,13 @@ export default class QuoteForm extends React.Component {
         quoteRef.push().set({
           words: this.state.words.trim(),
           source: this.state.source.trim(),
-        }).then(this.setState({
+        }).then(() => this.setState({
           words: '',
           source: '',
         })).catch((err) => {
           console.error('Create error', err);
           alert(err.message);
-        }).then(this.setState({
+        }).then(() => this.setState({
           isSubmitting: false
         }));
       }

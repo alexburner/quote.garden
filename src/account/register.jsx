@@ -30,42 +30,42 @@ export default class Register extends React.Component {
 
   render() {
     return (
-      <form onSubmit={this.handleSubmit}>
-        <fieldset>
-          <legend>Register</legend>
-          <div>
-            <label>
-              Email:&nbsp;
-              <input
-                type="email"
-                value={this.state.email}
-                onChange={this.handleEmail}
-              />
-            </label>
+      <div>
+        <h1>Register</h1>
+        <form onSubmit={this.handleSubmit}>
+          <div className="form-group">
+            <input
+              type="email"
+              placeholder="Email"
+              value={this.state.email}
+              onChange={this.handleEmail}
+            />
           </div>
-          <div>
-            <label>
-              Password:&nbsp;
-              <input
-                type="password"
-                value={this.state.pass}
-                onChange={this.handlePass}
-              />
-            </label>
+          <div className="form-group">
+            <input
+              type="password"
+              placeholder="Password"
+              value={this.state.pass}
+              onChange={this.handlePass}
+            />
           </div>
-          <div>
-            <label>
-              Repeat password:&nbsp;
-              <input
-                type="password"
-                value={this.state.rpass}
-                onChange={this.handleRpass}
-              />
-            </label>
+          <div className="form-group">
+            <input
+              type="password"
+              placeholder="Repeat password"
+              value={this.state.rpass}
+              onChange={this.handleRpass}
+            />
           </div>
-          <input type="submit" value="Register" />
-        </fieldset>
-      </form>
+          <div className="form-group">
+            <input
+              className="btn"
+              type="submit"
+              value="Login"
+            />
+          </div>
+        </form>
+      </div>
     );
   }
 }

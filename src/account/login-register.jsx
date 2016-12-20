@@ -6,9 +6,15 @@ import Register from 'account/register.jsx';
 export default class LoginRegister extends React.Component {
   render() {
     return (
-      <div>
-        <Login />
-        <Register />
+      <div className="container">
+        <div className="row">
+          <div className="col col-sm-6">
+            <Login />
+          </div>
+          <div className="col col-sm-6">
+            <Register />
+          </div>
+        </div>
       </div>
     );
   }
