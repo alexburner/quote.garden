@@ -1,3 +1,46 @@
+.container {
+  max-width: 800px;
+  padding-bottom: 3em;
+}
+
+.top-nav {
+  font-size: 14px;
+  margin: 1em 0;
+  text-align: right;
+}
+
+.top-nav + h1 {
+  margin-top: 0;
+}
+
+form {
+  background: #EEE;
+  padding: 1em 1em 0.1em;
+}
+
+form .btn {
+  margin-right: 0.5em;
+}
+
+form .text-right .btn {
+  margin-left: 0.5em;
+  margin-right: 0;
+}
+
+form .fa-spin {
+  position: relative;
+  top: 0.1em;
+  left: 0.1em;
+}
+
+.fa-spin {
+  color: #444;
+}
+
+.btn {
+  font-size: 14px;
+}
+
 .btn-red {
   background-color: #e63a3a;
 }
@@ -6,4 +49,15 @@
 .btn-red:focus,
 .btn-red:active {
   background-color: #d21b1b;
+}
+
+.btn-empty {
+  color: #025aa5;
+  background-color: transparent;
+  border-color: transparent;
+}
+
+.btn-empty.disabled,
+.btn-empty[disabled] {
+  color: black;
 }

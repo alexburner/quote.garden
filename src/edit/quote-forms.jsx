@@ -2,6 +2,7 @@ import React from 'react';
 
 import fireapp from 'shared/fireapp.jsx';
 
+import Loading from 'shared/loading.jsx';
 import QuoteForm from 'edit/quote-form.jsx';
 
 export default class QuoteForms extends React.Component {
@@ -35,7 +36,7 @@ export default class QuoteForms extends React.Component {
       <div>
         {
           !this.state.quotesLoaded ?
-            <p>Loading...</p> :
+            <Loading /> :
             this.state.quotes.length ?
               this.state.quotes.map((quote) => (
                 <QuoteForm key={quote.key} quote={quote} />

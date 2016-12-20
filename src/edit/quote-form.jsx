@@ -75,33 +75,35 @@ export default class QuoteForm extends React.Component {
             onChange={this.handleSource}
           />
         </div>
-        <input
-          className="btn"
-          type="submit"
-          value={this.props.quote ? 'Update' : 'Create'}
-          disabled={
-            this.state.isSubmitting ||
-            !this.state.words.length ||
-            !this.state.source.length ||
-            (
-              this.props.quote &&
-              this.props.quote.words === this.state.words &&
-              this.props.quote.source === this.state.source
-            )
+        <div className="form-group">
+          <input
+            className="btn"
+            type="submit"
+            value={this.props.quote ? 'Update' : 'Create'}
+            disabled={
+              this.state.isSubmitting ||
+              !this.state.words.length ||
+              !this.state.source.length ||
+              (
+                this.props.quote &&
+                this.props.quote.words === this.state.words &&
+                this.props.quote.source === this.state.source
+              )
+            }
+          />
+          {
+            this.props.quote &&
+            <button
+              className="btn btn-red"
+              onClick={this.handleDelete}
+              disabled={this.state.isSubmitting}
+            >Delete</button>
           }
-        />
-        {
-          this.props.quote &&
-          <button
-            className="btn btn-red"
-            onClick={this.handleDelete}
-            disabled={this.state.isSubmitting}
-          >Delete</button>
-        }
-        {
-          this.state.isSubmitting &&
-          <i className="fa fa-refresh fa-spin"></i>
-        }
+          {
+            this.state.isSubmitting &&
+            <i className="fa fa-refresh fa-spin"></i>
+          }
+        </div>
       </form>
     );
   }
