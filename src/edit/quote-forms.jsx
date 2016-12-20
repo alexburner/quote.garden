@@ -12,23 +12,30 @@ export default class QuoteForms extends React.Component {
       quotesLoaded: false,
       quotes: [],
     };
+    this.unsubscribes = [];
     let userId = fireapp.auth().currentUser.uid;
     this.quotesRef = fireapp.database().ref('quotes/' + userId);
   }
 
   componentDidMount() {
-    this.quotesRef.on('value', (snapshot) => {
-      const quotes = [];
-      snapshot.forEach((snapshot) => {
-        const quote = snapshot.val();
-        quote.key = snapshot.key;
-        quotes.unshift(quote);
-      });
-      this.setState({
-        quotesLoaded: true,
-        quotes: quotes,
-      });
-    });
+    this.unsubscribes.push(
+      this.quotesRef.on('value', (snapshot) => {
+        const quotes = [];
+        snapshot.forEach((snapshot) => {
+          const quote = snapshot.val();
+          quote.key = snapshot.key;
+          quotes.unshift(quote);
+        });
+        this.setState({
+          quotesLoaded: true,
+          quotes: quotes,
+        });
+      })
+    );
+  }
+
+  componentWillUnmount() {
+    this.unsubscribes.forEach((unsubscribe) => unsubscribe());
   }
 
   render() {

@@ -6,6 +6,7 @@ export default class Register extends React.Component {
   constructor() {
     super();
     this.state = {
+      isSubmitting: false,
       email: '',
       pass: '',
       rpass: '',
@@ -15,6 +16,7 @@ export default class Register extends React.Component {
     this.handleRpass = (event) => this.setState({rpass: event.target.value});
     this.handleSubmit = (event) => {
       event.preventDefault();
+      this.setState({isSubmitting: true});
       if (this.state.pass !== this.state.rpass) {
         return alert('Error: passwords do not match');
       }
@@ -24,7 +26,9 @@ export default class Register extends React.Component {
       ).catch((err) => {
         console.error('Register error', err);
         alert(err.message);
-      });
+      }).then(() => this.setState({
+        isSubmitting: false
+      }));
     };
   }
 
@@ -61,8 +65,19 @@ export default class Register extends React.Component {
             <input
               className="btn"
               type="submit"
-              value="Login"
+              value="Register"
+              disabled={
+                this.state.isSubmitting ||
+                !this.state.email.length ||
+                !this.state.pass.length ||
+                !this.state.rpass.length ||
+                this.state.pass !== this.state.rpass
+              }
             />
+            {
+              this.state.isSubmitting &&
+              <i className="fa fa-refresh fa-spin"></i>
+            }
           </div>
         </form>
       </div>

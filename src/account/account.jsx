@@ -16,6 +16,7 @@ export default class Account extends React.Component {
       new_rpass: '',
       pass: '',
     };
+    this.unsubscribes = [];
     this.handleLogout = () => fireapp.auth().signOut();
     this.handleDelete = () => {
       if (window.confirm('Delete account? This cannot be undone.')) {
@@ -26,9 +27,15 @@ export default class Account extends React.Component {
   }
 
   componentDidMount() {
-    fireapp.auth().onAuthStateChanged((user) => {
-      this.setState({user: user});
-    });
+    this.unsubscribes.push(
+      fireapp.auth().onAuthStateChanged((user) => {
+        this.setState({user: user});
+      })
+    );
+  }
+
+  componentWillUnmount() {
+    this.unsubscribes.forEach((unsubscribe) => unsubscribe());
   }
 
   render() {

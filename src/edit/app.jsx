@@ -14,15 +14,22 @@ class App extends React.Component {
       userLoaded: false,
       user: fireapp.auth().currentUser,
     };
+    this.unsubscribes = [];
   }
 
   componentDidMount() {
-    fireapp.auth().onAuthStateChanged((user) => {
-      this.setState({
-        userLoaded: true,
-        user: user,
+    this.unsubscribes.push(
+      fireapp.auth().onAuthStateChanged((user) => {
+        this.setState({
+          userLoaded: true,
+          user: user,
+        })
       })
-    });
+    );
+  }
+
+  componentWillUnmount() {
+    this.unsubscribes.forEach((unsubscribe) => unsubscribe());
   }
 
   render() {
