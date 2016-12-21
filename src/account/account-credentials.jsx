@@ -16,7 +16,8 @@ export default class AccountCredentials extends React.Component {
       pass: '',
     };
     this.unsubscribes = [];
-    this.handleDelete = () => {
+    this.handleDelete = (event) => {
+      event.preventDefault();
       if (window.confirm('Delete account? This cannot be undone.')) {
         fireapp.auth().currentUser.delete();
         // TODO delete quotes n such
