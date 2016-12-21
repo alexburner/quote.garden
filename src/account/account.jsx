@@ -26,7 +26,7 @@ export default class Account extends React.Component {
   }
 
   componentWillUnmount() {
-    this.unsubscribes.forEach((unsubscribe) => unsubscribe());
+    this.unsubscribes.forEach((fn) => fn());
   }
 
   render() {

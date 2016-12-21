@@ -19,12 +19,18 @@ export default class QuoteForm extends React.Component {
     ;
     this.handleSubmit = (event) => {
       event.preventDefault();
-      this.setState({isSubmitting: true});
+      const words = this.state.words.trim();
+      const source = this.state.source.trim();
+      this.setState({
+        words: words,
+        source: source,
+        isSubmitting: true,
+      });
       if (props.quote) {
         // Update existing quote
         quoteRef.set({
-          words: this.state.words.trim(),
-          source: this.state.source.trim(),
+          words: words,
+          source: source,
         }).catch((err) => {
           console.error('Update error', err);
           alert(err.message);
@@ -34,8 +40,8 @@ export default class QuoteForm extends React.Component {
       } else {
         // Create new quote
         quoteRef.push().set({
-          words: this.state.words.trim(),
-          source: this.state.source.trim(),
+          words: words,
+          source: source,
         }).then(() => this.setState({
           words: '',
           source: '',
