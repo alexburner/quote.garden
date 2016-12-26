@@ -23,7 +23,13 @@ export default class Register extends React.Component {
       fireapp.auth().createUserWithEmailAndPassword(
         this.state.email,
         this.state.pass
-      ).catch((err) => {
+      ).then(user => {
+        if (!user) throw new Error('Something went wrong.');
+        return user.updateProfile({displayName: user.uid}).then(
+          hi => console.log('hi', hi),
+          by => console.log('by', by)
+        );
+      }).catch((err) => {
         console.error('Register error', err);
         alert(err.message);
       }).then(() => this.setState({

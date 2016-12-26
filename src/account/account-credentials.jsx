@@ -10,9 +10,9 @@ export default class AccountCredentials extends React.Component {
     const user = fireapp.auth().currentUser;
     this.state = {
       user: user,
-      new_email: user.email,
-      new_pass: '',
-      new_rpass: '',
+      newEmail: user.email,
+      newPass: '',
+      newRpass: '',
       pass: '',
     };
     this.unsubscribes = [];
@@ -50,7 +50,7 @@ export default class AccountCredentials extends React.Component {
             <input
               id="new_email"
               type="email"
-              value={this.state.new_email}
+              value={this.state.newEmail}
             />
           </div>
         </div>
@@ -64,7 +64,7 @@ export default class AccountCredentials extends React.Component {
             <input
               id="new_pass"
               type="password"
-              value={this.state.new_pass}
+              value={this.state.newPass}
             />
           </div>
         </div>
@@ -78,7 +78,7 @@ export default class AccountCredentials extends React.Component {
             <input
               id="new_rpass"
               type="password"
-              value={this.state.new_rpass}
+              value={this.state.newRpass}
             />
           </div>
         </div>

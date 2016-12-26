@@ -10,7 +10,7 @@ export default class Account extends React.Component {
     const user = fireapp.auth().currentUser;
     this.state = {
       user: user,
-      new_url_id: '',
+      newDisplayName: user.displayName,
     };
     this.unsubscribes = [];
   }
@@ -32,16 +32,19 @@ export default class Account extends React.Component {
       <form onSubmit={this.handleSubmit}>
         <div className="row form-group">
           <div className="col col-sm-3">
-            <label className="label-inline" htmlFor="new_url_id">
+            <label className="label-inline" htmlFor="new_display_name">
               Update URL ID:
             </label>
           </div>
           <div className="col col-sm-9">
             <input
-              id="new_url_id"
+              id="new_display_name"
               type="text"
-              value={this.state.new_url_id}
+              value={this.state.newDisplayName}
             />
+            <div className="url-example text-wrap">
+              {`http://quote.garden/random/#u=${this.state.newDisplayName}`}
+            </div>
           </div>
         </div>
         <div className="form-group text-right">
