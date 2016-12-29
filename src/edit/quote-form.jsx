@@ -32,7 +32,7 @@ export default class QuoteForm extends React.Component {
           words: words,
           source: source,
         }).catch((err) => {
-          console.error('Update error', err);
+          console.error('Update error:', err);
           alert(err.message);
         }).then(() => this.setState({
           isSubmitting: false
@@ -46,7 +46,7 @@ export default class QuoteForm extends React.Component {
           words: '',
           source: '',
         })).catch((err) => {
-          console.error('Create error', err);
+          console.error('Create error:', err);
           alert(err.message);
         }).then(() => this.setState({
           isSubmitting: false
@@ -57,7 +57,7 @@ export default class QuoteForm extends React.Component {
       event.preventDefault();
       if (window.confirm('Delete quote? This cannot be undone.')) {
         quoteRef.remove().catch((err) => {
-          console.error('Delete error', err);
+          console.error('Delete error:', err);
           alert(err.message);
         });
       }

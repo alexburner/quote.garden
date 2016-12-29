@@ -4,13 +4,13 @@ import fireapp from 'shared/fireapp.jsx';
 
 import TopNav from 'shared/top-nav.jsx';
 
-export default class Account extends React.Component {
+export default class EditProfile extends React.Component {
   constructor() {
     super();
     const user = fireapp.auth().currentUser;
     this.state = {
       user: user,
-      newDisplayName: user.displayName,
+      newDisplayName: user.displayName || '',
     };
     this.unsubscribes = [];
   }
@@ -18,7 +18,13 @@ export default class Account extends React.Component {
   componentDidMount() {
     this.unsubscribes.push(
       fireapp.auth().onAuthStateChanged((user) => {
-        this.setState({user: user});
+
+        console.log('componentDidMount', user.displayName);
+
+        this.setState({
+          user: user,
+          newDisplayName: user.displayName || '',
+        });
       })
     );
   }
@@ -28,6 +34,9 @@ export default class Account extends React.Component {
   }
 
   render() {
+
+    console.log('render', this.state.newDisplayName);
+
     return (
       <form onSubmit={this.handleSubmit}>
         <div className="row form-group">
@@ -42,8 +51,11 @@ export default class Account extends React.Component {
               type="text"
               value={this.state.newDisplayName}
             />
-            <div className="url-example text-wrap">
-              {`http://quote.garden/random/#u=${this.state.newDisplayName}`}
+            <div className="text-small text-wrap">
+              <span className="text-muted">
+                http://quote.garden/random/#u=
+              </span>
+              {this.state.newDisplayName}
             </div>
           </div>
         </div>

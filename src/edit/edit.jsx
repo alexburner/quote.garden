@@ -11,9 +11,9 @@ export default class Edit extends React.Component {
     return (
       <div className="container">
         <TopNav />
-        <h1>Add new quote</h1>
+        <h1>Create new</h1>
         <QuoteForm />
-        <h1>Edit existing quotes</h1>
+        <h1>Edit existing</h1>
         <QuoteForms />
       </div>
     );

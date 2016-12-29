@@ -4,9 +4,9 @@ import ReactDOM from 'react-dom';
 
 import fireapp from 'shared/fireapp.jsx';
 
-import Account from 'account/account.jsx';
+import Edit from 'account/edit.jsx';
 import Loading from 'shared/loading.jsx';
-import LoginRegister from 'account/login-register.jsx';
+import Auth from 'account/auth.jsx';
 
 class App extends React.Component {
   constructor() {
@@ -37,8 +37,8 @@ class App extends React.Component {
     return !this.state.userLoaded ?
       <Loading /> :
       this.state.user ?
-        <Account /> :
-        <LoginRegister />
+        <Edit /> :
+        <Auth />
     ;
   }
 }

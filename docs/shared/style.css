@@ -22,7 +22,8 @@ form {
   padding: 1em 1em 0.1em;
 }
 
-form .btn {
+form .btn,
+.controls .btn {
   margin-right: 0.5em;
 }
 
@@ -73,10 +74,12 @@ form .fa-spin {
   word-break: break-word;
 }
 
-/* hacks */
-.url-example {
+.text-muted {
   color: #777;
+}
+
+.text-small {
   font-size: 13px;
   line-height: 1.3em;
-  margin: 5px 10px;
+  margin: 5px;
 }

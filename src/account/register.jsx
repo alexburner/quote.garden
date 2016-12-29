@@ -25,16 +25,17 @@ export default class Register extends React.Component {
         this.state.pass
       ).then(user => {
         if (!user) throw new Error('Something went wrong.');
-        return user.updateProfile({displayName: user.uid}).then(
-          hi => console.log('hi', hi),
-          by => console.log('by', by)
-        );
+
+        console.log('set displayName', user.uid);
+
+        return user.updateProfile({displayName: user.uid});
       }).catch((err) => {
-        console.error('Register error', err);
+        console.error('Register error:', err);
         alert(err.message);
-      }).then(() => this.setState({
-        isSubmitting: false
-      }));
+        this.setState({
+          isSubmitting: false
+        });
+      });
     };
   }
 

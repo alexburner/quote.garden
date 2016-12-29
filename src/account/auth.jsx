@@ -3,7 +3,7 @@ import React from 'react';
 import Login from 'account/login.jsx';
 import Register from 'account/register.jsx';
 
-export default class LoginRegister extends React.Component {
+export default class Auth extends React.Component {
   render() {
     return (
       <div className="container">

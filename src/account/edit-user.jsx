@@ -4,7 +4,7 @@ import fireapp from 'shared/fireapp.jsx';
 
 import TopNav from 'shared/top-nav.jsx';
 
-export default class AccountCredentials extends React.Component {
+export default class EditUser extends React.Component {
   constructor() {
     super();
     const user = fireapp.auth().currentUser;
@@ -16,13 +16,6 @@ export default class AccountCredentials extends React.Component {
       pass: '',
     };
     this.unsubscribes = [];
-    this.handleDelete = (event) => {
-      event.preventDefault();
-      if (window.confirm('Delete account? This cannot be undone.')) {
-        fireapp.auth().currentUser.delete();
-        // TODO delete quotes n such
-      }
-    };
   }
 
   componentDidMount() {
@@ -102,10 +95,6 @@ export default class AccountCredentials extends React.Component {
             type="submit"
             value="Save Changes"
           />
-          <button
-            className="btn btn-red"
-            onClick={this.handleDelete}
-          >Delete Account</button>
         </div>
       </form>
     );

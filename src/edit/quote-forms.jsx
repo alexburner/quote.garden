@@ -48,7 +48,9 @@ export default class QuoteForms extends React.Component {
               this.state.quotes.map((quote) => (
                 <QuoteForm key={quote.key} quote={quote} />
               )) :
-              <small>No quotes exist yet :(</small>
+              <small className="text-small text-muted">
+                No quotes yet, create one!
+              </small>
         }
       </div>
     );
