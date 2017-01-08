@@ -26,6 +26,7 @@ module.exports = {
     // this is where individual built chunks live
     filename: 'docs/[name]/bundle.js'
   },
+  devtool: 'module-source-map',
   plugins: [
     new webpack.DefinePlugin({
       'process.env': {'NODE_ENV': JSON.stringify(process.env.NODE_ENV)}
@@ -39,7 +40,6 @@ module.exports = {
       // this tells uglify to stfu about react
       compress: {warnings: false},
     }),
-    new webpack.SourceMapDevToolPlugin(),
   ],
   module: {
     loaders: [
