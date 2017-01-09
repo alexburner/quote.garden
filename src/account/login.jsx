@@ -14,6 +14,12 @@ export default class Login extends React.Component {
     this.handlePass = (event) => this.setState({pass: event.target.value});
     this.handleSubmit = (event) => {
       event.preventDefault();
+      if (!this.state.email.length) {
+        return alert('Error: email is required.');
+      }
+      if (!this.state.pass.length) {
+        return alert('Error: password is required.');
+      }
       this.setState({isSubmitting: true});
       fireapp.auth().signInWithEmailAndPassword(
         this.state.email,

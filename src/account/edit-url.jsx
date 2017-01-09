@@ -28,18 +28,18 @@ export default class EditUrl extends React.Component {
       const newUrlId = this.state.newUrlId.trim();
 
       if (newUrlId === oldUrlId) {
-        alert('This is already your URL name.');
+        alert('No changes to save.');
         return;
       }
 
       if (!newUrlId) {
-        alert('URL name must have some value.');
+        alert('Error: URL name must have some value.');
         this.setState({newUrlId: this.state.urlId});
         return;
       }
 
       if ((/[^0-9a-z\+\-\_\.]+/ig).test(newUrlId)) {
-        alert('URL name can only contain alphanumeric + - _ .');
+        alert('Error: URL name can only contain alphanumeric + - _ .');
         this.setState({newUrlId: this.state.urlId});
         return;
       }
@@ -72,7 +72,7 @@ export default class EditUrl extends React.Component {
 
         this.profileRef.update({urlId: newUrlId})
           .then(() => {
-            this.setState({statusMessage: 'Changes saved'});
+            this.setState({statusMessage: 'Changes saved!'});
             setTimeout(() => this.setState({statusMessage: ''}), 1500);
           })
           .catch(err => alert(err.message))

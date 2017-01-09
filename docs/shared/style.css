@@ -42,6 +42,11 @@ form .fa-spin {
   color: #444;
 }
 
+hr {
+  border-style: dashed;
+  margin-bottom: 1em;
+}
+
 .btn {
   border: 1px solid transparent;
   font-size: 14px;

@@ -16,10 +16,16 @@ export default class Register extends React.Component {
     this.handleRpass = (event) => this.setState({rpass: event.target.value});
     this.handleSubmit = (event) => {
       event.preventDefault();
-      this.setState({isSubmitting: true});
-      if (this.state.pass !== this.state.rpass) {
-        return alert('Error: passwords do not match');
+      if (!this.state.email.length) {
+        return alert('Error: email is required.');
       }
+      if (!this.state.pass.length) {
+        return alert('Error: password is required.');
+      }
+      if (this.state.pass !== this.state.rpass) {
+        return alert('Error: passwords do not match.');
+      }
+      this.setState({isSubmitting: true});
       fireapp.auth().createUserWithEmailAndPassword(
         this.state.email,
         this.state.pass
