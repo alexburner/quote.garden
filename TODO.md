@@ -34,3 +34,8 @@
 - forgot password link
 
 - short id / inc id for quotes
+
+
+# TODO (selfish)
+
+- migrate old mysql quotes to firebase somehow
