@@ -16,6 +16,18 @@ export default class EditUser extends React.Component {
       pass: '',
     };
     this.unsubscribes = [];
+    this.handleNewEmail = (event) => {
+      this.setState({newEmail: event.target.value});
+    };
+    this.handleNewPass = (event) => {
+      this.setState({newPass: event.target.value});
+    };
+    this.handleNewRpass = (event) => {
+      this.setState({newRpass: event.target.value});
+    };
+    this.handlePass = (event) => {
+      this.setState({pass: event.target.value});
+    };
   }
 
   componentDidMount() {
@@ -44,6 +56,7 @@ export default class EditUser extends React.Component {
               id="new_email"
               type="email"
               value={this.state.newEmail}
+              onChange={this.handleNewEmail}
             />
           </div>
         </div>
@@ -58,37 +71,47 @@ export default class EditUser extends React.Component {
               id="new_pass"
               type="password"
               value={this.state.newPass}
+              onChange={this.handleNewPass}
             />
           </div>
         </div>
-        <div className="row form-group">
-          <div className="col col-sm-3">
-            <label className="label-inline" htmlFor="new_rpass">
-              Repeat password:
-            </label>
+        {this.state.newPass && this.state.newPass.length &&
+          <div className="row form-group">
+            <div className="col col-sm-3">
+              <label className="label-inline" htmlFor="new_rpass">
+                Repeat password:
+              </label>
+            </div>
+            <div className="col col-sm-9">
+              <input
+                id="new_rpass"
+                type="password"
+                value={this.state.newRpass}
+                onChange={this.handleNewRpass}
+              />
+            </div>
           </div>
-          <div className="col col-sm-9">
-            <input
-              id="new_rpass"
-              type="password"
-              value={this.state.newRpass}
-            />
+        }
+        {(
+          this.state.newEmail !== this.state.user.email ||
+          this.state.newPass && this.state.newPass.length
+        ) &&
+          <div className="row form-group">
+            <div className="col col-sm-3">
+              <label className="label-inline" htmlFor="pass">
+                Current password:
+              </label>
+            </div>
+            <div className="col col-sm-9">
+              <input
+                id="pass"
+                type="password"
+                value={this.state.pass}
+                onChange={this.handlePass}
+              />
+            </div>
           </div>
-        </div>
-        <div className="row form-group">
-          <div className="col col-sm-3">
-            <label className="label-inline" htmlFor="pass">
-              Current password:
-            </label>
-          </div>
-          <div className="col col-sm-9">
-            <input
-              id="pass"
-              type="password"
-              value={this.state.pass}
-            />
-          </div>
-        </div>
+        }
         <div className="form-group text-right">
           <input
             className="btn"

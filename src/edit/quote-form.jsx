@@ -12,8 +12,8 @@ export default class QuoteForm extends React.Component {
     };
     this.handleWords = (event) => this.setState({words: event.target.value});
     this.handleSource = (event) => this.setState({source: event.target.value});
-    let userId = fireapp.auth().currentUser.uid;
-    let quoteRef = props.quote ?
+    const userId = fireapp.auth().currentUser.uid;
+    const quoteRef = props.quote ?
       fireapp.database().ref(`quotes/${userId}/${props.quote.key}`) :
       fireapp.database().ref(`quotes/${userId}`)
     ;
@@ -32,7 +32,6 @@ export default class QuoteForm extends React.Component {
           words: words,
           source: source,
         }).catch((err) => {
-          console.error('Update error:', err);
           alert(err.message);
         }).then(() => this.setState({
           isSubmitting: false
@@ -46,7 +45,6 @@ export default class QuoteForm extends React.Component {
           words: '',
           source: '',
         })).catch((err) => {
-          console.error('Create error:', err);
           alert(err.message);
         }).then(() => this.setState({
           isSubmitting: false
@@ -57,7 +55,6 @@ export default class QuoteForm extends React.Component {
       event.preventDefault();
       if (window.confirm('Delete quote? This cannot be undone.')) {
         quoteRef.remove().catch((err) => {
-          console.error('Delete error:', err);
           alert(err.message);
         });
       }

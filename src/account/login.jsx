@@ -19,8 +19,8 @@ export default class Login extends React.Component {
         this.state.email,
         this.state.pass
       ).catch((err) => {
-        console.error('Login error:', err);
         alert(err.message);
+      }).then(() => {
         this.setState({
           isSubmitting: false
         });

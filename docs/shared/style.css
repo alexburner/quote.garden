@@ -43,15 +43,21 @@ form .fa-spin {
 }
 
 .btn {
+  border: 1px solid transparent;
   font-size: 14px;
 }
 
-.btn-red {
+.btn:focus {
+  background-color: #0275d8;
+  border-color: #333;
+}
+
+.btn-red,
+.btn-red:focus {
   background-color: #e63a3a;
 }
 
 .btn-red:hover,
-.btn-red:focus,
 .btn-red:active {
   background-color: #d21b1b;
 }

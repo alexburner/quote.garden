@@ -13,7 +13,7 @@ export default class QuoteForms extends React.Component {
       quotes: [],
     };
     this.unsubscribes = [];
-    let userId = fireapp.auth().currentUser.uid;
+    const userId = fireapp.auth().currentUser.uid;
     this.quotesRef = fireapp.database().ref('quotes/' + userId);
   }
 
