@@ -1,5 +1,7 @@
 # TODO
 
+- rename "random" to "shuffle"
+
 - form validation errors
 
 - one app w/ routes instead of frankenstein
