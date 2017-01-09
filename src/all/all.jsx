@@ -3,7 +3,7 @@ import React from 'react';
 import fireapp from 'shared/fireapp.jsx';
 
 import Loading from 'shared/loading.jsx';
-import QuoteForm from 'edit/quote-form.jsx';
+import TopNav from 'shared/top-nav.jsx';
 
 export default class QuoteForms extends React.Component {
   constructor(props) {
@@ -39,20 +39,25 @@ export default class QuoteForms extends React.Component {
 
   render() {
     return (
-      <div>
+      <div className="all">
+        <TopNav user={this.props.user} />
         {!this.state.quotesLoaded ?
           <Loading /> :
-          this.state.quotes.length ?
-            this.state.quotes.map((quote) => (
-              <QuoteForm
-                key={quote.key}
-                quote={quote}
-                user={this.props.user}
-              />
-            )) :
+          !this.state.quotes.length ?
             <small className="text-small text-muted">
               No quotes yet, create one!
-            </small>
+            </small> :
+            <div className="quotes">
+              {this.state.quotes.map((quote) => (
+                <div
+                  className="quote"
+                  key={quote.key}
+                >
+                  <h1>{quote.words}</h1>
+                  <h3>{quote.source}</h3>
+                </div>
+              ))}
+            </div>
         }
       </div>
     );

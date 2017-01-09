@@ -94,3 +94,32 @@ hr {
   line-height: 1.3em;
   margin: 5px;
 }
+
+/**
+ * Page-specific hacks!
+ */
+
+.all {
+  padding: 0 15px;
+}
+
+.all .quotes {
+  padding: 48px 12% 128px;
+}
+
+.all .quote {
+  color: black;
+  font-family: Times, sans-serif;
+  margin-bottom: 96px;
+  -webkit-font-smoothing: auto; /* unset Baseguide */
+  -moz-osx-font-smoothing: auto; /* unset Baseguide */
+}
+
+.all .quote h1 {
+  font-size: 32px;
+}
+
+.all .quote h3 {
+  font-size: 18.72px;
+  font-weight: normal;
+}

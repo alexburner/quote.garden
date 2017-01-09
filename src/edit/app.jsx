@@ -23,7 +23,7 @@ class App extends React.Component {
         this.setState({
           userLoaded: true,
           user: user,
-        })
+        });
       })
     );
   }
@@ -35,13 +35,13 @@ class App extends React.Component {
   render() {
     return !this.state.userLoaded ?
       <Loading /> :
-      this.state.user ?
-        <Edit user={this.state.user} /> :
+      !this.state.user ?
         <p>
           You must&nbsp;
           <a href="/account">Login or Register</a>
           &nbsp;to use this page
-        </p>
+        </p> :
+        <Edit user={this.state.user} />
     ;
   }
 }

@@ -1,38 +1,36 @@
-# TODO
+# TODO (mvp)
 
 - rename "random" to "shuffle"
 
-- form validation errors
-
 - one app w/ routes instead of frankenstein
 
-- "all" view (+urlId)
-
-- "shuffle" view (+urlId +quoteId)
+- "shuffle" view (+quoteId)
 
 - "home" view
 
-- default user for home + unauthed all & shuffle
+- urlId in route to specify user
+    - if no find, authed
+    - if no authed, default
 
 
 ## URL route proposal:
 
 - quote.garden/#/${urlId}/${viewName}/${quoteId}
-
-- ex: quote.garden/#/cheeeese/all
+    - ex: quote.garden/#/cheeeese/shuffle/348
 
 - redirect: quote.garden/#/cheeeese >>> quote.garden/#/cheeeese/shuffle
 
-- redirect: quote.garden/#/all >>> quote.garden/#/default/all
+- redirect: quote.garden/#/all
+    - AUTHED >>> quote.garden/#/cheeeese/all
+    - NOAUTH >>> quote.garden/#/default/all
 
 
+# TODO (deluxe)
 
-#### HMMM orrrr
+- form validation errors
 
-- quote.garden/#/${viewName}/${urlId}/${quoteId}
+- email verification
 
-- ex: quote.garden/#/all/cheeeese
+- forgot password link
 
-- redirect: quote.garden/#/cheeeese >>> quote.garden/#/shuffle/cheeeese
-
-- redirect: quote.garden/#/all >>> quote.garden/#/all/default
+- short id / inc id for quotes
