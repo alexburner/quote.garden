@@ -37,7 +37,7 @@ class App extends React.Component {
     return !this.state.userLoaded ?
       <Loading /> :
       this.state.user ?
-        <Edit /> :
+        <Edit user={this.state.user} /> :
         <Auth />
     ;
   }

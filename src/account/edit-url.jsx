@@ -6,20 +6,17 @@ import Loading from 'shared/loading.jsx';
 import TopNav from 'shared/top-nav.jsx';
 
 export default class EditUrl extends React.Component {
-  constructor() {
-    super();
-    const user = fireapp.auth().currentUser;
+  constructor(props) {
+    super(props);
     this.state = {
       isFetching: true,
       isSubmitting: false,
       statusMessage: '',
-      user: user,
       urlId: '',
       newUrlId: '',
     };
     this.unsubscribes = [];
-    const userId = fireapp.auth().currentUser.uid;
-    this.profileRef = fireapp.database().ref('profiles/' + userId);
+    this.profileRef = fireapp.database().ref('profiles/' + this.props.user.uid);
     this.handleUrlId = (event) => this.setState({newUrlId: event.target.value});
     this.handleSubmit = (event) => {
       event.preventDefault();
@@ -84,10 +81,8 @@ export default class EditUrl extends React.Component {
 
   componentDidMount() {
     this.unsubscribes.push(
-      fireapp.auth().onAuthStateChanged((user) => this.setState({user}))
-    );
-    this.unsubscribes.push(
       this.profileRef.on('value', (snapshot) => {
+        if (!snapshot) return;
         const profile = snapshot.val();
         this.setState({
           isFetching: false,

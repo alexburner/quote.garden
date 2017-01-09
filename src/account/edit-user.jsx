@@ -5,19 +5,16 @@ import {fireapp, firebase} from 'shared/fireapp.jsx';
 import TopNav from 'shared/top-nav.jsx';
 
 export default class EditUser extends React.Component {
-  constructor() {
-    super();
-    const user = fireapp.auth().currentUser;
+  constructor(props) {
+    super(props);
     this.state = {
       isSubmitting: false,
       statusMessage: '',
-      user: user,
-      newEmail: user.email,
+      newEmail: this.props.user.email,
       newPass: '',
       newRpass: '',
       pass: '',
     };
-    this.unsubscribes = [];
     this.handleNewEmail = (event) => {
       this.setState({newEmail: event.target.value});
     };
@@ -32,28 +29,35 @@ export default class EditUser extends React.Component {
     };
     this.handleSubmit = (event) => {
       event.preventDefault();
+      const user = this.props.user;
+      const newEmail = this.state.newEmail.trim();
+      const newPass = this.state.newPass;
+      const newRpass = this.state.newRpass;
+      const pass = this.state.pass;
       if (!this.hasChanges()) {
         return alert('No changes to save.');
       }
-      if (!this.state.pass.length) {
+      if (!pass.length) {
         return alert('Error: current password is required.');
       }
-      if (this.hasNewPass() && this.state.newPass !== this.state.newRpass) {
+      if (this.hasNewPass() && newPass !== newRpass) {
         return alert('Error: new passwords do not match.');
       }
       this.setState({isSubmitting: true});
       user.reauthenticate(
-        firebase.auth.EmailAuthProvider.credential(
-          user.email,
-          this.state.pass
-        )
+        firebase.auth.EmailAuthProvider.credential(user.email, pass)
       )
         .then(() => Promise.all([
-          this.hasNewEmail() ? user.updateEmail(this.state.newEmail) : null,
-          this.hasNewPass() ? user.updatePassword(this.state.newPass) : null,
+          this.hasNewEmail() ? user.updateEmail(newEmail) : null,
+          this.hasNewPass() ? user.updatePassword(newPass) : null,
         ]))
         .then(() => {
-          this.setState({pass: ''});
+          this.setState({
+            newEmail: newEmail,
+            newPass: '',
+            newRpass: '',
+            pass: ''
+          });
           this.setState({statusMessage: 'Changes saved!'});
           setTimeout(() => this.setState({statusMessage: ''}), 1500);
         })
@@ -66,7 +70,7 @@ export default class EditUser extends React.Component {
   hasNewEmail() {
     return (
       this.state.newEmail.length &&
-      this.state.newEmail !== this.state.user.email
+      this.state.newEmail !== this.props.user.email
     );
   }
 
@@ -76,18 +80,6 @@ export default class EditUser extends React.Component {
 
   hasChanges() {
     return this.hasNewEmail() || this.hasNewPass();
-  }
-
-  componentDidMount() {
-    this.unsubscribes.push(
-      fireapp.auth().onAuthStateChanged((user) => {
-        this.setState({user: user});
-      })
-    );
-  }
-
-  componentWillUnmount() {
-    this.unsubscribes.forEach((fn) => fn());
   }
 
   render() {

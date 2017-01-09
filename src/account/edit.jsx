@@ -7,29 +7,12 @@ import EditUrl from 'account/edit-url.jsx';
 import TopNav from 'shared/top-nav.jsx';
 
 export default class Edit extends React.Component {
-  constructor() {
-    super();
-    const user = fireapp.auth().currentUser;
-    this.state = {
-      user: user,
-    };
-    this.unsubscribes = [];
+  constructor(props) {
+    super(props);
     this.handleLogout = (event) => {
       event.preventDefault();
       fireapp.auth().signOut();
     }
-  }
-
-  componentDidMount() {
-    this.unsubscribes.push(
-      fireapp.auth().onAuthStateChanged((user) => {
-        this.setState({user: user});
-      })
-    );
-  }
-
-  componentWillUnmount() {
-    this.unsubscribes.forEach((fn) => fn());
   }
 
   render() {
@@ -43,8 +26,8 @@ export default class Edit extends React.Component {
         </div>
         <TopNav />
         <h1>Account</h1>
-        <EditUrl />
-        <EditUser />
+        <EditUrl user={this.props.user} />
+        <EditUser user={this.props.user} />
       </div>
     );
   }
