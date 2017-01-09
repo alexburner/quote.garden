@@ -24,7 +24,7 @@ export default class Edit extends React.Component {
             onClick={this.handleLogout}
           >Logout</button>
         </div>
-        <TopNav />
+        <TopNav user={this.props.user} />
         <h1>Account</h1>
         <EditUrl user={this.props.user} />
         <EditUser user={this.props.user} />

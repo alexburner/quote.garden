@@ -11,11 +11,11 @@ import Auth from 'account/auth.jsx';
 class App extends React.Component {
   constructor() {
     super();
+    this.unsubscribes = [];
     this.state = {
       userLoaded: false,
       user: fireapp.auth().currentUser,
     };
-    this.unsubscribes = [];
   }
 
   componentDidMount() {

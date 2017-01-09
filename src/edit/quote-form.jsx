@@ -12,7 +12,7 @@ export default class QuoteForm extends React.Component {
     };
     this.handleWords = (event) => this.setState({words: event.target.value});
     this.handleSource = (event) => this.setState({source: event.target.value});
-    const userId = fireapp.auth().currentUser.uid;
+    const userId = this.props.user.uid;
     const quoteRef = props.quote ?
       fireapp.database().ref(`quotes/${userId}/${props.quote.key}`) :
       fireapp.database().ref(`quotes/${userId}`)

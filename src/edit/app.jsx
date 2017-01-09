@@ -10,11 +10,11 @@ import Loading from 'shared/loading.jsx';
 class App extends React.Component {
   constructor() {
     super();
+    this.unsubscribes = [];
     this.state = {
       userLoaded: false,
       user: fireapp.auth().currentUser,
     };
-    this.unsubscribes = [];
   }
 
   componentDidMount() {
@@ -36,7 +36,7 @@ class App extends React.Component {
     return !this.state.userLoaded ?
       <Loading /> :
       this.state.user ?
-        <Edit /> :
+        <Edit user={this.state.user} /> :
         <p>
           You must&nbsp;
           <a href="/account">Login or Register</a>

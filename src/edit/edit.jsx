@@ -10,11 +10,11 @@ export default class Edit extends React.Component {
   render() {
     return (
       <div className="container">
-        <TopNav />
+        <TopNav user={this.props.user} />
         <h1>Create new</h1>
-        <QuoteForm />
+        <QuoteForm user={this.props.user} />
         <h1>Edit existing</h1>
-        <QuoteForms />
+        <QuoteForms user={this.props.user} />
       </div>
     );
   }

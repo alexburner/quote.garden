@@ -5,7 +5,7 @@ import fireapp from 'shared/fireapp.jsx';
 export default class TopNav extends React.Component {
   render() {
     const path = window.location.pathname;
-    const tuples = fireapp.auth().currentUser ?
+    const tuples = this.props.user ?
       [
         ['/random/', 'Random'],
         ['/all/', 'All'],

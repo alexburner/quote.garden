@@ -8,6 +8,7 @@ import TopNav from 'shared/top-nav.jsx';
 export default class EditUrl extends React.Component {
   constructor(props) {
     super(props);
+    this.unsubscribes = [];
     this.state = {
       isFetching: true,
       isSubmitting: false,
@@ -15,7 +16,6 @@ export default class EditUrl extends React.Component {
       urlId: '',
       newUrlId: '',
     };
-    this.unsubscribes = [];
     this.profileRef = fireapp.database().ref('profiles/' + this.props.user.uid);
     this.handleUrlId = (event) => this.setState({newUrlId: event.target.value});
     this.handleSubmit = (event) => {
