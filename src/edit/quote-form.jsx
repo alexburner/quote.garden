@@ -7,6 +7,7 @@ export default class QuoteForm extends React.Component {
     super(props);
     this.state = {
       isSubmitting: false,
+      statusMessage: '',
       words: props.quote ? props.quote.words : '',
       source: props.quote ? props.quote.source : '',
     };
@@ -25,30 +26,31 @@ export default class QuoteForm extends React.Component {
         words: words,
         source: source,
         isSubmitting: true,
+        statusMessage: '',
       });
       if (props.quote) {
         // Update existing quote
         quoteRef.set({
           words: words,
           source: source,
-        }).catch((err) => {
-          alert(err.message);
-        }).then(() => this.setState({
-          isSubmitting: false
-        }));
+        })
+          .then(() => {
+            this.setState({statusMessage: 'Changes saved!'});
+            setTimeout(() => this.setState({statusMessage: ''}), 1500);
+          })
+          .catch((err) => alert(err.message))
+          .then(() => this.setState({isSubmitting: false}))
+        ;
       } else {
         // Create new quote
         quoteRef.push().set({
           words: words,
           source: source,
-        }).then(() => this.setState({
-          words: '',
-          source: '',
-        })).catch((err) => {
-          alert(err.message);
-        }).then(() => this.setState({
-          isSubmitting: false
-        }));
+        })
+          .then(() => this.setState({words: '', source: ''}))
+          .catch((err) => alert(err.message))
+          .then(() => this.setState({isSubmitting: false}))
+        ;
       }
     };
     this.handleDelete = (event) => {
@@ -108,6 +110,9 @@ export default class QuoteForm extends React.Component {
             this.state.isSubmitting &&
             <i className="fa fa-refresh fa-spin"></i>
           }
+          <span className="text-small text-muted">
+            {this.state.statusMessage}
+          </span>
         </div>
       </form>
     );
