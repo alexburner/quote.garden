@@ -13,28 +13,16 @@ module.exports = {
       path.resolve('./src')
     ]
   },
-  entry: {
-    // these are where webpack looks
-    // for dependency trees to build
-    account: './src/account/app.jsx',
-    all: './src/all/app.jsx',
-    edit: './src/edit/app.jsx',
-    index: './src/index/app.jsx',
-    random: './src/random/app.jsx',
-  },
+  entry: './src/app.jsx',
   output: {
-    // this is where individual built chunks live
-    filename: 'docs/[name]/bundle.js'
+    path: './docs',
+    filename: 'bundle.js',
   },
   devtool: 'module-source-map',
   plugins: [
     new webpack.DefinePlugin({
       'process.env': {'NODE_ENV': JSON.stringify(process.env.NODE_ENV)}
     }),
-    new webpack.optimize.CommonsChunkPlugin(
-      // this is where the common built chunk lives
-      'docs/shared/bundle.js'
-    ),
     new webpack.optimize.DedupePlugin(),
     new webpack.optimize.UglifyJsPlugin({
       // this tells uglify to stfu about react
