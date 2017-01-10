@@ -18,14 +18,15 @@ export default class Edit extends React.Component {
   render() {
     return (
       <div className="container">
-        <div className="controls pull-left">
+        <TopNav user={this.props.user} />
+        <h1>
+          Account
+          &thinsp;
           <button
-            className="btn pull-left"
+            className="btn"
             onClick={this.handleLogout}
           >Logout</button>
-        </div>
-        <TopNav user={this.props.user} />
-        <h1>Account</h1>
+        </h1>
         <EditUrl user={this.props.user} />
         <EditUser user={this.props.user} />
       </div>
