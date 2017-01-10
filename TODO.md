@@ -35,6 +35,8 @@
 
 - short id / inc id for quotes
 
+- redirect /thing to /#/thing (using cloudflare https://support.cloudflare.com/hc/en-us/articles/200172286-How-do-I-perform-URL-forwarding-or-redirects-with-CloudFlare-)
+
 
 # TODO (selfish)
 
