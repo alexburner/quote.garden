@@ -1,22 +1,23 @@
 {
   "rules": {
-        "quotes": {
+    "quotes": {
       ".read": true,
       "$user_id": {
         ".write": "$user_id === auth.uid",
         "$quote_id": {
-            ".validate": "
-              newData.child('words').val().length > 0 &&
-              newData.child('source').val().length > 0
-            "
+          ".validate": "
+            newData.child('words').val().length > 0 &&
+            newData.child('source').val().length > 0
+          "
         }
       }
     },
     "profiles": {
+      ".indexOn": "urlId",
       ".read": true,
       "$user_id": {
         ".write": "$user_id === auth.uid",
       }
-    },
+    }
   }
 }

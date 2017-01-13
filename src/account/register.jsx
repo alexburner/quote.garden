@@ -34,6 +34,7 @@ export default class Register extends React.Component {
           if (!user) throw new Error('Something went wrong.');
           return fireapp.database().ref('profiles/' + user.uid).set({
             urlId: user.uid,
+            userId: user.uid,
           });
         })
         .catch((err) => alert(err.message))
