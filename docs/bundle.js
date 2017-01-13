@@ -121,9 +121,9 @@
 
 	      //
 	      // hash possibilities:
-	      //                                      >>>
-	      //  #                                   >>>
-	      //  #/                                  >>>
+	      //                                      >>> #/
+	      //  #                                   >>> #/
+	      //  #/                                  >>> #/
 	      //  #$thing                             >>> #/$thing
 	      //  #$/thing/                           >>> #/$thing
 	      //  #/$unknown                          >>> #/$unknown (but render 404)
@@ -143,11 +143,21 @@
 	      //  shuffle
 	      //
 
+	      var href = window.location.href;
 	      var hash = window.location.hash;
 	      var parts = hash.split('/');
 
 	      if (!hash.length || !parts.length) {
 	        // HASH =
+	        // HASH = #
+	        // incomplete hash, reload with #/
+	        return window.location.replace('#/');
+	      } else if (parts[0] !== '#') {
+	        // HASH = #thing
+	        // malformed hash, reload with first / inserted
+	        return window.location.replace('#/' + hash.slice(1));
+	      } else if (parts.length === 2 && !parts[1].length) {
+	        // HASH = #/
 	        // no route set, go home with default user
 	        return queries.getDefaultUserId().then(function (userId) {
 	          return _this2.setState({
@@ -156,23 +166,14 @@
 	            viewUserId: userId
 	          });
 	        });
-	      } else if (parts.length === 1 && parts[0] === '#') {
-	        // HASH = #
-	        // HASH = #/
-	        // almost no route set, reload empty
-	        return window.location.hash = '';
-	      } else if (parts[0] !== '#') {
-	        // HASH = #thing
-	        // malformed hash, reload with first / inserted
-	        return window.location.hash = '#/' + hash.slice(1);
 	      } else if (!parts[parts.length - 1].length) {
 	        // HASH = #/thing/
 	        // trailing slash, strip it out so we can trust all parts
-	        return window.location.hash = hash.slice(0, hash.length - 2);
+	        return window.location.replace(hash.slice(0, -1));
 	      } else if (constants.VIEW_NAMES[parts[1]]) {
 	        // HASH = #/$viewName
 	        // first part is a view name, reload with default user
-	        return window.location.hash = '#/default' + hash.slice(1);
+	        return window.location.replace('#/default' + hash.slice(1));
 	      } else {
 	        // HASH = #/$profile.urlId
 	        // first part must be a user's profile.urlId (or an error)
@@ -198,7 +199,7 @@
 	          } else if (parts.length === 2) {
 	            // HASH = #/$profile.urlId
 	            // first part is good user, but no view, reload with shuffle
-	            return window.location.hash = '#/' + parts[1] + '/shuffle';
+	            return window.location.replace('#/' + parts[1] + '/shuffle');
 	          } else {
 	            // HASH = #/$profile.urlId/$viewName
 	            // HASH = #/$profile.urlId/$viewName/$quoteId
@@ -248,19 +249,34 @@
 	            'div',
 	            null,
 	            _react2.default.createElement(
-	              'p',
+	              'div',
 	              null,
-	              this.state.viewName
+	              _react2.default.createElement(
+	                'code',
+	                null,
+	                'this.state.viewName = ',
+	                this.state.viewName
+	              )
 	            ),
 	            _react2.default.createElement(
-	              'p',
+	              'div',
 	              null,
-	              this.state.viewQuoteId
+	              _react2.default.createElement(
+	                'code',
+	                null,
+	                'this.state.viewQuoteId = ',
+	                this.state.viewQuoteId
+	              )
 	            ),
 	            _react2.default.createElement(
-	              'p',
+	              'div',
 	              null,
-	              this.state.viewUserId
+	              _react2.default.createElement(
+	                'code',
+	                null,
+	                'this.state.viewUserId = ',
+	                this.state.viewUserId
+	              )
 	            )
 	          );
 	      }
@@ -30081,8 +30097,6 @@
 	    edit: true,
 	    shuffle: true
 	};
-
-	var RESERVED_USERS = exports.RESERVED_USERS = Object.assign({ default: true }, VIEW_NAMES);
 
 /***/ },
 /* 473 */

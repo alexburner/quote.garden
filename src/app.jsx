@@ -31,9 +31,9 @@ class App extends React.Component {
 
     //
     // hash possibilities:
-    //                                      >>>
-    //  #                                   >>>
-    //  #/                                  >>>
+    //                                      >>> #/
+    //  #                                   >>> #/
+    //  #/                                  >>> #/
     //  #$thing                             >>> #/$thing
     //  #$/thing/                           >>> #/$thing
     //  #/$unknown                          >>> #/$unknown (but render 404)
@@ -53,11 +53,25 @@ class App extends React.Component {
     //  shuffle
     //
 
+    const href = window.location.href;
     const hash = window.location.hash;
     const parts = hash.split('/');
 
     if (!hash.length || !parts.length) {
       // HASH =
+      // HASH = #
+      // incomplete hash, reload with #/
+      return window.location.replace('#/');
+    }
+
+    else if (parts[0] !== '#') {
+      // HASH = #thing
+      // malformed hash, reload with first / inserted
+      return window.location.replace('#/' + hash.slice(1));
+    }
+
+    else if (parts.length === 2 && !parts[1].length) {
+      // HASH = #/
       // no route set, go home with default user
       return queries.getDefaultUserId().then(
         (userId) => this.setState({
@@ -68,29 +82,16 @@ class App extends React.Component {
       );
     }
 
-    else if (parts.length === 1 && parts[0] === '#') {
-      // HASH = #
-      // HASH = #/
-      // almost no route set, reload empty
-      return window.location.hash = '';
-    }
-
-    else if (parts[0] !== '#') {
-      // HASH = #thing
-      // malformed hash, reload with first / inserted
-      return window.location.hash = '#/' + hash.slice(1);
-    }
-
     else if (!parts[parts.length - 1].length) {
       // HASH = #/thing/
       // trailing slash, strip it out so we can trust all parts
-      return window.location.hash = hash.slice(0, hash.length - 2);
+      return window.location.replace(hash.slice(0, -1));
     }
 
     else if (constants.VIEW_NAMES[parts[1]]) {
       // HASH = #/$viewName
       // first part is a view name, reload with default user
-      return window.location.hash = '#/default' + hash.slice(1);
+      return window.location.replace('#/default' + hash.slice(1));
     }
 
     else {
@@ -120,7 +121,7 @@ class App extends React.Component {
         else if (parts.length === 2) {
           // HASH = #/$profile.urlId
           // first part is good user, but no view, reload with shuffle
-          return window.location.hash = '#/' + parts[1] + '/shuffle';
+          return window.location.replace('#/' + parts[1] + '/shuffle');
         }
         else {
           // HASH = #/$profile.urlId/$viewName
@@ -167,9 +168,9 @@ class App extends React.Component {
     switch (this.state.viewName) {
       default: return (
         <div>
-          <p>{this.state.viewName}</p>
-          <p>{this.state.viewQuoteId}</p>
-          <p>{this.state.viewUserId}</p>
+          <div><code>this.state.viewName = {this.state.viewName}</code></div>
+          <div><code>this.state.viewQuoteId = {this.state.viewQuoteId}</code></div>
+          <div><code>this.state.viewUserId = {this.state.viewUserId}</code></div>
         </div>
       );
     }
