@@ -10,9 +10,10 @@ export const getUserIdByUrlId = (urlId) => {
       .ref('profiles')
       .orderByChild('urlId')
       .equalTo(urlId)
-      .once('value', (snapshot) => resolve(
-        snapshot && snapshot.val() ? snapshot.val().userId : null
-      ))
+      .once('value', (snapshot) => {
+        if (!snapshot || !snapshot.val()) resolve(null);
+        else snapshot.forEach((snapshot) => resolve(snapshot.key));
+      })
   );
 };
 

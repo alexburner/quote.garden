@@ -35,6 +35,7 @@ class App extends React.Component {
     //  #                                   >>>
     //  #/                                  >>>
     //  #$thing                             >>> #/$thing
+    //  #$/thing/                           >>> #/$thing
     //  #/$unknown                          >>> #/$unknown (but render 404)
     //  #/$viewName                         >>> #/default/$viewName
     //  #/$profile.urlId                    >>> #/$profile.urlId/shuffle
@@ -56,6 +57,7 @@ class App extends React.Component {
     const parts = hash.split('/');
 
     if (!hash.length || !parts.length) {
+      // HASH =
       // no route set, go home with default user
       return queries.getDefaultUserId().then(
         (userId) => this.setState({
@@ -66,25 +68,37 @@ class App extends React.Component {
       );
     }
 
-    if (parts.length === 1 && parts[0] === '#') {
+    else if (parts.length === 1 && parts[0] === '#') {
+      // HASH = #
+      // HASH = #/
       // almost no route set, reload empty
       return window.location.hash = '';
     }
 
     else if (parts[0] !== '#') {
+      // HASH = #thing
       // malformed hash, reload with first / inserted
       return window.location.hash = '#/' + hash.slice(1);
     }
 
+    else if (!parts[parts.length - 1].length) {
+      // HASH = #/thing/
+      // trailing slash, strip it out so we can trust all parts
+      return window.location.hash = hash.slice(0, hash.length - 2);
+    }
+
     else if (constants.VIEW_NAMES[parts[1]]) {
+      // HASH = #/$viewName
       // first part is a view name, reload with default user
       return window.location.hash = '#/default' + hash.slice(1);
     }
 
     else {
+      // HASH = #/$profile.urlId
       // first part must be a user's profile.urlId (or an error)
       return queries.getUserIdByUrlId(parts[1]).then((userId) => {
         if (!userId) {
+          // HASH = #/$unknown
           // no user found, 404 with default user
           return queries.getDefaultUserId().then(
             (userId) => this.setState({
@@ -94,13 +108,31 @@ class App extends React.Component {
             })
           );
         }
-        // WE MADE IT !!!
-        return this.setState({
-          isLoaded: true,
-          viewName: parts[2] || 'shuffle',
-          viewQuoteId: parts[3] || null,
-          viewUserId: userId,
-        });
+        else if (parts[2] && !constants.VIEW_NAMES[parts[2]]) {
+          // HASH = #/$profile.urlId/$unknown
+          // unrecognized view, 404 with url user
+          return this.setState({
+            isLoaded: true,
+            viewName: '404',
+            viewUserId: userId
+          });
+        }
+        else if (parts.length === 2) {
+          // HASH = #/$profile.urlId
+          // first part is good user, but no view, reload with shuffle
+          return window.location.hash = '#/' + parts[1] + '/shuffle';
+        }
+        else {
+          // HASH = #/$profile.urlId/$viewName
+          // HASH = #/$profile.urlId/$viewName/$quoteId
+          // recognized user and view yayy
+          return this.setState({
+            isLoaded: true,
+            viewName: parts[2],
+            viewQuoteId: parts[3] || null,
+            viewUserId: userId,
+          });
+        }
       });
     }
   }
