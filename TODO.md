@@ -1,5 +1,7 @@
 # TODO (mvp)
 
+- add firebase validation for urlId rules (only alphanum+-_.)
+
 - rename "random" to "shuffle"
 
 - one app w/ routes instead of frankenstein
