@@ -16,7 +16,19 @@
       ".indexOn": "urlId",
       ".read": true,
       "$user_id": {
-        ".write": "$user_id === auth.uid",
+        ".write": "
+          $user_id === auth.uid &&
+          (
+            !newData.exists() ||
+            newData.child('urlId').val().length > 0
+          )
+        ",
+        ".validate": "
+          newData.child('urlId').val() !== 'account' &&
+          newData.child('urlId').val() !== 'all' &&
+          newData.child('urlId').val() !== 'edit' &&
+          newData.child('urlId').val() !== 'shuffle'
+        "
       }
     }
   }
