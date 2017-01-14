@@ -30710,6 +30710,22 @@
 	      urlId: '',
 	      newUrlId: ''
 	    };
+	    _this.handleProfile = function (snapshot) {
+	      if (!snapshot || !snapshot.val()) {
+	        _this.setState({
+	          isFetching: false,
+	          newUrlId: null,
+	          urlId: null
+	        });
+	        return;
+	      }
+	      var profile = snapshot.val();
+	      _this.setState({
+	        isFetching: false,
+	        newUrlId: profile.urlId,
+	        urlId: profile.urlId
+	      });
+	    };
 	    _this.handleUrlId = function (event) {
 	      return _this.setState({ newUrlId: event.target.value });
 	    };
@@ -30782,33 +30798,13 @@
 	  _createClass(EditUrl, [{
 	    key: 'setupFirebase',
 	    value: function setupFirebase(userId) {
-	      var _this2 = this;
-
 	      this.profileRef = _fireapp2.default.database().ref('profiles/' + userId);
-	      this.unsubscribes = [];
-	      this.unsubscribes.push(this.profileRef.on('value', function (snapshot) {
-	        if (!snapshot || !snapshot.val()) {
-	          _this2.setState({
-	            isFetching: false,
-	            newUrlId: null,
-	            urlId: null
-	          });
-	          return;
-	        }
-	        var profile = snapshot.val();
-	        _this2.setState({
-	          isFetching: false,
-	          newUrlId: profile.urlId,
-	          urlId: profile.urlId
-	        });
-	      }));
+	      this.profileRef.on('value', this.handleProfile);
 	    }
 	  }, {
 	    key: 'teardownFirebase',
 	    value: function teardownFirebase() {
-	      this.unsubscribes.forEach(function (fn) {
-	        return fn();
-	      });
+	      this.profileRef.off('value', this.handleProfile);
 	    }
 	  }, {
 	    key: 'componentDidMount',
@@ -31403,37 +31399,33 @@
 	      isQuotesLoaded: false,
 	      quotes: []
 	    };
+	    _this.handleQuotes = function (snapshot) {
+	      var quotes = [];
+	      if (snapshot && snapshot.val()) {
+	        snapshot.forEach(function (snapshot) {
+	          var quote = snapshot.val();
+	          quote.key = snapshot.key;
+	          quotes.unshift(quote);
+	        });
+	      }
+	      _this.setState({
+	        isQuotesLoaded: true,
+	        quotes: quotes
+	      });
+	    };
 	    return _this;
 	  }
 
 	  _createClass(All, [{
 	    key: 'setupFirebase',
 	    value: function setupFirebase(userId) {
-	      var _this2 = this;
-
 	      this.quotesRef = _fireapp2.default.database().ref('quotes/' + userId);
-	      this.unsubscribes = [];
-	      this.unsubscribes.push(this.quotesRef.on('value', function (snapshot) {
-	        var quotes = [];
-	        if (snapshot && snapshot.val()) {
-	          snapshot.forEach(function (snapshot) {
-	            var quote = snapshot.val();
-	            quote.key = snapshot.key;
-	            quotes.unshift(quote);
-	          });
-	        }
-	        _this2.setState({
-	          isQuotesLoaded: true,
-	          quotes: quotes
-	        });
-	      }));
+	      this.quotesRef.on('value', this.handleQuotes);
 	    }
 	  }, {
 	    key: 'teardownFirebase',
 	    value: function teardownFirebase() {
-	      this.unsubscribes.forEach(function (fn) {
-	        return fn();
-	      });
+	      this.quotesRef.off('value', this.handleQuotes);
 	    }
 	  }, {
 	    key: 'componentDidMount',
@@ -31797,37 +31789,33 @@
 	      isQuotesLoaded: false,
 	      quotes: []
 	    };
+	    _this.handleQuotes = function (snapshot) {
+	      var quotes = [];
+	      if (snapshot && snapshot.val()) {
+	        snapshot.forEach(function (snapshot) {
+	          var quote = snapshot.val();
+	          quote.key = snapshot.key;
+	          quotes.unshift(quote);
+	        });
+	      }
+	      _this.setState({
+	        isQuotesLoaded: true,
+	        quotes: quotes
+	      });
+	    };
 	    return _this;
 	  }
 
 	  _createClass(QuoteForms, [{
 	    key: 'setupFirebase',
 	    value: function setupFirebase(userId) {
-	      var _this2 = this;
-
 	      this.quotesRef = _fireapp2.default.database().ref('quotes/' + userId);
-	      this.unsubscribes = [];
-	      this.unsubscribes.push(this.quotesRef.on('value', function (snapshot) {
-	        var quotes = [];
-	        if (snapshot && snapshot.val()) {
-	          snapshot.forEach(function (snapshot) {
-	            var quote = snapshot.val();
-	            quote.key = snapshot.key;
-	            quotes.unshift(quote);
-	          });
-	        }
-	        _this2.setState({
-	          isQuotesLoaded: true,
-	          quotes: quotes
-	        });
-	      }));
+	      this.quotesRef.on('value', this.handleQuotes);
 	    }
 	  }, {
 	    key: 'teardownFirebase',
 	    value: function teardownFirebase() {
-	      this.unsubscribes.forEach(function (fn) {
-	        return fn();
-	      });
+	      this.quotesRef.off('value', this.handleQuotes);
 	    }
 	  }, {
 	    key: 'componentDidMount',
@@ -31850,7 +31838,7 @@
 	  }, {
 	    key: 'render',
 	    value: function render() {
-	      var _this3 = this;
+	      var _this2 = this;
 
 	      return _react2.default.createElement(
 	        'div',
@@ -31859,7 +31847,7 @@
 	          return _react2.default.createElement(_quoteForm2.default, {
 	            key: quote.key,
 	            quote: quote,
-	            userId: _this3.props.userId
+	            userId: _this2.props.userId
 	          });
 	        }) : _react2.default.createElement(
 	          'small',

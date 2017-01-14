@@ -12,31 +12,29 @@ export default class QuoteForms extends React.Component {
       isQuotesLoaded: false,
       quotes: [],
     };
+    this.handleQuotes = (snapshot) => {
+      const quotes = [];
+      if (snapshot && snapshot.val()) {
+        snapshot.forEach((snapshot) => {
+          const quote = snapshot.val();
+          quote.key = snapshot.key;
+          quotes.unshift(quote);
+        });
+      }
+      this.setState({
+        isQuotesLoaded: true,
+        quotes: quotes,
+      });
+    };
   }
 
   setupFirebase(userId) {
     this.quotesRef = fireapp.database().ref('quotes/' + userId);
-    this.unsubscribes = [];
-    this.unsubscribes.push(
-      this.quotesRef.on('value', (snapshot) => {
-        const quotes = [];
-        if (snapshot && snapshot.val()) {
-          snapshot.forEach((snapshot) => {
-            const quote = snapshot.val();
-            quote.key = snapshot.key;
-            quotes.unshift(quote);
-          });
-        }
-        this.setState({
-          isQuotesLoaded: true,
-          quotes: quotes,
-        });
-      })
-    );
+    this.quotesRef.on('value', this.handleQuotes);
   }
 
   teardownFirebase() {
-    this.unsubscribes.forEach((fn) => fn());
+    this.quotesRef.off('value', this.handleQuotes);
   }
 
   componentDidMount() {

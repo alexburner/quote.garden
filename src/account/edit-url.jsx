@@ -14,6 +14,22 @@ export default class EditUrl extends React.Component {
       urlId: '',
       newUrlId: '',
     };
+    this.handleProfile = (snapshot) => {
+      if (!snapshot || !snapshot.val()) {
+        this.setState({
+          isFetching: false,
+          newUrlId: null,
+          urlId: null,
+        });
+        return;
+      }
+      const profile = snapshot.val();
+      this.setState({
+        isFetching: false,
+        newUrlId: profile.urlId,
+        urlId: profile.urlId,
+      });
+    };
     this.handleUrlId = (event) => this.setState({newUrlId: event.target.value});
     this.handleSubmit = (event) => {
       event.preventDefault();
@@ -80,29 +96,11 @@ export default class EditUrl extends React.Component {
 
   setupFirebase(userId) {
     this.profileRef = fireapp.database().ref('profiles/' + userId);
-    this.unsubscribes = [];
-    this.unsubscribes.push(
-      this.profileRef.on('value', (snapshot) => {
-        if (!snapshot || !snapshot.val()) {
-          this.setState({
-            isFetching: false,
-            newUrlId: null,
-            urlId: null,
-          });
-          return;
-        }
-        const profile = snapshot.val();
-        this.setState({
-          isFetching: false,
-          newUrlId: profile.urlId,
-          urlId: profile.urlId,
-        });
-      })
-    );
+    this.profileRef.on('value', this.handleProfile);
   }
 
   teardownFirebase() {
-    this.unsubscribes.forEach((fn) => fn());
+    this.profileRef.off('value', this.handleProfile);
   }
 
   componentDidMount() {
