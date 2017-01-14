@@ -23,6 +23,8 @@
 
 - add firebase validation for urlId rules (only alphanum+-_.)
 
+- add firebase & client valiation for urlId length limit (100?)
+
 
 # TODO (selfish)
 

@@ -88,7 +88,6 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } // only in code tree root
 
-
 	var App = function (_React$Component) {
 	  _inherits(App, _React$Component);
 
@@ -98,13 +97,14 @@
 	    var _this = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this));
 
 	    _this.state = {
-	      currentUser: _fireapp2.default.auth().currentUser,
-	      isLoaded: false,
+	      currentUser: null,
+	      isRouteLoaded: false,
+	      isUserLoaded: false,
 	      viewName: null,
-	      viewUserId: null,
-	      viewQuoteId: null
+	      viewQuoteId: null,
+	      viewUrlId: null,
+	      viewUserId: null
 	    };
-	    _this.unsubscribes = [];
 	    _this.handleHashChange = function () {
 	      return _this.updateRoute();
 	    };
@@ -166,8 +166,10 @@
 	        // HASH = #/<rootView>
 	        // first part is a root view name, load it
 	        return this.setState({
-	          isLoaded: true,
+	          isRouteLoaded: true,
 	          viewName: parts[1],
+	          viewQuoteId: null,
+	          viewUrlId: null,
 	          viewUserId: null
 	        });
 	      } else if (constants.USER_VIEWS[parts[1]]) {
@@ -182,8 +184,10 @@
 	            // HASH = #/<unknown>
 	            // unrecognized user, 404
 	            return _this2.setState({
-	              isLoaded: true,
+	              isRouteLoaded: true,
 	              viewName: '404',
+	              viewQuoteId: null,
+	              viewUrlId: null,
 	              viewUserId: null
 	            });
 	          } else if (parts[2] && constants.ROOT_VIEWS[parts[2]]) {
@@ -194,8 +198,10 @@
 	            // HASH = #/<urlId>/<unknown>
 	            // unrecognized user view name, 404
 	            return _this2.setState({
-	              isLoaded: true,
+	              isRouteLoaded: true,
 	              viewName: '404',
+	              viewQuoteId: null,
+	              viewUrlId: null,
 	              viewUserId: null
 	            });
 	          } else if (parts.length === 2) {
@@ -207,9 +213,10 @@
 	            // HASH = #/<urlId>/<userView>/<quoteId>
 	            // recognized user and view yayy
 	            return _this2.setState({
-	              isLoaded: true,
+	              isRouteLoaded: true,
 	              viewName: parts[2],
 	              viewQuoteId: parts[3] || null,
+	              viewUrlId: parts[1],
 	              viewUserId: userId
 	            });
 	          }
@@ -222,33 +229,178 @@
 	      var _this3 = this;
 
 	      // add event listeners
-	      this.unsubscribes.push(_fireapp2.default.auth().onAuthStateChanged(function (user) {
-	        return _this3.setState({ currentUser: user });
-	      }));
 	      window.addEventListener('hashchange', this.handleHashChange);
-	      this.unsubscribes.push(function () {
-	        window.removeEventListener('hashchange', _this3.handleHashChange);
+	      _fireapp2.default.auth().onAuthStateChanged(function (user) {
+	        _this3.setState({
+	          currentUser: user,
+	          isUserLoaded: true
+	        });
 	      });
 	      // set current route
 	      this.updateRoute();
 	    }
 	  }, {
-	    key: 'componentWillUnmount',
-	    value: function componentWillUnmount() {
-	      this.unsubscribes.forEach(function (fn) {
-	        return fn();
-	      });
-	    }
-	  }, {
 	    key: 'render',
 	    value: function render() {
-	      if (!this.state.isLoaded) {
+	      if (!this.state.isRouteLoaded || !this.state.isUserLoaded) {
 	        return _react2.default.createElement(_loading2.default, null);
 	      }
+
 	      switch (this.state.viewName) {
 	        case 'account':
-	          return _react2.default.createElement(_account2.default, { user: this.props.currentUser });
-	        default:
+	          document.title = 'Account — quote.garden';
+	          return _react2.default.createElement(_account2.default, { user: this.state.currentUser });
+
+	        case '404':
+	          document.title = '404 — quote.garden';
+	          return _react2.default.createElement(
+	            'div',
+	            null,
+	            _react2.default.createElement(
+	              'div',
+	              null,
+	              _react2.default.createElement(
+	                'code',
+	                null,
+	                'this.state.viewName = ',
+	                this.state.viewName
+	              )
+	            ),
+	            _react2.default.createElement(
+	              'div',
+	              null,
+	              _react2.default.createElement(
+	                'code',
+	                null,
+	                'this.state.viewQuoteId = ',
+	                this.state.viewQuoteId
+	              )
+	            ),
+	            _react2.default.createElement(
+	              'div',
+	              null,
+	              _react2.default.createElement(
+	                'code',
+	                null,
+	                'this.state.viewUserId = ',
+	                this.state.viewUserId
+	              )
+	            )
+	          );
+
+	        case 'home':
+	          document.title = 'Home — quote.garden';
+	          return _react2.default.createElement(
+	            'div',
+	            null,
+	            _react2.default.createElement(
+	              'div',
+	              null,
+	              _react2.default.createElement(
+	                'code',
+	                null,
+	                'this.state.viewName = ',
+	                this.state.viewName
+	              )
+	            ),
+	            _react2.default.createElement(
+	              'div',
+	              null,
+	              _react2.default.createElement(
+	                'code',
+	                null,
+	                'this.state.viewQuoteId = ',
+	                this.state.viewQuoteId
+	              )
+	            ),
+	            _react2.default.createElement(
+	              'div',
+	              null,
+	              _react2.default.createElement(
+	                'code',
+	                null,
+	                'this.state.viewUserId = ',
+	                this.state.viewUserId
+	              )
+	            )
+	          );
+
+	        case 'all':
+	          document.title = 'All \u2014 ' + this.state.viewUrlId + ' \u2014 quote.garden';
+	          return _react2.default.createElement(
+	            'div',
+	            null,
+	            _react2.default.createElement(
+	              'div',
+	              null,
+	              _react2.default.createElement(
+	                'code',
+	                null,
+	                'this.state.viewName = ',
+	                this.state.viewName
+	              )
+	            ),
+	            _react2.default.createElement(
+	              'div',
+	              null,
+	              _react2.default.createElement(
+	                'code',
+	                null,
+	                'this.state.viewQuoteId = ',
+	                this.state.viewQuoteId
+	              )
+	            ),
+	            _react2.default.createElement(
+	              'div',
+	              null,
+	              _react2.default.createElement(
+	                'code',
+	                null,
+	                'this.state.viewUserId = ',
+	                this.state.viewUserId
+	              )
+	            )
+	          );
+
+	        case 'edit':
+	          document.title = 'Edit \u2014 ' + this.state.viewUrlId + ' \u2014 quote.garden';
+	          return _react2.default.createElement(
+	            'div',
+	            null,
+	            _react2.default.createElement(
+	              'div',
+	              null,
+	              _react2.default.createElement(
+	                'code',
+	                null,
+	                'this.state.viewName = ',
+	                this.state.viewName
+	              )
+	            ),
+	            _react2.default.createElement(
+	              'div',
+	              null,
+	              _react2.default.createElement(
+	                'code',
+	                null,
+	                'this.state.viewQuoteId = ',
+	                this.state.viewQuoteId
+	              )
+	            ),
+	            _react2.default.createElement(
+	              'div',
+	              null,
+	              _react2.default.createElement(
+	                'code',
+	                null,
+	                'this.state.viewUserId = ',
+	                this.state.viewUserId
+	              )
+	            )
+	          );
+
+	        case 'shuffle':
+	          document.title = 'Shuffle \u2014 ' + this.state.viewUrlId + ' \u2014 quote.garden';
 	          return _react2.default.createElement(
 	            'div',
 	            null,
@@ -30093,17 +30245,17 @@
 	"use strict";
 
 	Object.defineProperty(exports, "__esModule", {
-	    value: true
+	  value: true
 	});
 	var ROOT_VIEWS = exports.ROOT_VIEWS = {
-	    account: true,
-	    home: true
+	  account: true,
+	  home: true
 	};
 
 	var USER_VIEWS = exports.USER_VIEWS = {
-	    all: true,
-	    edit: true,
-	    shuffle: true
+	  all: true,
+	  edit: true,
+	  shuffle: true
 	};
 
 /***/ },
@@ -30830,7 +30982,7 @@
 	              _react2.default.createElement(
 	                'span',
 	                { className: 'text-muted' },
-	                'http://quote.garden/random/#u='
+	                'http://quote.garden/#/'
 	              ),
 	              this.state.newUrlId
 	            )

@@ -1,5 +1,4 @@
-// only in code tree root
-import 'babel-polyfill';
+import 'babel-polyfill'; // only in code tree root
 
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -15,13 +14,14 @@ class App extends React.Component {
   constructor() {
     super();
     this.state = {
-      currentUser: fireapp.auth().currentUser,
-      isLoaded: false,
+      currentUser: null,
+      isRouteLoaded: false,
+      isUserLoaded: false,
       viewName: null,
-      viewUserId: null,
       viewQuoteId: null,
+      viewUrlId: null,
+      viewUserId: null,
     };
-    this.unsubscribes = [];
     this.handleHashChange = () => this.updateRoute();
   }
 
@@ -86,8 +86,10 @@ class App extends React.Component {
       // HASH = #/<rootView>
       // first part is a root view name, load it
       return this.setState({
-        isLoaded: true,
+        isRouteLoaded: true,
         viewName: parts[1],
+        viewQuoteId: null,
+        viewUrlId: null,
         viewUserId: null,
       });
     }
@@ -106,8 +108,10 @@ class App extends React.Component {
           // HASH = #/<unknown>
           // unrecognized user, 404
           return this.setState({
-            isLoaded: true,
+            isRouteLoaded: true,
             viewName: '404',
+            viewQuoteId: null,
+            viewUrlId: null,
             viewUserId: null,
           });
         }
@@ -120,8 +124,10 @@ class App extends React.Component {
           // HASH = #/<urlId>/<unknown>
           // unrecognized user view name, 404
           return this.setState({
-            isLoaded: true,
+            isRouteLoaded: true,
             viewName: '404',
+            viewQuoteId: null,
+            viewUrlId: null,
             viewUserId: null,
           });
         }
@@ -135,9 +141,10 @@ class App extends React.Component {
           // HASH = #/<urlId>/<userView>/<quoteId>
           // recognized user and view yayy
           return this.setState({
-            isLoaded: true,
+            isRouteLoaded: true,
             viewName: parts[2],
             viewQuoteId: parts[3] || null,
+            viewUrlId: parts[1],
             viewUserId: userId,
           });
         }
@@ -147,40 +154,76 @@ class App extends React.Component {
 
   componentDidMount() {
     // add event listeners
-    this.unsubscribes.push(
-      fireapp.auth().onAuthStateChanged(
-        (user) => this.setState({currentUser: user})
-      )
-    );
-    window.addEventListener(
-      'hashchange', this.handleHashChange
-    );
-    this.unsubscribes.push(() => {
-      window.removeEventListener(
-        'hashchange', this.handleHashChange
-      );
+    window.addEventListener('hashchange', this.handleHashChange);
+    fireapp.auth().onAuthStateChanged((user) => {
+      this.setState({
+        currentUser: user,
+        isUserLoaded: true,
+      });
     });
     // set current route
     this.updateRoute();
   }
 
-  componentWillUnmount() {
-    this.unsubscribes.forEach((fn) => fn());
-  }
-
   render() {
-    if (!this.state.isLoaded) {
+    if (!this.state.isRouteLoaded || !this.state.isUserLoaded) {
       return <Loading />
     }
+
     switch (this.state.viewName) {
-      case 'account': return <Account user={this.props.currentUser} />;
-      default: return (
-        <div>
-          <div><code>this.state.viewName = {this.state.viewName}</code></div>
-          <div><code>this.state.viewQuoteId = {this.state.viewQuoteId}</code></div>
-          <div><code>this.state.viewUserId = {this.state.viewUserId}</code></div>
-        </div>
-      );
+      case 'account':
+        document.title = 'Account — quote.garden';
+        return <Account user={this.state.currentUser} />;
+
+      case '404':
+        document.title = '404 — quote.garden';
+        return (
+          <div>
+            <div><code>this.state.viewName = {this.state.viewName}</code></div>
+            <div><code>this.state.viewQuoteId = {this.state.viewQuoteId}</code></div>
+            <div><code>this.state.viewUserId = {this.state.viewUserId}</code></div>
+          </div>
+        );
+
+      case 'home':
+        document.title = 'Home — quote.garden';
+        return (
+          <div>
+            <div><code>this.state.viewName = {this.state.viewName}</code></div>
+            <div><code>this.state.viewQuoteId = {this.state.viewQuoteId}</code></div>
+            <div><code>this.state.viewUserId = {this.state.viewUserId}</code></div>
+          </div>
+        );
+
+      case 'all':
+        document.title = `All — ${this.state.viewUrlId} — quote.garden`;
+        return (
+          <div>
+            <div><code>this.state.viewName = {this.state.viewName}</code></div>
+            <div><code>this.state.viewQuoteId = {this.state.viewQuoteId}</code></div>
+            <div><code>this.state.viewUserId = {this.state.viewUserId}</code></div>
+          </div>
+        );
+
+      case 'edit':
+        document.title = `Edit — ${this.state.viewUrlId} — quote.garden`;
+        return (
+          <div>
+            <div><code>this.state.viewName = {this.state.viewName}</code></div>
+            <div><code>this.state.viewQuoteId = {this.state.viewQuoteId}</code></div>
+            <div><code>this.state.viewUserId = {this.state.viewUserId}</code></div>
+          </div>
+        );
+
+      case 'shuffle':
+        document.title = `Shuffle — ${this.state.viewUrlId} — quote.garden`;
+        return (
+          <div>
+            <div><code>this.state.viewName = {this.state.viewName}</code></div>
+            <div><code>this.state.viewQuoteId = {this.state.viewQuoteId}</code></div>
+            <div><code>this.state.viewUserId = {this.state.viewUserId}</code></div>
+          </div>
+        );
     }
   }
 }

@@ -117,7 +117,7 @@ export default class EditUrl extends React.Component {
               />
               <div className="text-small text-wrap">
                 <span className="text-muted">
-                  http://quote.garden/random/#u=
+                  http://quote.garden/#/
                 </span>
                 {this.state.newUrlId}
               </div>
