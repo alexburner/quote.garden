@@ -18,7 +18,7 @@ export default class Edit extends React.Component {
   render() {
     return (
       <div className="container">
-        <TopNav user={this.props.user} />
+        <TopNav currentUser={this.props.currentUser} viewName="account" />
         <h1>
           Account
           &thinsp;
@@ -27,8 +27,8 @@ export default class Edit extends React.Component {
             onClick={this.handleLogout}
           >Logout</button>
         </h1>
-        <EditUrl user={this.props.user} />
-        <EditUser user={this.props.user} />
+        <EditUrl user={this.props.currentUser} />
+        <EditUser user={this.props.currentUser} />
       </div>
     );
   }

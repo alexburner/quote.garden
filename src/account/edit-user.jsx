@@ -2,8 +2,6 @@ import React from 'react';
 
 import {fireapp, firebase} from 'shared/fireapp.jsx';
 
-import TopNav from 'shared/top-nav.jsx';
-
 export default class EditUser extends React.Component {
   constructor(props) {
     super(props);

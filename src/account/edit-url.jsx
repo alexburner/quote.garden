@@ -3,7 +3,6 @@ import React from 'react';
 import fireapp from 'shared/fireapp.jsx';
 
 import Loading from 'shared/loading.jsx';
-import TopNav from 'shared/top-nav.jsx';
 
 export default class EditUrl extends React.Component {
   constructor(props) {
@@ -48,23 +47,25 @@ export default class EditUrl extends React.Component {
       });
 
       fireapp.database().ref('profiles').once('value', (snapshot) => {
-        let isUnique = true;
+        if (snapshot && snapshot.val()) {
+          let isUnique = true;
 
-        snapshot.forEach((snapshot) => {
-          const profile = snapshot.val();
-          if (profile.urlId === newUrlId) {
-            isUnique = false;
-            return false;
-          }
-        });
-
-        if (!isUnique) {
-          alert('Sorry, that URL name is already in use.');
-          this.setState({
-            newUrlId: this.state.urlId,
-            isSubmitting: false
+          snapshot.forEach((snapshot) => {
+            const profile = snapshot.val();
+            if (profile.urlId === newUrlId) {
+              isUnique = false;
+              return false;
+            }
           });
-          return;
+
+          if (!isUnique) {
+            alert('Sorry, that URL name is already in use.');
+            this.setState({
+              newUrlId: this.state.urlId,
+              isSubmitting: false
+            });
+            return;
+          }
         }
 
         this.profileRef.update({urlId: newUrlId})
@@ -82,7 +83,14 @@ export default class EditUrl extends React.Component {
   componentDidMount() {
     this.unsubscribes.push(
       this.profileRef.on('value', (snapshot) => {
-        if (!snapshot) return;
+        if (!snapshot || !snapshot.val()) {
+          this.setState({
+            isFetching: false,
+            newUrlId: null,
+            urlId: null,
+          });
+          return;
+        }
         const profile = snapshot.val();
         this.setState({
           isFetching: false,

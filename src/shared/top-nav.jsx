@@ -4,22 +4,22 @@ import fireapp from 'shared/fireapp.jsx';
 
 export default class TopNav extends React.Component {
   render() {
-    const path = window.location.pathname;
-    const tuples = this.props.user ?
+    const view = this.props.viewName;
+    const tuples = this.props.currentUser ?
       [
-        ['/random/', 'Random'],
-        ['/all/', 'All'],
-        ['/edit/', 'Edit'],
-        ['/account/', 'Account'],
+        ['random', 'Random'],
+        ['all', 'All'],
+        ['edit', 'Edit'],
+        ['account', 'Account'],
       ] :
       [
-        ['/account/', 'Login / Register'],
+        ['account', 'Login / Register'],
       ]
     ;
     return (
       <div className="top-nav">
         {tuples.map((tuple) => (
-          tuple[0] === path ?
+          tuple[0] === view ?
             <button
               key={tuple[1]}
               className="btn btn-empty"
@@ -28,7 +28,7 @@ export default class TopNav extends React.Component {
             <a
               key={tuple[1]}
               className="btn btn-empty"
-              href={tuple[0]}
+              href={'#/' + tuple[0]}
             >{tuple[1]}</a>
         ))}
       </div>

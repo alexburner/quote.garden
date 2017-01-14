@@ -10,23 +10,25 @@ export default class QuoteForms extends React.Component {
     super(props);
     this.unsubscribes = [];
     this.state = {
-      quotesLoaded: false,
+      isQuotesLoaded: false,
       quotes: [],
     };
-    this.quotesRef = fireapp.database().ref('quotes/' + this.props.user.uid);
+    this.quotesRef = fireapp.database().ref('quotes/' + this.props.userId);
   }
 
   componentDidMount() {
     this.unsubscribes.push(
       this.quotesRef.on('value', (snapshot) => {
         const quotes = [];
-        snapshot.forEach((snapshot) => {
-          const quote = snapshot.val();
-          quote.key = snapshot.key;
-          quotes.unshift(quote);
-        });
+        if (snapshot && snapshot.val()) {
+          snapshot.forEach((snapshot) => {
+            const quote = snapshot.val();
+            quote.key = snapshot.key;
+            quotes.unshift(quote);
+          });
+        }
         this.setState({
-          quotesLoaded: true,
+          isQuotesLoaded: true,
           quotes: quotes,
         });
       })
@@ -40,14 +42,14 @@ export default class QuoteForms extends React.Component {
   render() {
     return (
       <div>
-        {!this.state.quotesLoaded ?
+        {!this.state.isQuotesLoaded ?
           <Loading /> :
           this.state.quotes.length ?
             this.state.quotes.map((quote) => (
               <QuoteForm
                 key={quote.key}
                 quote={quote}
-                user={this.props.user}
+                userId={this.props.userId}
               />
             )) :
             <small className="text-small text-muted">

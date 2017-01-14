@@ -74,6 +74,14 @@
 
 	var _account2 = _interopRequireDefault(_account);
 
+	var _all = __webpack_require__(483);
+
+	var _all2 = _interopRequireDefault(_all);
+
+	var _edit = __webpack_require__(484);
+
+	var _edit2 = _interopRequireDefault(_edit);
+
 	var _loading = __webpack_require__(474);
 
 	var _loading2 = _interopRequireDefault(_loading);
@@ -97,6 +105,7 @@
 	    var _this = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this));
 
 	    _this.state = {
+	      currentProfile: null,
 	      currentUser: null,
 	      isRouteLoaded: false,
 	      isUserLoaded: false,
@@ -105,16 +114,58 @@
 	      viewUrlId: null,
 	      viewUserId: null
 	    };
-	    _this.handleHashChange = function () {
-	      return _this.updateRoute();
-	    };
 	    return _this;
 	  }
 
 	  _createClass(App, [{
+	    key: 'componentDidMount',
+	    value: function componentDidMount() {
+	      var _this2 = this;
+
+	      // add event listeners
+	      window.addEventListener('hashchange', function () {
+	        return _this2.updateRoute();
+	      });
+	      this.initPromise = new Promise(function (resolve) {
+	        _fireapp2.default.auth().onAuthStateChanged(function (user) {
+	          if (user && user.uid) {
+	            _fireapp2.default.database().ref('profiles/' + user.uid).once('value', function (snapshot) {
+	              var profile = snapshot ? snapshot.val() : null;
+	              _this2.setState({
+	                currentProfile: profile,
+	                currentUser: user,
+	                isUserLoaded: true
+	              }, function () {
+	                return resolve();
+	              });
+	            });
+	          } else {
+	            _this2.setState({
+	              currentProfile: null,
+	              currentUser: null,
+	              isUserLoaded: true
+	            }, function () {
+	              return resolve();
+	            });
+	          }
+	        });
+	      });
+	      // set current route
+	      this.updateRoute();
+	    }
+	  }, {
 	    key: 'updateRoute',
 	    value: function updateRoute() {
-	      var _this2 = this;
+	      var _this3 = this;
+
+	      this.initPromise.then(function () {
+	        return _this3._updateRoute();
+	      });
+	    }
+	  }, {
+	    key: '_updateRoute',
+	    value: function _updateRoute() {
+	      var _this4 = this;
 
 	      var href = window.location.href;
 	      var hash = window.location.hash;
@@ -129,10 +180,10 @@
 	      // ROOT
 	      //  #/home
 	      //  #/account
+	      //  #/edit
 	      //
 	      // USER
 	      //  #/<urlId>/all
-	      //  #/<urlId>/edit
 	      //  #/<urlId>/shuffle/<quoteId>
 	      //
 
@@ -162,20 +213,33 @@
 	        // HASH = #/thing/
 	        // trailing slash, strip it out so we can trust all parts
 	        return window.location.replace(hash.slice(0, -1));
-	      } else if (constants.ROOT_VIEWS[parts[1]]) {
+	      } else if (constants.views.ROOT[parts[1]]) {
 	        // HASH = #/<rootView>
 	        // first part is a root view name, load it
-	        return this.setState({
-	          isRouteLoaded: true,
-	          viewName: parts[1],
-	          viewQuoteId: null,
-	          viewUrlId: null,
-	          viewUserId: null
-	        });
-	      } else if (constants.USER_VIEWS[parts[1]]) {
+	        if (constants.views.ROOT_AUTH[parts[1]] && !this.state.currentUser) {
+	          // view requires authentication, re-route to accounts page
+	          return window.location.replace('#/account');
+	        } else {
+	          // good to go
+	          return this.setState({
+	            isRouteLoaded: true,
+	            viewName: parts[1],
+	            viewQuoteId: null,
+	            viewUrlId: null,
+	            viewUserId: null
+	          });
+	        }
+	      } else if (constants.views.USER[parts[1]]) {
 	        // HASH = #/<userView>
-	        // first part is a user view, reload with default user inserted
-	        return window.location.replace('#/default' + hash.slice(1));
+	        // first part is a user view, reload with user urlId
+	        var profile = this.state.currentProfile;
+	        if (profile && profile.urlId) {
+	          // user is authenticated, use their own urlId
+	          return window.location.replace('#/' + profile.urlId + hash.slice(1));
+	        } else {
+	          // use default user urlId
+	          return window.location.replace('#/default' + hash.slice(1));
+	        }
 	      } else {
 	        // HASH = #/<urlId>
 	        // first part must be a user's urlId (or an error)
@@ -183,21 +247,21 @@
 	          if (!userId) {
 	            // HASH = #/<unknown>
 	            // unrecognized user, 404
-	            return _this2.setState({
+	            return _this4.setState({
 	              isRouteLoaded: true,
 	              viewName: '404',
 	              viewQuoteId: null,
 	              viewUrlId: null,
 	              viewUserId: null
 	            });
-	          } else if (parts[2] && constants.ROOT_VIEWS[parts[2]]) {
+	          } else if (parts[2] && constants.views.ROOT[parts[2]]) {
 	            // HASH = #/<urlId>/<rootView>
 	            // good user, but second part is root view, reload without urlId
 	            return window.location.replace('#/' + parts[2]);
-	          } else if (parts[2] && !constants.USER_VIEWS[parts[2]]) {
+	          } else if (parts[2] && !constants.views.USER[parts[2]]) {
 	            // HASH = #/<urlId>/<unknown>
 	            // unrecognized user view name, 404
-	            return _this2.setState({
+	            return _this4.setState({
 	              isRouteLoaded: true,
 	              viewName: '404',
 	              viewQuoteId: null,
@@ -212,7 +276,7 @@
 	            // HASH = #/<urlId>/<userView>
 	            // HASH = #/<urlId>/<userView>/<quoteId>
 	            // recognized user and view yayy
-	            return _this2.setState({
+	            return _this4.setState({
 	              isRouteLoaded: true,
 	              viewName: parts[2],
 	              viewQuoteId: parts[3] || null,
@@ -224,22 +288,6 @@
 	      }
 	    }
 	  }, {
-	    key: 'componentDidMount',
-	    value: function componentDidMount() {
-	      var _this3 = this;
-
-	      // add event listeners
-	      window.addEventListener('hashchange', this.handleHashChange);
-	      _fireapp2.default.auth().onAuthStateChanged(function (user) {
-	        _this3.setState({
-	          currentUser: user,
-	          isUserLoaded: true
-	        });
-	      });
-	      // set current route
-	      this.updateRoute();
-	    }
-	  }, {
 	    key: 'render',
 	    value: function render() {
 	      if (!this.state.isRouteLoaded || !this.state.isUserLoaded) {
@@ -249,7 +297,7 @@
 	      switch (this.state.viewName) {
 	        case 'account':
 	          document.title = 'Account — quote.garden';
-	          return _react2.default.createElement(_account2.default, { user: this.state.currentUser });
+	          return _react2.default.createElement(_account2.default, { currentUser: this.state.currentUser });
 
 	        case '404':
 	          document.title = '404 — quote.garden';
@@ -327,77 +375,17 @@
 
 	        case 'all':
 	          document.title = 'All \u2014 ' + this.state.viewUrlId + ' \u2014 quote.garden';
-	          return _react2.default.createElement(
-	            'div',
-	            null,
-	            _react2.default.createElement(
-	              'div',
-	              null,
-	              _react2.default.createElement(
-	                'code',
-	                null,
-	                'this.state.viewName = ',
-	                this.state.viewName
-	              )
-	            ),
-	            _react2.default.createElement(
-	              'div',
-	              null,
-	              _react2.default.createElement(
-	                'code',
-	                null,
-	                'this.state.viewQuoteId = ',
-	                this.state.viewQuoteId
-	              )
-	            ),
-	            _react2.default.createElement(
-	              'div',
-	              null,
-	              _react2.default.createElement(
-	                'code',
-	                null,
-	                'this.state.viewUserId = ',
-	                this.state.viewUserId
-	              )
-	            )
-	          );
+	          return _react2.default.createElement(_all2.default, {
+	            currentUser: this.state.currentUser,
+	            viewUserId: this.state.viewUserId
+	          });
 
 	        case 'edit':
 	          document.title = 'Edit \u2014 ' + this.state.viewUrlId + ' \u2014 quote.garden';
-	          return _react2.default.createElement(
-	            'div',
-	            null,
-	            _react2.default.createElement(
-	              'div',
-	              null,
-	              _react2.default.createElement(
-	                'code',
-	                null,
-	                'this.state.viewName = ',
-	                this.state.viewName
-	              )
-	            ),
-	            _react2.default.createElement(
-	              'div',
-	              null,
-	              _react2.default.createElement(
-	                'code',
-	                null,
-	                'this.state.viewQuoteId = ',
-	                this.state.viewQuoteId
-	              )
-	            ),
-	            _react2.default.createElement(
-	              'div',
-	              null,
-	              _react2.default.createElement(
-	                'code',
-	                null,
-	                'this.state.viewUserId = ',
-	                this.state.viewUserId
-	              )
-	            )
-	          );
+	          return _react2.default.createElement(_edit2.default, {
+	            currentUser: this.state.currentUser,
+	            viewUserId: this.state.viewUserId
+	          });
 
 	        case 'shuffle':
 	          document.title = 'Shuffle \u2014 ' + this.state.viewUrlId + ' \u2014 quote.garden';
@@ -30247,15 +30235,19 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	var ROOT_VIEWS = exports.ROOT_VIEWS = {
-	  account: true,
-	  home: true
-	};
-
-	var USER_VIEWS = exports.USER_VIEWS = {
-	  all: true,
-	  edit: true,
-	  shuffle: true
+	var views = exports.views = {
+	  ROOT: {
+	    account: true,
+	    edit: true,
+	    home: true
+	  },
+	  ROOT_AUTH: {
+	    edit: true
+	  },
+	  USER: {
+	    all: true,
+	    shuffle: true
+	  }
 	};
 
 /***/ },
@@ -30390,13 +30382,13 @@
 	  _createClass(TopNav, [{
 	    key: 'render',
 	    value: function render() {
-	      var path = window.location.pathname;
-	      var tuples = this.props.user ? [['/random/', 'Random'], ['/all/', 'All'], ['/edit/', 'Edit'], ['/account/', 'Account']] : [['/account/', 'Login / Register']];
+	      var view = this.props.viewName;
+	      var tuples = this.props.currentUser ? [['random', 'Random'], ['all', 'All'], ['edit', 'Edit'], ['account', 'Account']] : [['account', 'Login / Register']];
 	      return _react2.default.createElement(
 	        'div',
 	        { className: 'top-nav' },
 	        tuples.map(function (tuple) {
-	          return tuple[0] === path ? _react2.default.createElement(
+	          return tuple[0] === view ? _react2.default.createElement(
 	            'button',
 	            {
 	              key: tuple[1],
@@ -30409,7 +30401,7 @@
 	            {
 	              key: tuple[1],
 	              className: 'btn btn-empty',
-	              href: tuple[0]
+	              href: '#/' + tuple[0]
 	            },
 	            tuple[1]
 	          );
@@ -30472,7 +30464,7 @@
 	  _createClass(Account, [{
 	    key: 'render',
 	    value: function render() {
-	      return this.props.user ? _react2.default.createElement(_edit2.default, { user: this.props.user }) : _react2.default.createElement(_auth2.default, null);
+	      return this.props.currentUser ? _react2.default.createElement(_edit2.default, { currentUser: this.props.currentUser }) : _react2.default.createElement(_auth2.default, null);
 	    }
 	  }]);
 
@@ -30542,7 +30534,7 @@
 	      return _react2.default.createElement(
 	        'div',
 	        { className: 'container' },
-	        _react2.default.createElement(_topNav2.default, { user: this.props.user }),
+	        _react2.default.createElement(_topNav2.default, { currentUser: this.props.currentUser, viewName: 'account' }),
 	        _react2.default.createElement(
 	          'h1',
 	          null,
@@ -30556,8 +30548,8 @@
 	            'Logout'
 	          )
 	        ),
-	        _react2.default.createElement(_editUrl2.default, { user: this.props.user }),
-	        _react2.default.createElement(_editUser2.default, { user: this.props.user })
+	        _react2.default.createElement(_editUrl2.default, { user: this.props.currentUser }),
+	        _react2.default.createElement(_editUser2.default, { user: this.props.currentUser })
 	      );
 	    }
 	  }]);
@@ -30584,10 +30576,6 @@
 	var _react2 = _interopRequireDefault(_react);
 
 	var _fireapp = __webpack_require__(468);
-
-	var _topNav = __webpack_require__(475);
-
-	var _topNav2 = _interopRequireDefault(_topNav);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -30831,10 +30819,6 @@
 
 	var _loading2 = _interopRequireDefault(_loading);
 
-	var _topNav = __webpack_require__(475);
-
-	var _topNav2 = _interopRequireDefault(_topNav);
-
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -30893,23 +30877,25 @@
 	      });
 
 	      _fireapp2.default.database().ref('profiles').once('value', function (snapshot) {
-	        var isUnique = true;
+	        if (snapshot && snapshot.val()) {
+	          var isUnique = true;
 
-	        snapshot.forEach(function (snapshot) {
-	          var profile = snapshot.val();
-	          if (profile.urlId === newUrlId) {
-	            isUnique = false;
-	            return false;
-	          }
-	        });
-
-	        if (!isUnique) {
-	          alert('Sorry, that URL name is already in use.');
-	          _this.setState({
-	            newUrlId: _this.state.urlId,
-	            isSubmitting: false
+	          snapshot.forEach(function (snapshot) {
+	            var profile = snapshot.val();
+	            if (profile.urlId === newUrlId) {
+	              isUnique = false;
+	              return false;
+	            }
 	          });
-	          return;
+
+	          if (!isUnique) {
+	            alert('Sorry, that URL name is already in use.');
+	            _this.setState({
+	              newUrlId: _this.state.urlId,
+	              isSubmitting: false
+	            });
+	            return;
+	          }
 	        }
 
 	        _this.profileRef.update({ urlId: newUrlId }).then(function () {
@@ -30933,7 +30919,14 @@
 	      var _this2 = this;
 
 	      this.unsubscribes.push(this.profileRef.on('value', function (snapshot) {
-	        if (!snapshot) return;
+	        if (!snapshot || !snapshot.val()) {
+	          _this2.setState({
+	            isFetching: false,
+	            newUrlId: null,
+	            urlId: null
+	          });
+	          return;
+	        }
 	        var profile = snapshot.val();
 	        _this2.setState({
 	          isFetching: false,
@@ -31346,6 +31339,474 @@
 	}(_react2.default.Component);
 
 	exports.default = Register;
+
+/***/ },
+/* 483 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(298);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _fireapp = __webpack_require__(468);
+
+	var _fireapp2 = _interopRequireDefault(_fireapp);
+
+	var _loading = __webpack_require__(474);
+
+	var _loading2 = _interopRequireDefault(_loading);
+
+	var _topNav = __webpack_require__(475);
+
+	var _topNav2 = _interopRequireDefault(_topNav);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var All = function (_React$Component) {
+	  _inherits(All, _React$Component);
+
+	  function All(props) {
+	    _classCallCheck(this, All);
+
+	    var _this = _possibleConstructorReturn(this, (All.__proto__ || Object.getPrototypeOf(All)).call(this, props));
+
+	    _this.unsubscribes = [];
+	    _this.state = {
+	      isQuotesLoaded: false,
+	      quotes: []
+	    };
+	    _this.quotesRef = _fireapp2.default.database().ref('quotes/' + _this.props.viewUserId);
+	    return _this;
+	  }
+
+	  _createClass(All, [{
+	    key: 'componentDidMount',
+	    value: function componentDidMount() {
+	      var _this2 = this;
+
+	      this.unsubscribes.push(this.quotesRef.on('value', function (snapshot) {
+	        var quotes = [];
+	        if (snapshot && snapshot.val()) {
+	          snapshot.forEach(function (snapshot) {
+	            var quote = snapshot.val();
+	            quote.key = snapshot.key;
+	            quotes.unshift(quote);
+	          });
+	        }
+	        _this2.setState({
+	          isQuotesLoaded: true,
+	          quotes: quotes
+	        });
+	      }));
+	    }
+	  }, {
+	    key: 'componentWillUnmount',
+	    value: function componentWillUnmount() {
+	      this.unsubscribes.forEach(function (fn) {
+	        return fn();
+	      });
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement(
+	        'div',
+	        { className: 'all' },
+	        _react2.default.createElement(_topNav2.default, { currentUser: this.props.currentUser, viewName: 'all' }),
+	        !this.state.isQuotesLoaded ? _react2.default.createElement(_loading2.default, null) : !this.state.quotes.length ? _react2.default.createElement(
+	          'small',
+	          { className: 'text-small text-muted' },
+	          'No quotes yet, create one!'
+	        ) : _react2.default.createElement(
+	          'div',
+	          { className: 'quotes' },
+	          this.state.quotes.map(function (quote) {
+	            return _react2.default.createElement(
+	              'div',
+	              {
+	                className: 'quote',
+	                key: quote.key
+	              },
+	              _react2.default.createElement(
+	                'h1',
+	                null,
+	                quote.words
+	              ),
+	              _react2.default.createElement(
+	                'h3',
+	                null,
+	                quote.source
+	              )
+	            );
+	          })
+	        )
+	      );
+	    }
+	  }]);
+
+	  return All;
+	}(_react2.default.Component);
+
+	exports.default = All;
+
+/***/ },
+/* 484 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(298);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _fireapp = __webpack_require__(468);
+
+	var _fireapp2 = _interopRequireDefault(_fireapp);
+
+	var _quoteForm = __webpack_require__(485);
+
+	var _quoteForm2 = _interopRequireDefault(_quoteForm);
+
+	var _quoteForms = __webpack_require__(486);
+
+	var _quoteForms2 = _interopRequireDefault(_quoteForms);
+
+	var _topNav = __webpack_require__(475);
+
+	var _topNav2 = _interopRequireDefault(_topNav);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var Edit = function (_React$Component) {
+	  _inherits(Edit, _React$Component);
+
+	  function Edit() {
+	    _classCallCheck(this, Edit);
+
+	    return _possibleConstructorReturn(this, (Edit.__proto__ || Object.getPrototypeOf(Edit)).apply(this, arguments));
+	  }
+
+	  _createClass(Edit, [{
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement(
+	        'div',
+	        { className: 'container' },
+	        _react2.default.createElement(_topNav2.default, { currentUser: this.props.currentUser, viewName: 'edit' }),
+	        _react2.default.createElement(
+	          'h1',
+	          null,
+	          'Create new'
+	        ),
+	        _react2.default.createElement(_quoteForm2.default, { userId: this.props.viewUserId }),
+	        _react2.default.createElement(
+	          'h1',
+	          null,
+	          'Edit existing'
+	        ),
+	        _react2.default.createElement(_quoteForms2.default, { userId: this.props.viewUserId })
+	      );
+	    }
+	  }]);
+
+	  return Edit;
+	}(_react2.default.Component);
+
+	exports.default = Edit;
+
+/***/ },
+/* 485 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(298);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _fireapp = __webpack_require__(468);
+
+	var _fireapp2 = _interopRequireDefault(_fireapp);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var QuoteForm = function (_React$Component) {
+	  _inherits(QuoteForm, _React$Component);
+
+	  function QuoteForm(props) {
+	    _classCallCheck(this, QuoteForm);
+
+	    var _this = _possibleConstructorReturn(this, (QuoteForm.__proto__ || Object.getPrototypeOf(QuoteForm)).call(this, props));
+
+	    _this.state = {
+	      isSubmitting: false,
+	      statusMessage: '',
+	      words: props.quote ? props.quote.words : '',
+	      source: props.quote ? props.quote.source : ''
+	    };
+	    _this.handleWords = function (event) {
+	      return _this.setState({ words: event.target.value });
+	    };
+	    _this.handleSource = function (event) {
+	      return _this.setState({ source: event.target.value });
+	    };
+	    var quoteRef = props.quote ? _fireapp2.default.database().ref('quotes/' + _this.props.userId + '/' + props.quote.key) : _fireapp2.default.database().ref('quotes/' + _this.props.userId);
+	    _this.handleSubmit = function (event) {
+	      event.preventDefault();
+	      var words = _this.state.words.trim();
+	      var source = _this.state.source.trim();
+	      _this.setState({
+	        words: words,
+	        source: source,
+	        isSubmitting: true,
+	        statusMessage: ''
+	      });
+	      if (props.quote) {
+	        // Update existing quote
+	        quoteRef.set({
+	          words: words,
+	          source: source
+	        }).then(function () {
+	          _this.setState({ statusMessage: 'Changes saved!' });
+	          setTimeout(function () {
+	            return _this.setState({ statusMessage: '' });
+	          }, 1500);
+	        }).catch(function (err) {
+	          return alert(err.message);
+	        }).then(function () {
+	          return _this.setState({ isSubmitting: false });
+	        });
+	      } else {
+	        // Create new quote
+	        quoteRef.push().set({
+	          words: words,
+	          source: source
+	        }).then(function () {
+	          return _this.setState({ words: '', source: '' });
+	        }).catch(function (err) {
+	          return alert(err.message);
+	        }).then(function () {
+	          return _this.setState({ isSubmitting: false });
+	        });
+	      }
+	    };
+	    _this.handleDelete = function (event) {
+	      event.preventDefault();
+	      if (window.confirm('Delete quote? This cannot be undone.')) {
+	        quoteRef.remove().catch(function (err) {
+	          alert(err.message);
+	        });
+	      }
+	    };
+	    return _this;
+	  }
+
+	  _createClass(QuoteForm, [{
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement(
+	        'form',
+	        { className: 'quote-form', onSubmit: this.handleSubmit },
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'form-group' },
+	          _react2.default.createElement('textarea', {
+	            rows: '4',
+	            placeholder: 'Quote...',
+	            value: this.state.words,
+	            onChange: this.handleWords
+	          })
+	        ),
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'form-group' },
+	          _react2.default.createElement('input', {
+	            type: 'text',
+	            placeholder: 'Source...',
+	            value: this.state.source,
+	            onChange: this.handleSource
+	          })
+	        ),
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'form-group' },
+	          _react2.default.createElement('input', {
+	            className: 'btn',
+	            type: 'submit',
+	            value: this.props.quote ? 'Update' : 'Create',
+	            disabled: this.state.isSubmitting || !this.state.words.length || !this.state.source.length || this.props.quote && this.props.quote.words === this.state.words && this.props.quote.source === this.state.source
+	          }),
+	          this.props.quote && _react2.default.createElement(
+	            'button',
+	            {
+	              className: 'btn btn-red',
+	              onClick: this.handleDelete,
+	              disabled: this.state.isSubmitting
+	            },
+	            'Delete'
+	          ),
+	          this.state.isSubmitting && _react2.default.createElement('i', { className: 'fa fa-refresh fa-spin' }),
+	          _react2.default.createElement(
+	            'span',
+	            { className: 'text-small text-muted' },
+	            this.state.statusMessage
+	          )
+	        )
+	      );
+	    }
+	  }]);
+
+	  return QuoteForm;
+	}(_react2.default.Component);
+
+	exports.default = QuoteForm;
+	;
+
+/***/ },
+/* 486 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(298);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _fireapp = __webpack_require__(468);
+
+	var _fireapp2 = _interopRequireDefault(_fireapp);
+
+	var _loading = __webpack_require__(474);
+
+	var _loading2 = _interopRequireDefault(_loading);
+
+	var _quoteForm = __webpack_require__(485);
+
+	var _quoteForm2 = _interopRequireDefault(_quoteForm);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var QuoteForms = function (_React$Component) {
+	  _inherits(QuoteForms, _React$Component);
+
+	  function QuoteForms(props) {
+	    _classCallCheck(this, QuoteForms);
+
+	    var _this = _possibleConstructorReturn(this, (QuoteForms.__proto__ || Object.getPrototypeOf(QuoteForms)).call(this, props));
+
+	    _this.unsubscribes = [];
+	    _this.state = {
+	      isQuotesLoaded: false,
+	      quotes: []
+	    };
+	    _this.quotesRef = _fireapp2.default.database().ref('quotes/' + _this.props.userId);
+	    return _this;
+	  }
+
+	  _createClass(QuoteForms, [{
+	    key: 'componentDidMount',
+	    value: function componentDidMount() {
+	      var _this2 = this;
+
+	      this.unsubscribes.push(this.quotesRef.on('value', function (snapshot) {
+	        var quotes = [];
+	        if (snapshot && snapshot.val()) {
+	          snapshot.forEach(function (snapshot) {
+	            var quote = snapshot.val();
+	            quote.key = snapshot.key;
+	            quotes.unshift(quote);
+	          });
+	        }
+	        _this2.setState({
+	          isQuotesLoaded: true,
+	          quotes: quotes
+	        });
+	      }));
+	    }
+	  }, {
+	    key: 'componentWillUnmount',
+	    value: function componentWillUnmount() {
+	      this.unsubscribes.forEach(function (fn) {
+	        return fn();
+	      });
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      var _this3 = this;
+
+	      return _react2.default.createElement(
+	        'div',
+	        null,
+	        !this.state.isQuotesLoaded ? _react2.default.createElement(_loading2.default, null) : this.state.quotes.length ? this.state.quotes.map(function (quote) {
+	          return _react2.default.createElement(_quoteForm2.default, {
+	            key: quote.key,
+	            quote: quote,
+	            userId: _this3.props.userId
+	          });
+	        }) : _react2.default.createElement(
+	          'small',
+	          { className: 'text-small text-muted' },
+	          'No quotes yet, create one!'
+	        )
+	      );
+	    }
+	  }]);
+
+	  return QuoteForms;
+	}(_react2.default.Component);
+
+	exports.default = QuoteForms;
 
 /***/ }
 /******/ ]);

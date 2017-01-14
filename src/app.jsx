@@ -8,12 +8,15 @@ import * as constants from 'shared/constants.jsx';
 import * as queries from 'shared/queries.jsx';
 
 import Account from 'account/account.jsx';
+import All from 'all/all.jsx';
+import Edit from 'edit/edit.jsx';
 import Loading from 'shared/loading.jsx';
 
 class App extends React.Component {
   constructor() {
     super();
     this.state = {
+      currentProfile: null,
       currentUser: null,
       isRouteLoaded: false,
       isUserLoaded: false,
@@ -22,10 +25,44 @@ class App extends React.Component {
       viewUrlId: null,
       viewUserId: null,
     };
-    this.handleHashChange = () => this.updateRoute();
+  }
+
+  componentDidMount() {
+    // add event listeners
+    window.addEventListener('hashchange', () => this.updateRoute());
+    this.initPromise = new Promise((resolve) => {
+      fireapp.auth().onAuthStateChanged((user) => {
+        if (user && user.uid) {
+          fireapp
+            .database()
+            .ref('profiles/' + user.uid)
+            .once('value', (snapshot) => {
+              const profile = snapshot ? snapshot.val() : null;
+              this.setState({
+                currentProfile: profile,
+                currentUser: user,
+                isUserLoaded: true,
+              }, () => resolve());
+            })
+          ;
+        } else {
+          this.setState({
+            currentProfile: null,
+            currentUser: null,
+            isUserLoaded: true,
+          }, () => resolve());
+        }
+      });
+    });
+    // set current route
+    this.updateRoute();
   }
 
   updateRoute() {
+    this.initPromise.then(() => this._updateRoute());
+  }
+
+  _updateRoute() {
     const href = window.location.href;
     const hash = window.location.hash;
     const parts = hash.split('/');
@@ -39,10 +76,10 @@ class App extends React.Component {
     // ROOT
     //  #/home
     //  #/account
+    //  #/edit
     //
     // USER
     //  #/<urlId>/all
-    //  #/<urlId>/edit
     //  #/<urlId>/shuffle/<quoteId>
     //
 
@@ -82,22 +119,39 @@ class App extends React.Component {
       return window.location.replace(hash.slice(0, -1));
     }
 
-    else if (constants.ROOT_VIEWS[parts[1]]) {
+    else if (constants.views.ROOT[parts[1]]) {
       // HASH = #/<rootView>
       // first part is a root view name, load it
-      return this.setState({
-        isRouteLoaded: true,
-        viewName: parts[1],
-        viewQuoteId: null,
-        viewUrlId: null,
-        viewUserId: null,
-      });
+      if (constants.views.ROOT_AUTH[parts[1]] && !this.state.currentUser) {
+        // view requires authentication, re-route to accounts page
+        return window.location.replace('#/account');
+      } else {
+        // good to go
+        return this.setState({
+          isRouteLoaded: true,
+          viewName: parts[1],
+          viewQuoteId: null,
+          viewUrlId: null,
+          viewUserId: null,
+        });
+      }
     }
 
-    else if (constants.USER_VIEWS[parts[1]]) {
+    else if (constants.views.USER[parts[1]]) {
       // HASH = #/<userView>
-      // first part is a user view, reload with default user inserted
-      return window.location.replace('#/default' + hash.slice(1));
+      // first part is a user view, reload with user urlId
+      const profile = this.state.currentProfile;
+      if (profile && profile.urlId) {
+        // user is authenticated, use their own urlId
+        return window.location.replace(
+          '#/' + profile.urlId + hash.slice(1)
+        );
+      } else {
+        // use default user urlId
+        return window.location.replace(
+          '#/default' + hash.slice(1)
+        );
+      }
     }
 
     else {
@@ -115,12 +169,12 @@ class App extends React.Component {
             viewUserId: null,
           });
         }
-        else if (parts[2] && constants.ROOT_VIEWS[parts[2]]) {
+        else if (parts[2] && constants.views.ROOT[parts[2]]) {
           // HASH = #/<urlId>/<rootView>
           // good user, but second part is root view, reload without urlId
           return window.location.replace('#/' + parts[2]);
         }
-        else if (parts[2] && !constants.USER_VIEWS[parts[2]]) {
+        else if (parts[2] && !constants.views.USER[parts[2]]) {
           // HASH = #/<urlId>/<unknown>
           // unrecognized user view name, 404
           return this.setState({
@@ -152,19 +206,6 @@ class App extends React.Component {
     }
   }
 
-  componentDidMount() {
-    // add event listeners
-    window.addEventListener('hashchange', this.handleHashChange);
-    fireapp.auth().onAuthStateChanged((user) => {
-      this.setState({
-        currentUser: user,
-        isUserLoaded: true,
-      });
-    });
-    // set current route
-    this.updateRoute();
-  }
-
   render() {
     if (!this.state.isRouteLoaded || !this.state.isUserLoaded) {
       return <Loading />
@@ -173,7 +214,7 @@ class App extends React.Component {
     switch (this.state.viewName) {
       case 'account':
         document.title = 'Account — quote.garden';
-        return <Account user={this.state.currentUser} />;
+        return <Account currentUser={this.state.currentUser} />;
 
       case '404':
         document.title = '404 — quote.garden';
@@ -197,23 +238,17 @@ class App extends React.Component {
 
       case 'all':
         document.title = `All — ${this.state.viewUrlId} — quote.garden`;
-        return (
-          <div>
-            <div><code>this.state.viewName = {this.state.viewName}</code></div>
-            <div><code>this.state.viewQuoteId = {this.state.viewQuoteId}</code></div>
-            <div><code>this.state.viewUserId = {this.state.viewUserId}</code></div>
-          </div>
-        );
+        return <All
+          currentUser={this.state.currentUser}
+          viewUserId={this.state.viewUserId}
+        />;
 
       case 'edit':
         document.title = `Edit — ${this.state.viewUrlId} — quote.garden`;
-        return (
-          <div>
-            <div><code>this.state.viewName = {this.state.viewName}</code></div>
-            <div><code>this.state.viewQuoteId = {this.state.viewQuoteId}</code></div>
-            <div><code>this.state.viewUserId = {this.state.viewUserId}</code></div>
-          </div>
-        );
+        return <Edit
+          currentUser={this.state.currentUser}
+          viewUserId={this.state.viewUserId}
+        />;
 
       case 'shuffle':
         document.title = `Shuffle — ${this.state.viewUrlId} — quote.garden`;

@@ -1,10 +1,14 @@
-export const ROOT_VIEWS = {
-  account: true,
-  home: true,
-};
-
-export const USER_VIEWS = {
-  all: true,
-  edit: true,
-  shuffle: true,
-};
+export const views = {
+  ROOT: {
+    account: true,
+    edit: true,
+    home: true,
+  },
+  ROOT_AUTH: {
+    edit: true,
+  },
+  USER: {
+    all: true,
+    shuffle: true,
+  }
+}

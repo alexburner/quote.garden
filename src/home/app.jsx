@@ -36,7 +36,7 @@ class App extends React.Component {
     return !this.state.userLoaded ?
       <Loading /> :
       <div className="container">
-        <TopNav user={this.state.user}/>
+        <TopNav user={this.state.user} />
         <h1 className="pull-left">
             quote.garden
         </h1>
