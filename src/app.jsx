@@ -212,10 +212,6 @@ class App extends React.Component {
     }
 
     switch (this.state.viewName) {
-      case 'account':
-        document.title = 'Account — quote.garden';
-        return <Account currentUser={this.state.currentUser} />;
-
       case '404':
         document.title = '404 — quote.garden';
         return (
@@ -236,16 +232,20 @@ class App extends React.Component {
           </div>
         );
 
+      case 'account':
+        document.title = 'Account — quote.garden';
+        return <Account currentUser={this.state.currentUser} />;
+
+      case 'edit':
+        document.title = 'Edit — quote.garden';
+        return <Edit currentUser={this.state.currentUser} />;
+
       case 'all':
         document.title = `All — ${this.state.viewUrlId} — quote.garden`;
         return <All
           currentUser={this.state.currentUser}
           viewUserId={this.state.viewUserId}
         />;
-
-      case 'edit':
-        document.title = `Edit — ${this.state.viewUrlId} — quote.garden`;
-        return <Edit currentUser={this.state.currentUser} />;
 
       case 'shuffle':
         document.title = `Shuffle — ${this.state.viewUrlId} — quote.garden`;

@@ -295,10 +295,6 @@
 	      }
 
 	      switch (this.state.viewName) {
-	        case 'account':
-	          document.title = 'Account — quote.garden';
-	          return _react2.default.createElement(_account2.default, { currentUser: this.state.currentUser });
-
 	        case '404':
 	          document.title = '404 — quote.garden';
 	          return _react2.default.createElement(
@@ -373,16 +369,20 @@
 	            )
 	          );
 
+	        case 'account':
+	          document.title = 'Account — quote.garden';
+	          return _react2.default.createElement(_account2.default, { currentUser: this.state.currentUser });
+
+	        case 'edit':
+	          document.title = 'Edit — quote.garden';
+	          return _react2.default.createElement(_edit2.default, { currentUser: this.state.currentUser });
+
 	        case 'all':
 	          document.title = 'All \u2014 ' + this.state.viewUrlId + ' \u2014 quote.garden';
 	          return _react2.default.createElement(_all2.default, {
 	            currentUser: this.state.currentUser,
 	            viewUserId: this.state.viewUserId
 	          });
-
-	        case 'edit':
-	          document.title = 'Edit \u2014 ' + this.state.viewUrlId + ' \u2014 quote.garden';
-	          return _react2.default.createElement(_edit2.default, { currentUser: this.state.currentUser });
 
 	        case 'shuffle':
 	          document.title = 'Shuffle \u2014 ' + this.state.viewUrlId + ' \u2014 quote.garden';
