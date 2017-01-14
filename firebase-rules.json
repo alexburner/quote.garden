@@ -27,6 +27,7 @@
           newData.child('urlId').val() !== 'account' &&
           newData.child('urlId').val() !== 'all' &&
           newData.child('urlId').val() !== 'edit' &&
+          newData.child('urlId').val() !== 'home' &&
           newData.child('urlId').val() !== 'shuffle'
         "
       }

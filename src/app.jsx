@@ -8,60 +8,66 @@ import fireapp from 'shared/fireapp.jsx';
 import * as constants from 'shared/constants.jsx';
 import * as queries from 'shared/queries.jsx';
 
+import Account from 'account/account.jsx';
 import Loading from 'shared/loading.jsx';
-import TopNav from 'shared/top-nav.jsx';
 
 class App extends React.Component {
   constructor() {
     super();
-    this.unsubscribes = [];
     this.state = {
-      isLoaded: false,
       currentUser: fireapp.auth().currentUser,
+      isLoaded: false,
       viewName: null,
       viewUserId: null,
       viewQuoteId: null,
     };
+    this.unsubscribes = [];
     this.handleHashChange = () => this.updateRoute();
   }
 
   updateRoute() {
-    console.log('hash', window.location.hash);
-    console.log('hash split', window.location.hash.split('/'));
-
-    //
-    // hash possibilities:
-    //                                      >>> #/
-    //  #                                   >>> #/
-    //  #/                                  >>> #/
-    //  #$thing                             >>> #/$thing
-    //  #$/thing/                           >>> #/$thing
-    //  #/$unknown                          >>> #/$unknown (but render 404)
-    //  #/$viewName                         >>> #/default/$viewName
-    //  #/$profile.urlId                    >>> #/$profile.urlId/shuffle
-    //  #/$profile.urlId/$viewName
-    //  #/$profile.urlId/$viewName/$quoteId
-    //
-
-    //
-    // view possibilities
-    //  404 (unnamed >>> current path)
-    //  home (unnamed >>> no path)
-    //  account
-    //  all
-    //  edit
-    //  shuffle
-    //
-
     const href = window.location.href;
     const hash = window.location.hash;
     const parts = hash.split('/');
 
-    if (!hash.length || !parts.length) {
+    //
+    // views:
+    //
+    // SILENT
+    //  #/<404> (shows current/failed path)
+    //
+    // ROOT
+    //  #/home
+    //  #/account
+    //
+    // USER
+    //  #/<urlId>/all
+    //  #/<urlId>/edit
+    //  #/<urlId>/shuffle/<quoteId>
+    //
+
+    //
+    // redirects:
+    //                        >>>  #/home
+    //  #                     >>>  #/home
+    //  #/                    >>>  #/home
+    //  #<thing>              >>>  #/<thing>
+    //  #/<thing>/            >>>  #/<thing>
+    //  #/<userView>          >>>  #/default/<userView>
+    //  #/<urlId>             >>>  #/<urlId>/shuffle
+    //  #/<urlId>/<rootView>  >>>  #/<rootView>
+    //
+
+    if (
+      !hash.length ||
+      !parts.length ||
+      (parts.length === 2 && !parts[1].length)
+    ) {
       // HASH =
       // HASH = #
-      // incomplete hash, reload with #/
-      return window.location.replace('#/');
+      // HASH = #/
+      // empty-ish hash, reload with #/home
+      return window.location.replace('#/home');
     }
 
     else if (parts[0] !== '#') {
@@ -70,62 +76,63 @@ class App extends React.Component {
       return window.location.replace('#/' + hash.slice(1));
     }
 
-    else if (parts.length === 2 && !parts[1].length) {
-      // HASH = #/
-      // no route set, go home with default user
-      return queries.getDefaultUserId().then(
-        (userId) => this.setState({
-          isLoaded: true,
-          viewName: 'home',
-          viewUserId: userId
-        })
-      );
-    }
-
     else if (!parts[parts.length - 1].length) {
       // HASH = #/thing/
       // trailing slash, strip it out so we can trust all parts
       return window.location.replace(hash.slice(0, -1));
     }
 
-    else if (constants.VIEW_NAMES[parts[1]]) {
-      // HASH = #/$viewName
-      // first part is a view name, reload with default user
+    else if (constants.ROOT_VIEWS[parts[1]]) {
+      // HASH = #/<rootView>
+      // first part is a root view name, load it
+      return this.setState({
+        isLoaded: true,
+        viewName: parts[1],
+        viewUserId: null,
+      });
+    }
+
+    else if (constants.USER_VIEWS[parts[1]]) {
+      // HASH = #/<userView>
+      // first part is a user view, reload with default user inserted
       return window.location.replace('#/default' + hash.slice(1));
     }
 
     else {
-      // HASH = #/$profile.urlId
-      // first part must be a user's profile.urlId (or an error)
+      // HASH = #/<urlId>
+      // first part must be a user's urlId (or an error)
       return queries.getUserIdByUrlId(parts[1]).then((userId) => {
         if (!userId) {
-          // HASH = #/$unknown
-          // no user found, 404 with default user
-          return queries.getDefaultUserId().then(
-            (userId) => this.setState({
-              isLoaded: true,
-              viewName: '404',
-              viewUserId: userId
-            })
-          );
-        }
-        else if (parts[2] && !constants.VIEW_NAMES[parts[2]]) {
-          // HASH = #/$profile.urlId/$unknown
-          // unrecognized view, 404 with url user
+          // HASH = #/<unknown>
+          // unrecognized user, 404
           return this.setState({
             isLoaded: true,
             viewName: '404',
-            viewUserId: userId
+            viewUserId: null,
+          });
+        }
+        else if (parts[2] && constants.ROOT_VIEWS[parts[2]]) {
+          // HASH = #/<urlId>/<rootView>
+          // good user, but second part is root view, reload without urlId
+          return window.location.replace('#/' + parts[2]);
+        }
+        else if (parts[2] && !constants.USER_VIEWS[parts[2]]) {
+          // HASH = #/<urlId>/<unknown>
+          // unrecognized user view name, 404
+          return this.setState({
+            isLoaded: true,
+            viewName: '404',
+            viewUserId: null,
           });
         }
         else if (parts.length === 2) {
-          // HASH = #/$profile.urlId
-          // first part is good user, but no view, reload with shuffle
+          // HASH = #/<urlId>
+          // good user, but no view, reload with shuffle
           return window.location.replace('#/' + parts[1] + '/shuffle');
         }
         else {
-          // HASH = #/$profile.urlId/$viewName
-          // HASH = #/$profile.urlId/$viewName/$quoteId
+          // HASH = #/<urlId>/<userView>
+          // HASH = #/<urlId>/<userView>/<quoteId>
           // recognized user and view yayy
           return this.setState({
             isLoaded: true,
@@ -166,6 +173,7 @@ class App extends React.Component {
       return <Loading />
     }
     switch (this.state.viewName) {
+      case 'account': return <Account user={this.props.currentUser} />;
       default: return (
         <div>
           <div><code>this.state.viewName = {this.state.viewName}</code></div>

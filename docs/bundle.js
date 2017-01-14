@@ -70,13 +70,13 @@
 
 	var queries = _interopRequireWildcard(_queries);
 
+	var _account = __webpack_require__(476);
+
+	var _account2 = _interopRequireDefault(_account);
+
 	var _loading = __webpack_require__(474);
 
 	var _loading2 = _interopRequireDefault(_loading);
-
-	var _topNav = __webpack_require__(475);
-
-	var _topNav2 = _interopRequireDefault(_topNav);
 
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -97,14 +97,14 @@
 
 	    var _this = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this));
 
-	    _this.unsubscribes = [];
 	    _this.state = {
-	      isLoaded: false,
 	      currentUser: _fireapp2.default.auth().currentUser,
+	      isLoaded: false,
 	      viewName: null,
 	      viewUserId: null,
 	      viewQuoteId: null
 	    };
+	    _this.unsubscribes = [];
 	    _this.handleHashChange = function () {
 	      return _this.updateRoute();
 	    };
@@ -116,93 +116,95 @@
 	    value: function updateRoute() {
 	      var _this2 = this;
 
-	      console.log('hash', window.location.hash);
-	      console.log('hash split', window.location.hash.split('/'));
-
-	      //
-	      // hash possibilities:
-	      //                                      >>> #/
-	      //  #                                   >>> #/
-	      //  #/                                  >>> #/
-	      //  #$thing                             >>> #/$thing
-	      //  #$/thing/                           >>> #/$thing
-	      //  #/$unknown                          >>> #/$unknown (but render 404)
-	      //  #/$viewName                         >>> #/default/$viewName
-	      //  #/$profile.urlId                    >>> #/$profile.urlId/shuffle
-	      //  #/$profile.urlId/$viewName
-	      //  #/$profile.urlId/$viewName/$quoteId
-	      //
-
-	      //
-	      // view possibilities
-	      //  404 (unnamed >>> current path)
-	      //  home (unnamed >>> no path)
-	      //  account
-	      //  all
-	      //  edit
-	      //  shuffle
-	      //
-
 	      var href = window.location.href;
 	      var hash = window.location.hash;
 	      var parts = hash.split('/');
 
-	      if (!hash.length || !parts.length) {
+	      //
+	      // views:
+	      //
+	      // SILENT
+	      //  #/<404> (shows current/failed path)
+	      //
+	      // ROOT
+	      //  #/home
+	      //  #/account
+	      //
+	      // USER
+	      //  #/<urlId>/all
+	      //  #/<urlId>/edit
+	      //  #/<urlId>/shuffle/<quoteId>
+	      //
+
+	      //
+	      // redirects:
+	      //                        >>>  #/home
+	      //  #                     >>>  #/home
+	      //  #/                    >>>  #/home
+	      //  #<thing>              >>>  #/<thing>
+	      //  #/<thing>/            >>>  #/<thing>
+	      //  #/<userView>          >>>  #/default/<userView>
+	      //  #/<urlId>             >>>  #/<urlId>/shuffle
+	      //  #/<urlId>/<rootView>  >>>  #/<rootView>
+	      //
+
+	      if (!hash.length || !parts.length || parts.length === 2 && !parts[1].length) {
 	        // HASH =
 	        // HASH = #
-	        // incomplete hash, reload with #/
-	        return window.location.replace('#/');
+	        // HASH = #/
+	        // empty-ish hash, reload with #/home
+	        return window.location.replace('#/home');
 	      } else if (parts[0] !== '#') {
 	        // HASH = #thing
 	        // malformed hash, reload with first / inserted
 	        return window.location.replace('#/' + hash.slice(1));
-	      } else if (parts.length === 2 && !parts[1].length) {
-	        // HASH = #/
-	        // no route set, go home with default user
-	        return queries.getDefaultUserId().then(function (userId) {
-	          return _this2.setState({
-	            isLoaded: true,
-	            viewName: 'home',
-	            viewUserId: userId
-	          });
-	        });
 	      } else if (!parts[parts.length - 1].length) {
 	        // HASH = #/thing/
 	        // trailing slash, strip it out so we can trust all parts
 	        return window.location.replace(hash.slice(0, -1));
-	      } else if (constants.VIEW_NAMES[parts[1]]) {
-	        // HASH = #/$viewName
-	        // first part is a view name, reload with default user
+	      } else if (constants.ROOT_VIEWS[parts[1]]) {
+	        // HASH = #/<rootView>
+	        // first part is a root view name, load it
+	        return this.setState({
+	          isLoaded: true,
+	          viewName: parts[1],
+	          viewUserId: null
+	        });
+	      } else if (constants.USER_VIEWS[parts[1]]) {
+	        // HASH = #/<userView>
+	        // first part is a user view, reload with default user inserted
 	        return window.location.replace('#/default' + hash.slice(1));
 	      } else {
-	        // HASH = #/$profile.urlId
-	        // first part must be a user's profile.urlId (or an error)
+	        // HASH = #/<urlId>
+	        // first part must be a user's urlId (or an error)
 	        return queries.getUserIdByUrlId(parts[1]).then(function (userId) {
 	          if (!userId) {
-	            // HASH = #/$unknown
-	            // no user found, 404 with default user
-	            return queries.getDefaultUserId().then(function (userId) {
-	              return _this2.setState({
-	                isLoaded: true,
-	                viewName: '404',
-	                viewUserId: userId
-	              });
-	            });
-	          } else if (parts[2] && !constants.VIEW_NAMES[parts[2]]) {
-	            // HASH = #/$profile.urlId/$unknown
-	            // unrecognized view, 404 with url user
+	            // HASH = #/<unknown>
+	            // unrecognized user, 404
 	            return _this2.setState({
 	              isLoaded: true,
 	              viewName: '404',
-	              viewUserId: userId
+	              viewUserId: null
+	            });
+	          } else if (parts[2] && constants.ROOT_VIEWS[parts[2]]) {
+	            // HASH = #/<urlId>/<rootView>
+	            // good user, but second part is root view, reload without urlId
+	            return window.location.replace('#/' + parts[2]);
+	          } else if (parts[2] && !constants.USER_VIEWS[parts[2]]) {
+	            // HASH = #/<urlId>/<unknown>
+	            // unrecognized user view name, 404
+	            return _this2.setState({
+	              isLoaded: true,
+	              viewName: '404',
+	              viewUserId: null
 	            });
 	          } else if (parts.length === 2) {
-	            // HASH = #/$profile.urlId
-	            // first part is good user, but no view, reload with shuffle
+	            // HASH = #/<urlId>
+	            // good user, but no view, reload with shuffle
 	            return window.location.replace('#/' + parts[1] + '/shuffle');
 	          } else {
-	            // HASH = #/$profile.urlId/$viewName
-	            // HASH = #/$profile.urlId/$viewName/$quoteId
+	            // HASH = #/<urlId>/<userView>
+	            // HASH = #/<urlId>/<userView>/<quoteId>
 	            // recognized user and view yayy
 	            return _this2.setState({
 	              isLoaded: true,
@@ -244,6 +246,8 @@
 	        return _react2.default.createElement(_loading2.default, null);
 	      }
 	      switch (this.state.viewName) {
+	        case 'account':
+	          return _react2.default.createElement(_account2.default, { user: this.props.currentUser });
 	        default:
 	          return _react2.default.createElement(
 	            'div',
@@ -30091,8 +30095,12 @@
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
-	var VIEW_NAMES = exports.VIEW_NAMES = {
+	var ROOT_VIEWS = exports.ROOT_VIEWS = {
 	    account: true,
+	    home: true
+	};
+
+	var USER_VIEWS = exports.USER_VIEWS = {
 	    all: true,
 	    edit: true,
 	    shuffle: true
@@ -30263,6 +30271,929 @@
 
 	exports.default = TopNav;
 	;
+
+/***/ },
+/* 476 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(298);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _fireapp = __webpack_require__(468);
+
+	var _fireapp2 = _interopRequireDefault(_fireapp);
+
+	var _edit = __webpack_require__(477);
+
+	var _edit2 = _interopRequireDefault(_edit);
+
+	var _auth = __webpack_require__(480);
+
+	var _auth2 = _interopRequireDefault(_auth);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var Account = function (_React$Component) {
+	  _inherits(Account, _React$Component);
+
+	  function Account() {
+	    _classCallCheck(this, Account);
+
+	    return _possibleConstructorReturn(this, (Account.__proto__ || Object.getPrototypeOf(Account)).apply(this, arguments));
+	  }
+
+	  _createClass(Account, [{
+	    key: 'render',
+	    value: function render() {
+	      return this.props.user ? _react2.default.createElement(_edit2.default, { user: this.props.user }) : _react2.default.createElement(_auth2.default, null);
+	    }
+	  }]);
+
+	  return Account;
+	}(_react2.default.Component);
+
+	exports.default = Account;
+
+/***/ },
+/* 477 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(298);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _fireapp = __webpack_require__(468);
+
+	var _fireapp2 = _interopRequireDefault(_fireapp);
+
+	var _editUser = __webpack_require__(478);
+
+	var _editUser2 = _interopRequireDefault(_editUser);
+
+	var _editUrl = __webpack_require__(479);
+
+	var _editUrl2 = _interopRequireDefault(_editUrl);
+
+	var _topNav = __webpack_require__(475);
+
+	var _topNav2 = _interopRequireDefault(_topNav);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var Edit = function (_React$Component) {
+	  _inherits(Edit, _React$Component);
+
+	  function Edit(props) {
+	    _classCallCheck(this, Edit);
+
+	    var _this = _possibleConstructorReturn(this, (Edit.__proto__ || Object.getPrototypeOf(Edit)).call(this, props));
+
+	    _this.handleLogout = function (event) {
+	      event.preventDefault();
+	      _fireapp2.default.auth().signOut();
+	    };
+	    return _this;
+	  }
+
+	  _createClass(Edit, [{
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement(
+	        'div',
+	        { className: 'container' },
+	        _react2.default.createElement(_topNav2.default, { user: this.props.user }),
+	        _react2.default.createElement(
+	          'h1',
+	          null,
+	          'Account \u2009',
+	          _react2.default.createElement(
+	            'button',
+	            {
+	              className: 'btn',
+	              onClick: this.handleLogout
+	            },
+	            'Logout'
+	          )
+	        ),
+	        _react2.default.createElement(_editUrl2.default, { user: this.props.user }),
+	        _react2.default.createElement(_editUser2.default, { user: this.props.user })
+	      );
+	    }
+	  }]);
+
+	  return Edit;
+	}(_react2.default.Component);
+
+	exports.default = Edit;
+
+/***/ },
+/* 478 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(298);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _fireapp = __webpack_require__(468);
+
+	var _topNav = __webpack_require__(475);
+
+	var _topNav2 = _interopRequireDefault(_topNav);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var EditUser = function (_React$Component) {
+	  _inherits(EditUser, _React$Component);
+
+	  function EditUser(props) {
+	    _classCallCheck(this, EditUser);
+
+	    var _this = _possibleConstructorReturn(this, (EditUser.__proto__ || Object.getPrototypeOf(EditUser)).call(this, props));
+
+	    _this.state = {
+	      isSubmitting: false,
+	      statusMessage: '',
+	      newEmail: _this.props.user.email,
+	      newPass: '',
+	      newRpass: '',
+	      pass: ''
+	    };
+	    _this.handleNewEmail = function (event) {
+	      _this.setState({ newEmail: event.target.value });
+	    };
+	    _this.handleNewPass = function (event) {
+	      _this.setState({ newPass: event.target.value });
+	    };
+	    _this.handleNewRpass = function (event) {
+	      _this.setState({ newRpass: event.target.value });
+	    };
+	    _this.handlePass = function (event) {
+	      _this.setState({ pass: event.target.value });
+	    };
+	    _this.handleSubmit = function (event) {
+	      event.preventDefault();
+	      var user = _this.props.user;
+	      var newEmail = _this.state.newEmail.trim();
+	      var newPass = _this.state.newPass;
+	      var newRpass = _this.state.newRpass;
+	      var pass = _this.state.pass;
+	      if (!_this.hasChanges()) {
+	        return alert('No changes to save.');
+	      }
+	      if (!pass.length) {
+	        return alert('Error: current password is required.');
+	      }
+	      if (_this.hasNewPass() && newPass !== newRpass) {
+	        return alert('Error: new passwords do not match.');
+	      }
+	      _this.setState({ isSubmitting: true });
+	      user.reauthenticate(_fireapp.firebase.auth.EmailAuthProvider.credential(user.email, pass)).then(function () {
+	        return Promise.all([_this.hasNewEmail() ? user.updateEmail(newEmail) : null, _this.hasNewPass() ? user.updatePassword(newPass) : null]);
+	      }).then(function () {
+	        _this.setState({
+	          newEmail: newEmail,
+	          newPass: '',
+	          newRpass: '',
+	          pass: ''
+	        });
+	        _this.setState({ statusMessage: 'Changes saved!' });
+	        setTimeout(function () {
+	          return _this.setState({ statusMessage: '' });
+	        }, 1500);
+	      }).catch(function (err) {
+	        return alert(err.message);
+	      }).then(function () {
+	        return _this.setState({ isSubmitting: false });
+	      });
+	    };
+	    return _this;
+	  }
+
+	  _createClass(EditUser, [{
+	    key: 'hasNewEmail',
+	    value: function hasNewEmail() {
+	      return this.state.newEmail.length && this.state.newEmail !== this.props.user.email;
+	    }
+	  }, {
+	    key: 'hasNewPass',
+	    value: function hasNewPass() {
+	      return Boolean(this.state.newPass.length);
+	    }
+	  }, {
+	    key: 'hasChanges',
+	    value: function hasChanges() {
+	      return this.hasNewEmail() || this.hasNewPass();
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement(
+	        'form',
+	        { onSubmit: this.handleSubmit },
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'row form-group' },
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'col col-sm-3' },
+	            _react2.default.createElement(
+	              'label',
+	              { className: 'label-inline', htmlFor: 'new_email' },
+	              'Update email:'
+	            )
+	          ),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'col col-sm-9' },
+	            _react2.default.createElement('input', {
+	              id: 'new_email',
+	              type: 'email',
+	              value: this.state.newEmail,
+	              onChange: this.handleNewEmail
+	            })
+	          )
+	        ),
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'row form-group' },
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'col col-sm-3' },
+	            _react2.default.createElement(
+	              'label',
+	              { className: 'label-inline', htmlFor: 'new_pass' },
+	              'Update password:'
+	            )
+	          ),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'col col-sm-9' },
+	            _react2.default.createElement('input', {
+	              id: 'new_pass',
+	              type: 'password',
+	              value: this.state.newPass,
+	              onChange: this.handleNewPass
+	            })
+	          )
+	        ),
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'row form-group' },
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'col col-sm-3' },
+	            _react2.default.createElement(
+	              'label',
+	              { className: 'label-inline', htmlFor: 'new_rpass' },
+	              'Repeat password:'
+	            )
+	          ),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'col col-sm-9' },
+	            _react2.default.createElement('input', {
+	              id: 'new_rpass',
+	              type: 'password',
+	              value: this.state.newRpass,
+	              onChange: this.handleNewRpass
+	            })
+	          )
+	        ),
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'row form-group' },
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'col col-sm-12' },
+	            _react2.default.createElement('hr', null)
+	          ),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'col col-sm-3' },
+	            _react2.default.createElement(
+	              'label',
+	              { className: 'label-inline', htmlFor: 'pass' },
+	              'Current password:'
+	            )
+	          ),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'col col-sm-9' },
+	            _react2.default.createElement('input', {
+	              id: 'pass',
+	              type: 'password',
+	              value: this.state.pass,
+	              onChange: this.handlePass
+	            })
+	          )
+	        ),
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'form-group text-right' },
+	          _react2.default.createElement(
+	            'span',
+	            { className: 'text-small text-muted' },
+	            this.state.statusMessage
+	          ),
+	          this.state.isSubmitting && _react2.default.createElement('i', { className: 'fa fa-refresh fa-spin' }),
+	          _react2.default.createElement('input', {
+	            className: 'btn',
+	            type: 'submit',
+	            value: 'Save Changes',
+	            disabled: this.state.isSubmitting || !this.hasChanges() || this.state.newPass.length && this.state.newPass !== this.state.newRpass || !this.state.pass.length
+	          })
+	        )
+	      );
+	    }
+	  }]);
+
+	  return EditUser;
+	}(_react2.default.Component);
+
+	exports.default = EditUser;
+
+/***/ },
+/* 479 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(298);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _fireapp = __webpack_require__(468);
+
+	var _fireapp2 = _interopRequireDefault(_fireapp);
+
+	var _loading = __webpack_require__(474);
+
+	var _loading2 = _interopRequireDefault(_loading);
+
+	var _topNav = __webpack_require__(475);
+
+	var _topNav2 = _interopRequireDefault(_topNav);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var EditUrl = function (_React$Component) {
+	  _inherits(EditUrl, _React$Component);
+
+	  function EditUrl(props) {
+	    _classCallCheck(this, EditUrl);
+
+	    var _this = _possibleConstructorReturn(this, (EditUrl.__proto__ || Object.getPrototypeOf(EditUrl)).call(this, props));
+
+	    _this.unsubscribes = [];
+	    _this.state = {
+	      isFetching: true,
+	      isSubmitting: false,
+	      statusMessage: '',
+	      urlId: '',
+	      newUrlId: ''
+	    };
+	    _this.profileRef = _fireapp2.default.database().ref('profiles/' + _this.props.user.uid);
+	    _this.handleUrlId = function (event) {
+	      return _this.setState({ newUrlId: event.target.value });
+	    };
+	    _this.handleSubmit = function (event) {
+	      event.preventDefault();
+
+	      var oldUrlId = _this.state.urlId;
+	      var newUrlId = _this.state.newUrlId.trim();
+
+	      if (newUrlId === oldUrlId) {
+	        alert('No changes to save.');
+	        return;
+	      }
+
+	      if (!newUrlId) {
+	        alert('Error: URL name must have some value.');
+	        _this.setState({ newUrlId: _this.state.urlId });
+	        return;
+	      }
+
+	      if (/[^0-9a-z\+\-\_\.]+/ig.test(newUrlId)) {
+	        alert('Error: URL name can only contain alphanumeric + - _ .');
+	        _this.setState({ newUrlId: _this.state.urlId });
+	        return;
+	      }
+
+	      _this.setState({
+	        newUrlId: newUrlId,
+	        isSubmitting: true,
+	        statusMessage: ''
+	      });
+
+	      _fireapp2.default.database().ref('profiles').once('value', function (snapshot) {
+	        var isUnique = true;
+
+	        snapshot.forEach(function (snapshot) {
+	          var profile = snapshot.val();
+	          if (profile.urlId === newUrlId) {
+	            isUnique = false;
+	            return false;
+	          }
+	        });
+
+	        if (!isUnique) {
+	          alert('Sorry, that URL name is already in use.');
+	          _this.setState({
+	            newUrlId: _this.state.urlId,
+	            isSubmitting: false
+	          });
+	          return;
+	        }
+
+	        _this.profileRef.update({ urlId: newUrlId }).then(function () {
+	          _this.setState({ statusMessage: 'Changes saved!' });
+	          setTimeout(function () {
+	            return _this.setState({ statusMessage: '' });
+	          }, 1500);
+	        }).catch(function (err) {
+	          return alert(err.message);
+	        }).then(function () {
+	          return _this.setState({ isSubmitting: false });
+	        });
+	      });
+	    };
+	    return _this;
+	  }
+
+	  _createClass(EditUrl, [{
+	    key: 'componentDidMount',
+	    value: function componentDidMount() {
+	      var _this2 = this;
+
+	      this.unsubscribes.push(this.profileRef.on('value', function (snapshot) {
+	        if (!snapshot) return;
+	        var profile = snapshot.val();
+	        _this2.setState({
+	          isFetching: false,
+	          newUrlId: profile.urlId,
+	          urlId: profile.urlId
+	        });
+	      }));
+	    }
+	  }, {
+	    key: 'componentWillUnmount',
+	    value: function componentWillUnmount() {
+	      this.unsubscribes.forEach(function (fn) {
+	        return fn();
+	      });
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement(
+	        'form',
+	        { onSubmit: this.handleSubmit },
+	        this.state.isFetching ? _react2.default.createElement(_loading2.default, { noPadding: 'true' }) : _react2.default.createElement(
+	          'div',
+	          { className: 'row form-group' },
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'col col-sm-3' },
+	            _react2.default.createElement(
+	              'label',
+	              { className: 'label-inline', htmlFor: 'new_url_id' },
+	              'Update URL name:'
+	            )
+	          ),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'col col-sm-9' },
+	            _react2.default.createElement('input', {
+	              id: 'new_url_id',
+	              type: 'text',
+	              value: this.state.newUrlId,
+	              onChange: this.handleUrlId
+	            }),
+	            _react2.default.createElement(
+	              'div',
+	              { className: 'text-small text-wrap' },
+	              _react2.default.createElement(
+	                'span',
+	                { className: 'text-muted' },
+	                'http://quote.garden/random/#u='
+	              ),
+	              this.state.newUrlId
+	            )
+	          )
+	        ),
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'form-group text-right' },
+	          _react2.default.createElement(
+	            'span',
+	            { className: 'text-small text-muted' },
+	            this.state.statusMessage
+	          ),
+	          this.state.isSubmitting && _react2.default.createElement('i', { className: 'fa fa-refresh fa-spin' }),
+	          _react2.default.createElement('input', {
+	            className: 'btn',
+	            type: 'submit',
+	            value: 'Save Changes',
+	            disabled: this.state.isSubmitting || !(this.state.newUrlId && this.state.newUrlId.length) || this.state.newUrlId.trim() === this.state.urlId
+	          })
+	        )
+	      );
+	    }
+	  }]);
+
+	  return EditUrl;
+	}(_react2.default.Component);
+
+	exports.default = EditUrl;
+
+/***/ },
+/* 480 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(298);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _login = __webpack_require__(481);
+
+	var _login2 = _interopRequireDefault(_login);
+
+	var _register = __webpack_require__(482);
+
+	var _register2 = _interopRequireDefault(_register);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var Auth = function (_React$Component) {
+	  _inherits(Auth, _React$Component);
+
+	  function Auth() {
+	    _classCallCheck(this, Auth);
+
+	    return _possibleConstructorReturn(this, (Auth.__proto__ || Object.getPrototypeOf(Auth)).apply(this, arguments));
+	  }
+
+	  _createClass(Auth, [{
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement(
+	        'div',
+	        { className: 'container' },
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'row' },
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'col col-sm-6' },
+	            _react2.default.createElement(_login2.default, null)
+	          ),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'col col-sm-6' },
+	            _react2.default.createElement(_register2.default, null)
+	          )
+	        )
+	      );
+	    }
+	  }]);
+
+	  return Auth;
+	}(_react2.default.Component);
+
+	exports.default = Auth;
+
+/***/ },
+/* 481 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(298);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _fireapp = __webpack_require__(468);
+
+	var _fireapp2 = _interopRequireDefault(_fireapp);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var Login = function (_React$Component) {
+	  _inherits(Login, _React$Component);
+
+	  function Login() {
+	    _classCallCheck(this, Login);
+
+	    var _this = _possibleConstructorReturn(this, (Login.__proto__ || Object.getPrototypeOf(Login)).call(this));
+
+	    _this.state = {
+	      isSubmitting: false,
+	      email: '',
+	      pass: ''
+	    };
+	    _this.handleEmail = function (event) {
+	      return _this.setState({ email: event.target.value });
+	    };
+	    _this.handlePass = function (event) {
+	      return _this.setState({ pass: event.target.value });
+	    };
+	    _this.handleSubmit = function (event) {
+	      event.preventDefault();
+	      if (!_this.state.email.length) {
+	        return alert('Error: email is required.');
+	      }
+	      if (!_this.state.pass.length) {
+	        return alert('Error: password is required.');
+	      }
+	      _this.setState({ isSubmitting: true });
+	      _fireapp2.default.auth().signInWithEmailAndPassword(_this.state.email, _this.state.pass).catch(function (err) {
+	        alert(err.message);
+	      }).then(function () {
+	        _this.setState({
+	          isSubmitting: false
+	        });
+	      });
+	    };
+	    return _this;
+	  }
+
+	  _createClass(Login, [{
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement(
+	        'div',
+	        null,
+	        _react2.default.createElement(
+	          'h1',
+	          null,
+	          'Login'
+	        ),
+	        _react2.default.createElement(
+	          'form',
+	          { onSubmit: this.handleSubmit },
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'form-group' },
+	            _react2.default.createElement('input', {
+	              type: 'email',
+	              placeholder: 'Email',
+	              value: this.state.email,
+	              onChange: this.handleEmail
+	            })
+	          ),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'form-group' },
+	            _react2.default.createElement('input', {
+	              type: 'password',
+	              placeholder: 'Password',
+	              value: this.state.pass,
+	              onChange: this.handlePass
+	            })
+	          ),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'form-group' },
+	            _react2.default.createElement('input', {
+	              className: 'btn',
+	              type: 'submit',
+	              value: 'Login',
+	              disabled: this.state.isSubmitting || !this.state.email.length || !this.state.pass.length
+	            }),
+	            this.state.isSubmitting && _react2.default.createElement('i', { className: 'fa fa-refresh fa-spin' })
+	          )
+	        )
+	      );
+	    }
+	  }]);
+
+	  return Login;
+	}(_react2.default.Component);
+
+	exports.default = Login;
+
+/***/ },
+/* 482 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(298);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _fireapp = __webpack_require__(468);
+
+	var _fireapp2 = _interopRequireDefault(_fireapp);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var Register = function (_React$Component) {
+	  _inherits(Register, _React$Component);
+
+	  function Register() {
+	    _classCallCheck(this, Register);
+
+	    var _this = _possibleConstructorReturn(this, (Register.__proto__ || Object.getPrototypeOf(Register)).call(this));
+
+	    _this.state = {
+	      isSubmitting: false,
+	      email: '',
+	      pass: '',
+	      rpass: ''
+	    };
+	    _this.handleEmail = function (event) {
+	      return _this.setState({ email: event.target.value });
+	    };
+	    _this.handlePass = function (event) {
+	      return _this.setState({ pass: event.target.value });
+	    };
+	    _this.handleRpass = function (event) {
+	      return _this.setState({ rpass: event.target.value });
+	    };
+	    _this.handleSubmit = function (event) {
+	      event.preventDefault();
+	      if (!_this.state.email.length) {
+	        return alert('Error: email is required.');
+	      }
+	      if (!_this.state.pass.length) {
+	        return alert('Error: password is required.');
+	      }
+	      if (_this.state.pass !== _this.state.rpass) {
+	        return alert('Error: passwords do not match.');
+	      }
+	      _this.setState({ isSubmitting: true });
+	      _fireapp2.default.auth().createUserWithEmailAndPassword(_this.state.email, _this.state.pass).then(function (user) {
+	        if (!user) throw new Error('Something went wrong.');
+	        return _fireapp2.default.database().ref('profiles/' + user.uid).set({
+	          urlId: user.uid
+	        });
+	      }).catch(function (err) {
+	        return alert(err.message);
+	      }).then(function () {
+	        return _this.setState({ isSubmitting: false });
+	      });
+	    };
+	    return _this;
+	  }
+
+	  _createClass(Register, [{
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement(
+	        'div',
+	        null,
+	        _react2.default.createElement(
+	          'h1',
+	          null,
+	          'Register'
+	        ),
+	        _react2.default.createElement(
+	          'form',
+	          { onSubmit: this.handleSubmit },
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'form-group' },
+	            _react2.default.createElement('input', {
+	              type: 'email',
+	              placeholder: 'Email',
+	              value: this.state.email,
+	              onChange: this.handleEmail
+	            })
+	          ),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'form-group' },
+	            _react2.default.createElement('input', {
+	              type: 'password',
+	              placeholder: 'Password',
+	              value: this.state.pass,
+	              onChange: this.handlePass
+	            })
+	          ),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'form-group' },
+	            _react2.default.createElement('input', {
+	              type: 'password',
+	              placeholder: 'Repeat password',
+	              value: this.state.rpass,
+	              onChange: this.handleRpass
+	            })
+	          ),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'form-group' },
+	            _react2.default.createElement('input', {
+	              className: 'btn',
+	              type: 'submit',
+	              value: 'Register',
+	              disabled: this.state.isSubmitting || !this.state.email.length || !this.state.pass.length || !this.state.rpass.length || this.state.pass !== this.state.rpass
+	            }),
+	            this.state.isSubmitting && _react2.default.createElement('i', { className: 'fa fa-refresh fa-spin' })
+	          )
+	        )
+	      );
+	    }
+	  }]);
+
+	  return Register;
+	}(_react2.default.Component);
+
+	exports.default = Register;
 
 /***/ }
 /******/ ]);
