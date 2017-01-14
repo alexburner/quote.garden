@@ -2,8 +2,6 @@
 
 - rename "random" to "shuffle"
 
-- one app w/ routes instead of frankenstein
-
 - "shuffle" view
 
 - "home" view
