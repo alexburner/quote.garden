@@ -1,6 +1,7 @@
 import React from 'react';
 
 import fireapp from 'shared/fireapp.jsx';
+import * as queries from 'shared/queries.jsx';
 
 import Loading from 'shared/loading.jsx';
 
@@ -60,28 +61,15 @@ export default class EditUrl extends React.Component {
         statusMessage: '',
       });
 
-      fireapp.database().ref('profiles').once('value', (snapshot) => {
-        if (snapshot && snapshot.val()) {
-          let isUnique = true;
-
-          snapshot.forEach((snapshot) => {
-            const profile = snapshot.val();
-            if (profile.urlId === newUrlId) {
-              isUnique = false;
-              return false;
-            }
+      queries.getUserIdByUrlId(newUrlId).then((userId) => {
+        if (userId) {
+          alert('Sorry, that URL name is already in use.');
+          this.setState({
+            newUrlId: this.state.urlId,
+            isSubmitting: false
           });
-
-          if (!isUnique) {
-            alert('Sorry, that URL name is already in use.');
-            this.setState({
-              newUrlId: this.state.urlId,
-              isSubmitting: false
-            });
-            return;
-          }
+          return;
         }
-
         this.profileRef.update({urlId: newUrlId})
           .then(() => {
             this.setState({statusMessage: 'Changes saved!'});

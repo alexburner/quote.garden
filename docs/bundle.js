@@ -127,9 +127,17 @@
 	        return _this2.updateRoute();
 	      });
 	      this.initPromise = new Promise(function (resolve) {
+	        var cache = {
+	          userId: null,
+	          profileRef: null,
+	          profileCb: null
+	        };
 	        _fireapp2.default.auth().onAuthStateChanged(function (user) {
-	          if (user && user.uid) {
-	            _fireapp2.default.database().ref('profiles/' + user.uid).once('value', function (snapshot) {
+	          if (user && user.uid !== cache.userId) {
+	            cache.userId = user.uid;
+	            if (cache.profileRef) cache.profileRef.off('value', cache.profileCb);
+	            cache.profileRef = _fireapp2.default.database().ref('profiles/' + user.uid);
+	            cache.profileCb = cache.profileRef.on('value', function (snapshot) {
 	              var profile = snapshot ? snapshot.val() : null;
 	              _this2.setState({
 	                currentProfile: profile,
@@ -139,7 +147,11 @@
 	                return resolve();
 	              });
 	            });
-	          } else {
+	          } else if (!user) {
+	            cache.userId = null;
+	            if (cache.profileRef) cache.profileRef.off('value', cache.profileCb);
+	            cache.profileRef = null;
+	            cache.profileCb = null;
 	            _this2.setState({
 	              currentProfile: null,
 	              currentUser: null,
@@ -30683,9 +30695,15 @@
 
 	var _fireapp2 = _interopRequireDefault(_fireapp);
 
+	var _queries = __webpack_require__(473);
+
+	var queries = _interopRequireWildcard(_queries);
+
 	var _loading = __webpack_require__(478);
 
 	var _loading2 = _interopRequireDefault(_loading);
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -30758,28 +30776,15 @@
 	        statusMessage: ''
 	      });
 
-	      _fireapp2.default.database().ref('profiles').once('value', function (snapshot) {
-	        if (snapshot && snapshot.val()) {
-	          var isUnique = true;
-
-	          snapshot.forEach(function (snapshot) {
-	            var profile = snapshot.val();
-	            if (profile.urlId === newUrlId) {
-	              isUnique = false;
-	              return false;
-	            }
+	      queries.getUserIdByUrlId(newUrlId).then(function (userId) {
+	        if (userId) {
+	          alert('Sorry, that URL name is already in use.');
+	          _this.setState({
+	            newUrlId: _this.state.urlId,
+	            isSubmitting: false
 	          });
-
-	          if (!isUnique) {
-	            alert('Sorry, that URL name is already in use.');
-	            _this.setState({
-	              newUrlId: _this.state.urlId,
-	              isSubmitting: false
-	            });
-	            return;
-	          }
+	          return;
 	        }
-
 	        _this.profileRef.update({ urlId: newUrlId }).then(function () {
 	          _this.setState({ statusMessage: 'Changes saved!' });
 	          setTimeout(function () {

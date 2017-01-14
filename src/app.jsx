@@ -31,21 +31,29 @@ class App extends React.Component {
     // add event listeners
     window.addEventListener('hashchange', () => this.updateRoute());
     this.initPromise = new Promise((resolve) => {
+      const cache = {
+        userId: null,
+        profileRef: null,
+        profileCb: null,
+      };
       fireapp.auth().onAuthStateChanged((user) => {
-        if (user && user.uid) {
-          fireapp
-            .database()
-            .ref('profiles/' + user.uid)
-            .once('value', (snapshot) => {
-              const profile = snapshot ? snapshot.val() : null;
-              this.setState({
-                currentProfile: profile,
-                currentUser: user,
-                isUserLoaded: true,
-              }, () => resolve());
-            })
-          ;
-        } else {
+        if (user && user.uid !== cache.userId) {
+          cache.userId = user.uid;
+          if (cache.profileRef) cache.profileRef.off('value', cache.profileCb);
+          cache.profileRef = fireapp.database().ref('profiles/' + user.uid);
+          cache.profileCb = cache.profileRef.on('value', (snapshot) => {
+            const profile = snapshot ? snapshot.val() : null;
+            this.setState({
+              currentProfile: profile,
+              currentUser: user,
+              isUserLoaded: true,
+            }, () => resolve());
+          });
+        } else if (!user) {
+          cache.userId = null;
+          if (cache.profileRef) cache.profileRef.off('value', cache.profileCb);
+          cache.profileRef = null;
+          cache.profileCb = null;
           this.setState({
             currentProfile: null,
             currentUser: null,
