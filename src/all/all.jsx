@@ -8,15 +8,15 @@ import TopNav from 'shared/top-nav.jsx';
 export default class All extends React.Component {
   constructor(props) {
     super(props);
-    this.unsubscribes = [];
     this.state = {
       isQuotesLoaded: false,
       quotes: [],
     };
-    this.quotesRef = fireapp.database().ref('quotes/' + this.props.viewUserId);
   }
 
-  componentDidMount() {
+  setupFirebase(userId) {
+    this.quotesRef = fireapp.database().ref('quotes/' + userId);
+    this.unsubscribes = [];
     this.unsubscribes.push(
       this.quotesRef.on('value', (snapshot) => {
         const quotes = [];
@@ -35,8 +35,23 @@ export default class All extends React.Component {
     );
   }
 
-  componentWillUnmount() {
+  teardownFirebase() {
     this.unsubscribes.forEach((fn) => fn());
+  }
+
+  componentDidMount() {
+    this.setupFirebase(this.props.viewUserId);
+  }
+
+  componentWillUnmount() {
+    this.teardownFirebase();
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props.viewUserId !== nextProps.viewUserId) {
+      this.teardownFirebase();
+      this.setupFirebase(nextProps.viewUserId);
+    }
   }
 
   render() {

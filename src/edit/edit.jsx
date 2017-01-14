@@ -12,9 +12,9 @@ export default class Edit extends React.Component {
       <div className="container">
         <TopNav currentUser={this.props.currentUser} viewName="edit" />
         <h1>Create new</h1>
-        <QuoteForm userId={this.props.viewUserId} />
+        <QuoteForm userId={this.props.currentUser.uid} />
         <h1>Edit existing</h1>
-        <QuoteForms userId={this.props.viewUserId} />
+        <QuoteForms userId={this.props.currentUser.uid} />
       </div>
     );
   }

@@ -7,7 +7,6 @@ import Loading from 'shared/loading.jsx';
 export default class EditUrl extends React.Component {
   constructor(props) {
     super(props);
-    this.unsubscribes = [];
     this.state = {
       isFetching: true,
       isSubmitting: false,
@@ -15,7 +14,6 @@ export default class EditUrl extends React.Component {
       urlId: '',
       newUrlId: '',
     };
-    this.profileRef = fireapp.database().ref('profiles/' + this.props.user.uid);
     this.handleUrlId = (event) => this.setState({newUrlId: event.target.value});
     this.handleSubmit = (event) => {
       event.preventDefault();
@@ -80,7 +78,9 @@ export default class EditUrl extends React.Component {
     };
   }
 
-  componentDidMount() {
+  setupFirebase(userId) {
+    this.profileRef = fireapp.database().ref('profiles/' + userId);
+    this.unsubscribes = [];
     this.unsubscribes.push(
       this.profileRef.on('value', (snapshot) => {
         if (!snapshot || !snapshot.val()) {
@@ -101,8 +101,23 @@ export default class EditUrl extends React.Component {
     );
   }
 
-  componentWillUnmount() {
+  teardownFirebase() {
     this.unsubscribes.forEach((fn) => fn());
+  }
+
+  componentDidMount() {
+    this.setupFirebase(this.props.user.uid);
+  }
+
+  componentWillUnmount() {
+    this.teardownFirebase();
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props.user.uid !== nextProps.user.uid) {
+      this.teardownFirebase();
+      this.setupFirebase(nextProps.user.uid);
+    }
   }
 
   render() {

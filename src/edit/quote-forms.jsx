@@ -8,15 +8,15 @@ import QuoteForm from 'edit/quote-form.jsx';
 export default class QuoteForms extends React.Component {
   constructor(props) {
     super(props);
-    this.unsubscribes = [];
     this.state = {
       isQuotesLoaded: false,
       quotes: [],
     };
-    this.quotesRef = fireapp.database().ref('quotes/' + this.props.userId);
   }
 
-  componentDidMount() {
+  setupFirebase(userId) {
+    this.quotesRef = fireapp.database().ref('quotes/' + userId);
+    this.unsubscribes = [];
     this.unsubscribes.push(
       this.quotesRef.on('value', (snapshot) => {
         const quotes = [];
@@ -35,8 +35,23 @@ export default class QuoteForms extends React.Component {
     );
   }
 
-  componentWillUnmount() {
+  teardownFirebase() {
     this.unsubscribes.forEach((fn) => fn());
+  }
+
+  componentDidMount() {
+    this.setupFirebase(this.props.userId);
+  }
+
+  componentWillUnmount() {
+    this.teardownFirebase();
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props.userId !== nextProps.userId) {
+      this.teardownFirebase();
+      this.setupFirebase(nextProps.userId);
+    }
   }
 
   render() {

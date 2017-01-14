@@ -382,10 +382,7 @@
 
 	        case 'edit':
 	          document.title = 'Edit \u2014 ' + this.state.viewUrlId + ' \u2014 quote.garden';
-	          return _react2.default.createElement(_edit2.default, {
-	            currentUser: this.state.currentUser,
-	            viewUserId: this.state.viewUserId
-	          });
+	          return _react2.default.createElement(_edit2.default, { currentUser: this.state.currentUser });
 
 	        case 'shuffle':
 	          document.title = 'Shuffle \u2014 ' + this.state.viewUrlId + ' \u2014 quote.garden';
@@ -30835,7 +30832,6 @@
 
 	    var _this = _possibleConstructorReturn(this, (EditUrl.__proto__ || Object.getPrototypeOf(EditUrl)).call(this, props));
 
-	    _this.unsubscribes = [];
 	    _this.state = {
 	      isFetching: true,
 	      isSubmitting: false,
@@ -30843,7 +30839,6 @@
 	      urlId: '',
 	      newUrlId: ''
 	    };
-	    _this.profileRef = _fireapp2.default.database().ref('profiles/' + _this.props.user.uid);
 	    _this.handleUrlId = function (event) {
 	      return _this.setState({ newUrlId: event.target.value });
 	    };
@@ -30914,10 +30909,12 @@
 	  }
 
 	  _createClass(EditUrl, [{
-	    key: 'componentDidMount',
-	    value: function componentDidMount() {
+	    key: 'setupFirebase',
+	    value: function setupFirebase(userId) {
 	      var _this2 = this;
 
+	      this.profileRef = _fireapp2.default.database().ref('profiles/' + userId);
+	      this.unsubscribes = [];
 	      this.unsubscribes.push(this.profileRef.on('value', function (snapshot) {
 	        if (!snapshot || !snapshot.val()) {
 	          _this2.setState({
@@ -30936,11 +30933,29 @@
 	      }));
 	    }
 	  }, {
-	    key: 'componentWillUnmount',
-	    value: function componentWillUnmount() {
+	    key: 'teardownFirebase',
+	    value: function teardownFirebase() {
 	      this.unsubscribes.forEach(function (fn) {
 	        return fn();
 	      });
+	    }
+	  }, {
+	    key: 'componentDidMount',
+	    value: function componentDidMount() {
+	      this.setupFirebase(this.props.user.uid);
+	    }
+	  }, {
+	    key: 'componentWillUnmount',
+	    value: function componentWillUnmount() {
+	      this.teardownFirebase();
+	    }
+	  }, {
+	    key: 'componentWillReceiveProps',
+	    value: function componentWillReceiveProps(nextProps) {
+	      if (this.props.user.uid !== nextProps.user.uid) {
+	        this.teardownFirebase();
+	        this.setupFirebase(nextProps.user.uid);
+	      }
 	    }
 	  }, {
 	    key: 'render',
@@ -31384,20 +31399,20 @@
 
 	    var _this = _possibleConstructorReturn(this, (All.__proto__ || Object.getPrototypeOf(All)).call(this, props));
 
-	    _this.unsubscribes = [];
 	    _this.state = {
 	      isQuotesLoaded: false,
 	      quotes: []
 	    };
-	    _this.quotesRef = _fireapp2.default.database().ref('quotes/' + _this.props.viewUserId);
 	    return _this;
 	  }
 
 	  _createClass(All, [{
-	    key: 'componentDidMount',
-	    value: function componentDidMount() {
+	    key: 'setupFirebase',
+	    value: function setupFirebase(userId) {
 	      var _this2 = this;
 
+	      this.quotesRef = _fireapp2.default.database().ref('quotes/' + userId);
+	      this.unsubscribes = [];
 	      this.unsubscribes.push(this.quotesRef.on('value', function (snapshot) {
 	        var quotes = [];
 	        if (snapshot && snapshot.val()) {
@@ -31414,11 +31429,29 @@
 	      }));
 	    }
 	  }, {
-	    key: 'componentWillUnmount',
-	    value: function componentWillUnmount() {
+	    key: 'teardownFirebase',
+	    value: function teardownFirebase() {
 	      this.unsubscribes.forEach(function (fn) {
 	        return fn();
 	      });
+	    }
+	  }, {
+	    key: 'componentDidMount',
+	    value: function componentDidMount() {
+	      this.setupFirebase(this.props.viewUserId);
+	    }
+	  }, {
+	    key: 'componentWillUnmount',
+	    value: function componentWillUnmount() {
+	      this.teardownFirebase();
+	    }
+	  }, {
+	    key: 'componentWillReceiveProps',
+	    value: function componentWillReceiveProps(nextProps) {
+	      if (this.props.viewUserId !== nextProps.viewUserId) {
+	        this.teardownFirebase();
+	        this.setupFirebase(nextProps.viewUserId);
+	      }
 	    }
 	  }, {
 	    key: 'render',
@@ -31524,13 +31557,13 @@
 	          null,
 	          'Create new'
 	        ),
-	        _react2.default.createElement(_quoteForm2.default, { userId: this.props.viewUserId }),
+	        _react2.default.createElement(_quoteForm2.default, { userId: this.props.currentUser.uid }),
 	        _react2.default.createElement(
 	          'h1',
 	          null,
 	          'Edit existing'
 	        ),
-	        _react2.default.createElement(_quoteForms2.default, { userId: this.props.viewUserId })
+	        _react2.default.createElement(_quoteForms2.default, { userId: this.props.currentUser.uid })
 	      );
 	    }
 	  }]);
@@ -31588,7 +31621,6 @@
 	    _this.handleSource = function (event) {
 	      return _this.setState({ source: event.target.value });
 	    };
-	    var quoteRef = props.quote ? _fireapp2.default.database().ref('quotes/' + _this.props.userId + '/' + props.quote.key) : _fireapp2.default.database().ref('quotes/' + _this.props.userId);
 	    _this.handleSubmit = function (event) {
 	      event.preventDefault();
 	      var words = _this.state.words.trim();
@@ -31601,7 +31633,7 @@
 	      });
 	      if (props.quote) {
 	        // Update existing quote
-	        quoteRef.set({
+	        _this.quoteRef.set({
 	          words: words,
 	          source: source
 	        }).then(function () {
@@ -31616,7 +31648,7 @@
 	        });
 	      } else {
 	        // Create new quote
-	        quoteRef.push().set({
+	        _this.quoteRef.push().set({
 	          words: words,
 	          source: source
 	        }).then(function () {
@@ -31631,7 +31663,7 @@
 	    _this.handleDelete = function (event) {
 	      event.preventDefault();
 	      if (window.confirm('Delete quote? This cannot be undone.')) {
-	        quoteRef.remove().catch(function (err) {
+	        _this.quoteRef.remove().catch(function (err) {
 	          alert(err.message);
 	        });
 	      }
@@ -31640,6 +31672,23 @@
 	  }
 
 	  _createClass(QuoteForm, [{
+	    key: 'setupFirebase',
+	    value: function setupFirebase(userId, quote) {
+	      this.quoteRef = quote ? _fireapp2.default.database().ref('quotes/' + userId + '/' + quote.key) : _fireapp2.default.database().ref('quotes/' + userId);
+	    }
+	  }, {
+	    key: 'componentDidMount',
+	    value: function componentDidMount() {
+	      this.setupFirebase(this.props.userId, this.props.quote);
+	    }
+	  }, {
+	    key: 'componentWillReceiveProps',
+	    value: function componentWillReceiveProps(nextProps) {
+	      if (this.props.userId !== nextProps.userId || this.props.quote && !nextProps.quote || !this.props.quote && nextProps.quote || this.props.quote && nextProps.quote && this.props.quote.key !== nextProps.quote.key) {
+	        this.setupFirebase(nextProps.userId, nextProps.quote);
+	      }
+	    }
+	  }, {
 	    key: 'render',
 	    value: function render() {
 	      return _react2.default.createElement(
@@ -31744,20 +31793,20 @@
 
 	    var _this = _possibleConstructorReturn(this, (QuoteForms.__proto__ || Object.getPrototypeOf(QuoteForms)).call(this, props));
 
-	    _this.unsubscribes = [];
 	    _this.state = {
 	      isQuotesLoaded: false,
 	      quotes: []
 	    };
-	    _this.quotesRef = _fireapp2.default.database().ref('quotes/' + _this.props.userId);
 	    return _this;
 	  }
 
 	  _createClass(QuoteForms, [{
-	    key: 'componentDidMount',
-	    value: function componentDidMount() {
+	    key: 'setupFirebase',
+	    value: function setupFirebase(userId) {
 	      var _this2 = this;
 
+	      this.quotesRef = _fireapp2.default.database().ref('quotes/' + userId);
+	      this.unsubscribes = [];
 	      this.unsubscribes.push(this.quotesRef.on('value', function (snapshot) {
 	        var quotes = [];
 	        if (snapshot && snapshot.val()) {
@@ -31774,11 +31823,29 @@
 	      }));
 	    }
 	  }, {
-	    key: 'componentWillUnmount',
-	    value: function componentWillUnmount() {
+	    key: 'teardownFirebase',
+	    value: function teardownFirebase() {
 	      this.unsubscribes.forEach(function (fn) {
 	        return fn();
 	      });
+	    }
+	  }, {
+	    key: 'componentDidMount',
+	    value: function componentDidMount() {
+	      this.setupFirebase(this.props.userId);
+	    }
+	  }, {
+	    key: 'componentWillUnmount',
+	    value: function componentWillUnmount() {
+	      this.teardownFirebase();
+	    }
+	  }, {
+	    key: 'componentWillReceiveProps',
+	    value: function componentWillReceiveProps(nextProps) {
+	      if (this.props.userId !== nextProps.userId) {
+	        this.teardownFirebase();
+	        this.setupFirebase(nextProps.userId);
+	      }
 	    }
 	  }, {
 	    key: 'render',

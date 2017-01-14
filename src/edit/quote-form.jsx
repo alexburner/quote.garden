@@ -13,10 +13,6 @@ export default class QuoteForm extends React.Component {
     };
     this.handleWords = (event) => this.setState({words: event.target.value});
     this.handleSource = (event) => this.setState({source: event.target.value});
-    const quoteRef = props.quote ?
-      fireapp.database().ref(`quotes/${this.props.userId}/${props.quote.key}`) :
-      fireapp.database().ref(`quotes/${this.props.userId}`)
-    ;
     this.handleSubmit = (event) => {
       event.preventDefault();
       const words = this.state.words.trim();
@@ -29,7 +25,7 @@ export default class QuoteForm extends React.Component {
       });
       if (props.quote) {
         // Update existing quote
-        quoteRef.set({
+        this.quoteRef.set({
           words: words,
           source: source,
         })
@@ -42,7 +38,7 @@ export default class QuoteForm extends React.Component {
         ;
       } else {
         // Create new quote
-        quoteRef.push().set({
+        this.quoteRef.push().set({
           words: words,
           source: source,
         })
@@ -55,11 +51,36 @@ export default class QuoteForm extends React.Component {
     this.handleDelete = (event) => {
       event.preventDefault();
       if (window.confirm('Delete quote? This cannot be undone.')) {
-        quoteRef.remove().catch((err) => {
+        this.quoteRef.remove().catch((err) => {
           alert(err.message);
         });
       }
     };
+  }
+
+  setupFirebase(userId, quote) {
+    this.quoteRef = quote ?
+      fireapp.database().ref(`quotes/${userId}/${quote.key}`) :
+      fireapp.database().ref(`quotes/${userId}`)
+    ;
+  }
+
+  componentDidMount() {
+    this.setupFirebase(this.props.userId, this.props.quote);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (
+      (this.props.userId !== nextProps.userId) ||
+      (this.props.quote && !nextProps.quote) ||
+      (!this.props.quote && nextProps.quote) ||
+      (
+        this.props.quote && nextProps.quote &&
+        this.props.quote.key !== nextProps.quote.key
+      )
+    ) {
+      this.setupFirebase(nextProps.userId, nextProps.quote);
+    }
   }
 
   render() {

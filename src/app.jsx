@@ -245,10 +245,7 @@ class App extends React.Component {
 
       case 'edit':
         document.title = `Edit — ${this.state.viewUrlId} — quote.garden`;
-        return <Edit
-          currentUser={this.state.currentUser}
-          viewUserId={this.state.viewUserId}
-        />;
+        return <Edit currentUser={this.state.currentUser} />;
 
       case 'shuffle':
         document.title = `Shuffle — ${this.state.viewUrlId} — quote.garden`;
