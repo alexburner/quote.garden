@@ -7,7 +7,7 @@ export default class TopNav extends React.Component {
     const view = this.props.viewName;
     const tuples = this.props.currentUser ?
       [
-        ['random', 'Random'],
+        ['shuffle', 'Shuffle'],
         ['all', 'All'],
         ['edit', 'Edit'],
         ['account', 'Account'],

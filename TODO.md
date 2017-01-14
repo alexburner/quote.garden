@@ -1,7 +1,5 @@
 # TODO (mvp)
 
-- rename "random" to "shuffle"
-
 - "shuffle" view
 
 - "home" view

@@ -30988,7 +30988,7 @@
 	    key: 'render',
 	    value: function render() {
 	      var view = this.props.viewName;
-	      var tuples = this.props.currentUser ? [['random', 'Random'], ['all', 'All'], ['edit', 'Edit'], ['account', 'Account']] : [['account', 'Login / Register']];
+	      var tuples = this.props.currentUser ? [['shuffle', 'Shuffle'], ['all', 'All'], ['edit', 'Edit'], ['account', 'Account']] : [['account', 'Login / Register']];
 	      return _react2.default.createElement(
 	        'div',
 	        { className: 'top-nav' },
