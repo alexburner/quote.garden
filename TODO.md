@@ -7,6 +7,8 @@
 
 # TODO (deluxe)
 
+- webpack dev & prod builds
+
 - form validation errors
 
 - email verification
