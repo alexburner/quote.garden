@@ -7,8 +7,8 @@ import Auth from 'account/auth.jsx';
 
 export default class Account extends React.Component {
   render() {
-    return this.props.currentUser ?
-      <Edit currentUser={this.props.currentUser} /> :
+    return this.props.user ?
+      <Edit user={this.props.user} /> :
       <Auth />
     ;
   }

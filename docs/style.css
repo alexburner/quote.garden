@@ -5,63 +5,39 @@ html, body, #app {
   overflow: auto;
 }
 
-.container {
-  max-width: 800px;
-  padding-bottom: 128px;
+h1:first-child {
+  margin-top: 0.8em; /* unset Baseguide */
 }
 
-.bottom-bar {
-  background: white;
-  border-top: 1px solid #CCC;
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 1000;
-}
-
-.bottom-bar-small {
-  height: 30px;
-  line-height: 16px;
-}
-
-.site-nav {
-  font-size: 14px;
-  text-align: right;
-}
-
-.site-nav .btn {
-  font-size: 13px;
-  padding-left: 0.9em;
-  padding-right: 0.9em;
-}
-
-form {
-  padding: 0.3em 0.2em 0.1em;
-}
-
-form .btn {
-  margin-right: 0.5em;
-}
-
-form .text-right .btn {
-  margin-left: 0.5em;
-  margin-right: 0;
-}
-
-form .fa-spin {
-  position: relative;
-  top: 0.1em;
-  left: 0.1em;
+hr {
+  border-style: dashed;
+  margin-bottom: 1em;
 }
 
 .fa-spin {
   color: #444;
 }
 
-hr {
-  border-style: dashed;
-  margin-bottom: 1em;
+.container {
+  max-width: 800px;
+  padding-bottom: 128px;
+}
+
+.text-wrap {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-all;
+  word-break: break-word;
+}
+
+.text-muted {
+  color: #777;
+}
+
+.text-small {
+  font-size: 13px;
+  line-height: 1.3em;
+  margin: 5px;
 }
 
 .btn {
@@ -84,45 +60,60 @@ hr {
   background-color: #d21b1b;
 }
 
-.btn-nav {
-  background-color: transparent;
-  color: #333;
+form {
+  padding: 0.3em 0.2em 0.1em;
 }
 
-.btn-nav:focus,
-.btn-nav:hover,
-.btn-nav:active {
+form .btn {
+  margin-right: 0.5em;
+}
+
+form .text-right .btn {
+  margin-left: 0.5em;
+  margin-right: 0;
+}
+
+form .fa-spin {
+  position: relative;
+  top: 0.1em;
+  left: 0.1em;
+}
+
+.nav-bar {
+  background: white;
+  border-top: 1px solid #CCC;
+  font-size: 14px;
+  height: 30px;
+  line-height: 16px;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  text-align: right;
+  z-index: 1000;
+}
+
+.nav-bar .btn {
+  background-color: transparent;
+  color: #333;
+  font-size: 13px;
+  padding-left: 0.9em;
+  padding-right: 0.9em;
+}
+
+.nav-bar .btn:focus,
+.nav-bar .btn:hover,
+.nav-bar .btn:active {
   background-color: #CCC;
   border-color: transparent;
   color: black;
   text-decoration: underline;
 }
 
-.btn-nav.disabled,
-.btn-nav[disabled] {
+.nav-bar .btn.disabled,
+.nav-bar .btn[disabled] {
   color: #777;
   opacity: 1;
-}
-
-h1 .btn {
-  line-height: 21px;
-}
-
-.text-wrap {
-  overflow-wrap: break-word;
-  word-wrap: break-word;
-  word-break: break-all;
-  word-break: break-word;
-}
-
-.text-muted {
-  color: #777;
-}
-
-.text-small {
-  font-size: 13px;
-  line-height: 1.3em;
-  margin: 5px;
 }
 
 /**
@@ -136,22 +127,22 @@ h1 .btn {
 }
 
 .all .quotes {
-  padding: 10% 12% 128px;
-}
-
-.all .quote {
   color: black;
   font-family: Times, sans-serif;
-  margin-bottom: 96px;
+  padding: 9% 12% 128px;
   -webkit-font-smoothing: auto; /* unset Baseguide */
   -moz-osx-font-smoothing: auto; /* unset Baseguide */
 }
 
-.all .quote h1 {
+.all .quotes .quote {
+  margin-bottom: 96px;
+}
+
+.all .quotes h1 {
   font-size: 32px;
 }
 
-.all .quote h3 {
+.all .quotes h3 {
   font-size: 18.72px;
   font-weight: normal;
 }

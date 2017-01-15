@@ -11,19 +11,20 @@ import Account from 'account/account.jsx';
 import All from 'all/all.jsx';
 import Edit from 'edit/edit.jsx';
 import Loading from 'shared/loading.jsx';
+import NavBar from 'shared/nav-bar.jsx';
 
 class App extends React.Component {
   constructor() {
     super();
     this.state = {
-      currentProfile: null,
-      currentUser: null,
+      user: null,
+      profile: null,
       isRouteLoaded: false,
       isUserLoaded: false,
-      viewName: null,
-      viewQuoteId: null,
-      viewUrlId: null,
-      viewUserId: null,
+      routeView: null,
+      routeQuoteId: null,
+      routeUrlId: null,
+      routeUserId: null,
     };
   }
 
@@ -42,10 +43,9 @@ class App extends React.Component {
           if (cache.profileRef) cache.profileRef.off('value', cache.profileCb);
           cache.profileRef = fireapp.database().ref('profiles/' + user.uid);
           cache.profileCb = cache.profileRef.on('value', (snapshot) => {
-            const profile = snapshot ? snapshot.val() : null;
             this.setState({
-              currentProfile: profile,
-              currentUser: user,
+              user: user,
+              profile: snapshot ? snapshot.val() : null,
               isUserLoaded: true,
             }, () => resolve());
           });
@@ -55,8 +55,8 @@ class App extends React.Component {
           cache.profileRef = null;
           cache.profileCb = null;
           this.setState({
-            currentProfile: null,
-            currentUser: null,
+            user: null,
+            profile: null,
             isUserLoaded: true,
           }, () => resolve());
         }
@@ -76,7 +76,7 @@ class App extends React.Component {
     const parts = hash.split('/');
 
     //
-    // views:
+    // route views:
     //
     // SILENT
     //  #/<404> (shows current/failed path)
@@ -123,36 +123,34 @@ class App extends React.Component {
 
     else if (!parts[parts.length - 1].length) {
       // HASH = #/thing/
-      // trailing slash, strip it out so we can trust all parts
+      // trailing slash, reload with it stripped out
       return window.location.replace(hash.slice(0, -1));
+    }
+
+    else if (parts[1] === 'logout') {
+      // HASH = #/logout
+      // logout user and reload with #/account
+      fireapp.auth().signOut();
+      return window.location.replace('#/account');
     }
 
     else if (constants.views.ROOT[parts[1]]) {
       // HASH = #/<rootView>
       // first part is a root view name, load it
-      if (constants.views.ROOT_AUTH[parts[1]] && !this.state.currentUser) {
-        // view requires authentication, re-route to accounts page
-        return window.location.replace('#/account');
-      } else {
-        // good to go
-        return this.setState({
-          isRouteLoaded: true,
-          viewName: parts[1],
-          viewQuoteId: null,
-          viewUrlId: null,
-          viewUserId: null,
-        });
-      }
+      return this.setState({
+        isRouteLoaded: true,
+        routeView: parts[1],
+        routeQuoteId: null,
+      });
     }
 
     else if (constants.views.USER[parts[1]]) {
       // HASH = #/<userView>
       // first part is a user view, reload with user urlId
-      const profile = this.state.currentProfile;
-      if (profile && profile.urlId) {
+      if (this.state.profile && this.state.profile.urlId) {
         // user is authenticated, use their own urlId
         return window.location.replace(
-          '#/' + profile.urlId + hash.slice(1)
+          '#/' + this.state.profile.urlId + hash.slice(1)
         );
       } else {
         // use default user urlId
@@ -171,10 +169,10 @@ class App extends React.Component {
           // unrecognized user, 404
           return this.setState({
             isRouteLoaded: true,
-            viewName: '404',
-            viewQuoteId: null,
-            viewUrlId: null,
-            viewUserId: null,
+            routeView: '404',
+            routeQuoteId: null,
+            routeUrlId: null,
+            routeUserId: null,
           });
         }
         else if (parts[2] && constants.views.ROOT[parts[2]]) {
@@ -187,10 +185,10 @@ class App extends React.Component {
           // unrecognized user view name, 404
           return this.setState({
             isRouteLoaded: true,
-            viewName: '404',
-            viewQuoteId: null,
-            viewUrlId: null,
-            viewUserId: null,
+            routeView: '404',
+            routeQuoteId: null,
+            routeUrlId: parts[1],
+            routeUserId: userId,
           });
         }
         else if (parts.length === 2) {
@@ -204,10 +202,10 @@ class App extends React.Component {
           // recognized user and view yayy
           return this.setState({
             isRouteLoaded: true,
-            viewName: parts[2],
-            viewQuoteId: parts[3] || null,
-            viewUrlId: parts[1],
-            viewUserId: userId,
+            routeView: parts[2],
+            routeQuoteId: parts[3] || null,
+            routeUrlId: parts[1],
+            routeUserId: userId,
           });
         }
       });
@@ -218,58 +216,86 @@ class App extends React.Component {
     if (!this.state.isRouteLoaded || !this.state.isUserLoaded) {
       document.title = 'Loading... — quote.garden';
       document.body.className = 'loading';
-      return <Loading />
+      return <Loading />;
     }
 
-    switch (this.state.viewName) {
-      case '404':
-        document.title = '404 — quote.garden';
-        document.body.className = '404';
-        return (
-          <div>
-            <div><code>this.state.viewName = {this.state.viewName}</code></div>
-            <div><code>this.state.viewQuoteId = {this.state.viewQuoteId}</code></div>
-            <div><code>this.state.viewUserId = {this.state.viewUserId}</code></div>
-          </div>
-        );
+    if (!this.state.user && constants.views.ROOT_AUTH[this.state.routeView]) {
+      // unauthed, & view requires authentication, reload with #/account
+      window.location.replace('#/account');
+      document.title = 'Loading... — quote.garden';
+      document.body.className = 'loading';
+      return <Loading />;
+    }
 
+    document.body.className = this.state.routeView;
+    switch (this.state.routeView) {
       case 'home':
         document.title = 'Home — quote.garden';
-        document.body.className = 'home';
         return (
-          <div>
-            <div><code>this.state.viewName = {this.state.viewName}</code></div>
-            <div><code>this.state.viewQuoteId = {this.state.viewQuoteId}</code></div>
-            <div><code>this.state.viewUserId = {this.state.viewUserId}</code></div>
-          </div>
+          <div>{this.state.routeView}</div>
         );
 
       case 'account':
         document.title = 'Account — quote.garden';
-        document.body.className = 'account';
-        return <Account currentUser={this.state.currentUser} />;
+        return (
+          <div>
+            <Account user={this.state.user} />
+            <NavBar
+              user={this.state.user}
+              urlId={this.state.profile && this.state.profile.urlId}
+              view={this.state.routeView}
+            />
+          </div>
+        );
 
       case 'edit':
         document.title = 'Edit — quote.garden';
-        document.body.className = 'edit';
-        return <Edit currentUser={this.state.currentUser} />;
-
-      case 'all':
-        document.title = `All — ${this.state.viewUrlId} — quote.garden`;
-        document.body.className = 'all';
-        return <All
-          currentUser={this.state.currentUser}
-          viewUserId={this.state.viewUserId}
-        />;
-
-      case 'shuffle':
-        document.title = `Shuffle — ${this.state.viewUrlId} — quote.garden`;
-        document.body.className = 'shuffle';
         return (
           <div>
-            <div><code>this.state.viewName = {this.state.viewName}</code></div>
-            <div><code>this.state.viewQuoteId = {this.state.viewQuoteId}</code></div>
-            <div><code>this.state.viewUserId = {this.state.viewUserId}</code></div>
+            <Edit user={this.state.user} />
+            <NavBar
+              user={this.state.user}
+              urlId={this.state.profile.urlId}
+              view={this.state.routeView}
+            />
+          </div>
+        );
+
+      case 'all':
+        document.title = `All — ${this.state.routeUrlId} — quote.garden`;
+        return (
+          <div>
+            <All userId={this.state.routeUserId} />
+            <NavBar
+              user={this.state.user}
+              urlId={this.state.routeUrlId}
+              view={this.state.routeView}
+            />
+          </div>
+        );
+
+      case 'shuffle':
+        document.title = `Shuffle — ${this.state.routeUrlId} — quote.garden`;
+        return (
+          <div>
+            <div>{this.state.routeView}</div>
+            <NavBar
+              user={this.state.user}
+              urlId={this.state.routeUrlId}
+              view={this.state.routeView}
+            />
+          </div>
+        );
+
+      case '404':
+        document.title = '404 — quote.garden';
+        return (
+          <div>
+            <div>{this.state.routeView}</div>
+            <NavBar
+              user={this.state.user}
+              urlId={this.state.routeUrlId}
+            />
           </div>
         );
     }

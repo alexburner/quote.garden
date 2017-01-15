@@ -6,6 +6,10 @@
 
 - clean up site nav / bottom bar tech debt (nav bar?)
 
+- mobile compatibility
+
+- get GitHub Pages running
+
 
 # TODO (deluxe)
 
@@ -21,7 +25,7 @@
 
 - redirect /thing to /#/thing (using cloudflare https://support.cloudflare.com/hc/en-us/articles/200172286-How-do-I-perform-URL-forwarding-or-redirects-with-CloudFlare-)
 
-- add firebase validation for urlId rules (only alphanum+-_.)
+- add firebase validation for urlId rules (only lowercase alphanum+-_.)
 
 - add firebase & client valiation for urlId length limit (100?)
 

@@ -86,6 +86,10 @@
 
 	var _loading2 = _interopRequireDefault(_loading);
 
+	var _navBar = __webpack_require__(488);
+
+	var _navBar2 = _interopRequireDefault(_navBar);
+
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -105,14 +109,14 @@
 	    var _this = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this));
 
 	    _this.state = {
-	      currentProfile: null,
-	      currentUser: null,
+	      user: null,
+	      profile: null,
 	      isRouteLoaded: false,
 	      isUserLoaded: false,
-	      viewName: null,
-	      viewQuoteId: null,
-	      viewUrlId: null,
-	      viewUserId: null
+	      routeView: null,
+	      routeQuoteId: null,
+	      routeUrlId: null,
+	      routeUserId: null
 	    };
 	    return _this;
 	  }
@@ -138,10 +142,9 @@
 	            if (cache.profileRef) cache.profileRef.off('value', cache.profileCb);
 	            cache.profileRef = _fireapp2.default.database().ref('profiles/' + user.uid);
 	            cache.profileCb = cache.profileRef.on('value', function (snapshot) {
-	              var profile = snapshot ? snapshot.val() : null;
 	              _this2.setState({
-	                currentProfile: profile,
-	                currentUser: user,
+	                user: user,
+	                profile: snapshot ? snapshot.val() : null,
 	                isUserLoaded: true
 	              }, function () {
 	                return resolve();
@@ -153,8 +156,8 @@
 	            cache.profileRef = null;
 	            cache.profileCb = null;
 	            _this2.setState({
-	              currentProfile: null,
-	              currentUser: null,
+	              user: null,
+	              profile: null,
 	              isUserLoaded: true
 	            }, function () {
 	              return resolve();
@@ -184,7 +187,7 @@
 	      var parts = hash.split('/');
 
 	      //
-	      // views:
+	      // route views:
 	      //
 	      // SILENT
 	      //  #/<404> (shows current/failed path)
@@ -223,31 +226,27 @@
 	        return window.location.replace('#/' + hash.slice(1));
 	      } else if (!parts[parts.length - 1].length) {
 	        // HASH = #/thing/
-	        // trailing slash, strip it out so we can trust all parts
+	        // trailing slash, reload with it stripped out
 	        return window.location.replace(hash.slice(0, -1));
+	      } else if (parts[1] === 'logout') {
+	        // HASH = #/logout
+	        // logout user and reload with #/account
+	        _fireapp2.default.auth().signOut();
+	        return window.location.replace('#/account');
 	      } else if (constants.views.ROOT[parts[1]]) {
 	        // HASH = #/<rootView>
 	        // first part is a root view name, load it
-	        if (constants.views.ROOT_AUTH[parts[1]] && !this.state.currentUser) {
-	          // view requires authentication, re-route to accounts page
-	          return window.location.replace('#/account');
-	        } else {
-	          // good to go
-	          return this.setState({
-	            isRouteLoaded: true,
-	            viewName: parts[1],
-	            viewQuoteId: null,
-	            viewUrlId: null,
-	            viewUserId: null
-	          });
-	        }
+	        return this.setState({
+	          isRouteLoaded: true,
+	          routeView: parts[1],
+	          routeQuoteId: null
+	        });
 	      } else if (constants.views.USER[parts[1]]) {
 	        // HASH = #/<userView>
 	        // first part is a user view, reload with user urlId
-	        var profile = this.state.currentProfile;
-	        if (profile && profile.urlId) {
+	        if (this.state.profile && this.state.profile.urlId) {
 	          // user is authenticated, use their own urlId
-	          return window.location.replace('#/' + profile.urlId + hash.slice(1));
+	          return window.location.replace('#/' + this.state.profile.urlId + hash.slice(1));
 	        } else {
 	          // use default user urlId
 	          return window.location.replace('#/default' + hash.slice(1));
@@ -261,10 +260,10 @@
 	            // unrecognized user, 404
 	            return _this4.setState({
 	              isRouteLoaded: true,
-	              viewName: '404',
-	              viewQuoteId: null,
-	              viewUrlId: null,
-	              viewUserId: null
+	              routeView: '404',
+	              routeQuoteId: null,
+	              routeUrlId: null,
+	              routeUserId: null
 	            });
 	          } else if (parts[2] && constants.views.ROOT[parts[2]]) {
 	            // HASH = #/<urlId>/<rootView>
@@ -275,10 +274,10 @@
 	            // unrecognized user view name, 404
 	            return _this4.setState({
 	              isRouteLoaded: true,
-	              viewName: '404',
-	              viewQuoteId: null,
-	              viewUrlId: null,
-	              viewUserId: null
+	              routeView: '404',
+	              routeQuoteId: null,
+	              routeUrlId: parts[1],
+	              routeUserId: userId
 	            });
 	          } else if (parts.length === 2) {
 	            // HASH = #/<urlId>
@@ -290,10 +289,10 @@
 	            // recognized user and view yayy
 	            return _this4.setState({
 	              isRouteLoaded: true,
-	              viewName: parts[2],
-	              viewQuoteId: parts[3] || null,
-	              viewUrlId: parts[1],
-	              viewUserId: userId
+	              routeView: parts[2],
+	              routeQuoteId: parts[3] || null,
+	              routeUrlId: parts[1],
+	              routeUserId: userId
 	            });
 	          }
 	        });
@@ -308,137 +307,94 @@
 	        return _react2.default.createElement(_loading2.default, null);
 	      }
 
-	      switch (this.state.viewName) {
-	        case '404':
-	          document.title = '404 — quote.garden';
-	          document.body.className = '404';
-	          return _react2.default.createElement(
-	            'div',
-	            null,
-	            _react2.default.createElement(
-	              'div',
-	              null,
-	              _react2.default.createElement(
-	                'code',
-	                null,
-	                'this.state.viewName = ',
-	                this.state.viewName
-	              )
-	            ),
-	            _react2.default.createElement(
-	              'div',
-	              null,
-	              _react2.default.createElement(
-	                'code',
-	                null,
-	                'this.state.viewQuoteId = ',
-	                this.state.viewQuoteId
-	              )
-	            ),
-	            _react2.default.createElement(
-	              'div',
-	              null,
-	              _react2.default.createElement(
-	                'code',
-	                null,
-	                'this.state.viewUserId = ',
-	                this.state.viewUserId
-	              )
-	            )
-	          );
+	      if (!this.state.user && constants.views.ROOT_AUTH[this.state.routeView]) {
+	        // unauthed, & view requires authentication, reload with #/account
+	        window.location.replace('#/account');
+	        document.title = 'Loading... — quote.garden';
+	        document.body.className = 'loading';
+	        return _react2.default.createElement(_loading2.default, null);
+	      }
 
+	      document.body.className = this.state.routeView;
+	      switch (this.state.routeView) {
 	        case 'home':
 	          document.title = 'Home — quote.garden';
-	          document.body.className = 'home';
 	          return _react2.default.createElement(
 	            'div',
 	            null,
-	            _react2.default.createElement(
-	              'div',
-	              null,
-	              _react2.default.createElement(
-	                'code',
-	                null,
-	                'this.state.viewName = ',
-	                this.state.viewName
-	              )
-	            ),
-	            _react2.default.createElement(
-	              'div',
-	              null,
-	              _react2.default.createElement(
-	                'code',
-	                null,
-	                'this.state.viewQuoteId = ',
-	                this.state.viewQuoteId
-	              )
-	            ),
-	            _react2.default.createElement(
-	              'div',
-	              null,
-	              _react2.default.createElement(
-	                'code',
-	                null,
-	                'this.state.viewUserId = ',
-	                this.state.viewUserId
-	              )
-	            )
+	            this.state.routeView
 	          );
 
 	        case 'account':
 	          document.title = 'Account — quote.garden';
-	          document.body.className = 'account';
-	          return _react2.default.createElement(_account2.default, { currentUser: this.state.currentUser });
+	          return _react2.default.createElement(
+	            'div',
+	            null,
+	            _react2.default.createElement(_account2.default, { user: this.state.user }),
+	            _react2.default.createElement(_navBar2.default, {
+	              user: this.state.user,
+	              urlId: this.state.profile && this.state.profile.urlId,
+	              view: this.state.routeView
+	            })
+	          );
 
 	        case 'edit':
 	          document.title = 'Edit — quote.garden';
-	          document.body.className = 'edit';
-	          return _react2.default.createElement(_edit2.default, { currentUser: this.state.currentUser });
+	          return _react2.default.createElement(
+	            'div',
+	            null,
+	            _react2.default.createElement(_edit2.default, { user: this.state.user }),
+	            _react2.default.createElement(_navBar2.default, {
+	              user: this.state.user,
+	              urlId: this.state.profile.urlId,
+	              view: this.state.routeView
+	            })
+	          );
 
 	        case 'all':
-	          document.title = 'All \u2014 ' + this.state.viewUrlId + ' \u2014 quote.garden';
-	          document.body.className = 'all';
-	          return _react2.default.createElement(_all2.default, {
-	            currentUser: this.state.currentUser,
-	            viewUserId: this.state.viewUserId
-	          });
+	          document.title = 'All \u2014 ' + this.state.routeUrlId + ' \u2014 quote.garden';
+	          return _react2.default.createElement(
+	            'div',
+	            null,
+	            _react2.default.createElement(_all2.default, { userId: this.state.routeUserId }),
+	            _react2.default.createElement(_navBar2.default, {
+	              user: this.state.user,
+	              urlId: this.state.routeUrlId,
+	              view: this.state.routeView
+	            })
+	          );
 
 	        case 'shuffle':
-	          document.title = 'Shuffle \u2014 ' + this.state.viewUrlId + ' \u2014 quote.garden';
-	          document.body.className = 'shuffle';
+	          document.title = 'Shuffle \u2014 ' + this.state.routeUrlId + ' \u2014 quote.garden';
 	          return _react2.default.createElement(
 	            'div',
 	            null,
 	            _react2.default.createElement(
 	              'div',
 	              null,
-	              _react2.default.createElement(
-	                'code',
-	                null,
-	                'this.state.viewName = ',
-	                this.state.viewName
-	              )
+	              this.state.routeView
 	            ),
+	            _react2.default.createElement(_navBar2.default, {
+	              user: this.state.user,
+	              urlId: this.state.routeUrlId,
+	              view: this.state.routeView
+	            })
+	          );
+
+	        case '404':
+	          document.title = '404 — quote.garden';
+	          return _react2.default.createElement(
+	            'div',
+	            null,
 	            _react2.default.createElement(
 	              'div',
 	              null,
-	              _react2.default.createElement(
-	                'code',
-	                null,
-	                'this.state.viewQuoteId = ',
-	                this.state.viewQuoteId
-	              )
+	              this.state.routeView
 	            ),
-	            _react2.default.createElement(
-	              'div',
-	              null,
-	              _react2.default.createElement(
-	                'code',
-	                null,
-	                'this.state.viewUserId = ',
-	                this.state.viewUserId
-	              )
-	            )
+	            _react2.default.createElement(_navBar2.default, {
+	              user: this.state.user,
+	              urlId: this.state.routeUrlId
+	            })
 	          );
 	      }
 	    }
@@ -30352,7 +30308,7 @@
 	  _createClass(Account, [{
 	    key: 'render',
 	    value: function render() {
-	      return this.props.currentUser ? _react2.default.createElement(_edit2.default, { currentUser: this.props.currentUser }) : _react2.default.createElement(_auth2.default, null);
+	      return this.props.user ? _react2.default.createElement(_edit2.default, { user: this.props.user }) : _react2.default.createElement(_auth2.default, null);
 	    }
 	  }]);
 
@@ -30389,10 +30345,6 @@
 
 	var _editUrl2 = _interopRequireDefault(_editUrl);
 
-	var _siteNav = __webpack_require__(487);
-
-	var _siteNav2 = _interopRequireDefault(_siteNav);
-
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -30404,16 +30356,10 @@
 	var Edit = function (_React$Component) {
 	  _inherits(Edit, _React$Component);
 
-	  function Edit(props) {
+	  function Edit() {
 	    _classCallCheck(this, Edit);
 
-	    var _this = _possibleConstructorReturn(this, (Edit.__proto__ || Object.getPrototypeOf(Edit)).call(this, props));
-
-	    _this.handleLogout = function (event) {
-	      event.preventDefault();
-	      _fireapp2.default.auth().signOut();
-	    };
-	    return _this;
+	    return _possibleConstructorReturn(this, (Edit.__proto__ || Object.getPrototypeOf(Edit)).apply(this, arguments));
 	  }
 
 	  _createClass(Edit, [{
@@ -30423,25 +30369,12 @@
 	        'div',
 	        { className: 'container' },
 	        _react2.default.createElement(
-	          'div',
-	          { className: 'bottom-bar bottom-bar-small' },
-	          _react2.default.createElement(_siteNav2.default, { currentUser: this.props.currentUser, viewName: 'account' })
-	        ),
-	        _react2.default.createElement(
 	          'h1',
 	          null,
-	          'Account \u2009',
-	          _react2.default.createElement(
-	            'button',
-	            {
-	              className: 'btn',
-	              onClick: this.handleLogout
-	            },
-	            'Logout'
-	          )
+	          'Account'
 	        ),
-	        _react2.default.createElement(_editUrl2.default, { user: this.props.currentUser }),
-	        _react2.default.createElement(_editUser2.default, { user: this.props.currentUser })
+	        _react2.default.createElement(_editUrl2.default, { user: this.props.user }),
+	        _react2.default.createElement(_editUser2.default, { user: this.props.user })
 	      );
 	    }
 	  }]);
@@ -31319,10 +31252,6 @@
 
 	var _loading2 = _interopRequireDefault(_loading);
 
-	var _siteNav = __webpack_require__(487);
-
-	var _siteNav2 = _interopRequireDefault(_siteNav);
-
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -31374,7 +31303,7 @@
 	  }, {
 	    key: 'componentDidMount',
 	    value: function componentDidMount() {
-	      this.setupFirebase(this.props.viewUserId);
+	      this.setupFirebase(this.props.userId);
 	    }
 	  }, {
 	    key: 'componentWillUnmount',
@@ -31384,49 +31313,40 @@
 	  }, {
 	    key: 'componentWillReceiveProps',
 	    value: function componentWillReceiveProps(nextProps) {
-	      if (this.props.viewUserId !== nextProps.viewUserId) {
+	      if (this.props.userId !== nextProps.userId) {
 	        this.teardownFirebase();
-	        this.setupFirebase(nextProps.viewUserId);
+	        this.setupFirebase(nextProps.userId);
 	      }
 	    }
 	  }, {
 	    key: 'render',
 	    value: function render() {
-	      return _react2.default.createElement(
+	      return !this.state.isQuotesLoaded ? _react2.default.createElement(_loading2.default, null) : _react2.default.createElement(
 	        'div',
-	        null,
-	        _react2.default.createElement(
-	          'div',
-	          { className: 'bottom-bar bottom-bar-small' },
-	          _react2.default.createElement(_siteNav2.default, { currentUser: this.props.currentUser, viewName: 'all' })
-	        ),
-	        !this.state.isQuotesLoaded ? _react2.default.createElement(_loading2.default, null) : !this.state.quotes.length ? _react2.default.createElement(
-	          'small',
-	          { className: 'text-small text-muted' },
-	          'No quotes yet, create one!'
-	        ) : _react2.default.createElement(
-	          'div',
-	          { className: 'quotes' },
-	          this.state.quotes.map(function (quote) {
-	            return _react2.default.createElement(
-	              'div',
-	              {
-	                className: 'quote',
-	                key: quote.key
-	              },
-	              _react2.default.createElement(
-	                'h1',
-	                null,
-	                quote.words
-	              ),
-	              _react2.default.createElement(
-	                'h3',
-	                null,
-	                quote.source
-	              )
-	            );
-	          })
-	        )
+	        { className: 'quotes' },
+	        !this.state.quotes.length ? _react2.default.createElement(
+	          'h1',
+	          null,
+	          'No quotes yet...'
+	        ) : this.state.quotes.map(function (quote) {
+	          return _react2.default.createElement(
+	            'div',
+	            {
+	              className: 'quote',
+	              key: quote.key
+	            },
+	            _react2.default.createElement(
+	              'h1',
+	              null,
+	              quote.words
+	            ),
+	            _react2.default.createElement(
+	              'h3',
+	              null,
+	              quote.source
+	            )
+	          );
+	        })
 	      );
 	    }
 	  }]);
@@ -31464,10 +31384,6 @@
 
 	var _quoteForms2 = _interopRequireDefault(_quoteForms);
 
-	var _siteNav = __webpack_require__(487);
-
-	var _siteNav2 = _interopRequireDefault(_siteNav);
-
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -31492,22 +31408,17 @@
 	        'div',
 	        { className: 'container' },
 	        _react2.default.createElement(
-	          'div',
-	          { className: 'bottom-bar bottom-bar-small' },
-	          _react2.default.createElement(_siteNav2.default, { currentUser: this.props.currentUser, viewName: 'edit' })
-	        ),
-	        _react2.default.createElement(
 	          'h1',
 	          null,
 	          'Create new'
 	        ),
-	        _react2.default.createElement(_quoteForm2.default, { userId: this.props.currentUser.uid }),
+	        _react2.default.createElement(_quoteForm2.default, { userId: this.props.user.uid }),
 	        _react2.default.createElement(
 	          'h1',
 	          null,
 	          'Edit existing'
 	        ),
-	        _react2.default.createElement(_quoteForms2.default, { userId: this.props.currentUser.uid })
+	        _react2.default.createElement(_quoteForms2.default, { userId: this.props.user.uid })
 	      );
 	    }
 	  }]);
@@ -31802,9 +31713,9 @@
 	            userId: _this2.props.userId
 	          });
 	        }) : _react2.default.createElement(
-	          'small',
-	          { className: 'text-small text-muted' },
-	          'No quotes yet, create one!'
+	          'p',
+	          { className: 'text-muted' },
+	          '\xA0 No quotes yet...'
 	        )
 	      );
 	    }
@@ -31816,7 +31727,8 @@
 	exports.default = QuoteForms;
 
 /***/ },
-/* 487 */
+/* 487 */,
+/* 488 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31843,50 +31755,108 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var SiteNav = function (_React$Component) {
-	  _inherits(SiteNav, _React$Component);
+	var NavBar = function (_React$Component) {
+	  _inherits(NavBar, _React$Component);
 
-	  function SiteNav() {
-	    _classCallCheck(this, SiteNav);
+	  function NavBar() {
+	    _classCallCheck(this, NavBar);
 
-	    return _possibleConstructorReturn(this, (SiteNav.__proto__ || Object.getPrototypeOf(SiteNav)).apply(this, arguments));
+	    return _possibleConstructorReturn(this, (NavBar.__proto__ || Object.getPrototypeOf(NavBar)).apply(this, arguments));
 	  }
 
-	  _createClass(SiteNav, [{
+	  _createClass(NavBar, [{
 	    key: 'render',
 	    value: function render() {
-	      var view = this.props.viewName;
-	      var tuples = this.props.currentUser ? [['shuffle', 'Shuffle'], ['all', 'All'], ['edit', 'Edit'], ['account', 'Account']] : [['account', 'Login / Register']];
+	      var _this2 = this;
+
+	      var urlId = this.props.urlId || '';
+	      var items = this.props.user ? [{
+	        key: 'shuffle',
+	        url: urlId ? urlId + '/shuffle' : 'shuffle',
+	        txt: 'Shuffle'
+	      }, {
+	        key: 'all',
+	        url: urlId ? urlId + '/all' : 'all',
+	        txt: 'All'
+	      }, {
+	        key: 'edit',
+	        url: 'edit',
+	        txt: 'Edit'
+	      }, {
+	        key: 'account',
+	        url: 'account',
+	        txt: 'Account'
+	      }, {
+	        key: 'logout',
+	        url: 'logout',
+	        txt: 'Logout'
+	      }] : [{
+	        key: 'shuffle',
+	        url: urlId ? urlId + '/shuffle' : 'shuffle',
+	        txt: 'Shuffle'
+	      }, {
+	        key: 'all',
+	        url: urlId ? urlId + '/all' : 'all',
+	        txt: 'All'
+	      }, {
+	        key: 'account',
+	        url: 'account',
+	        txt: 'Login/Register'
+	      }];
+
 	      return _react2.default.createElement(
 	        'div',
-	        { className: 'site-nav' },
-	        tuples.map(function (tuple) {
-	          return tuple[0] === view ? _react2.default.createElement(
+	        { className: 'nav-bar' },
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'pull-left hidden-xs' },
+	          _react2.default.createElement(
+	            'a',
+	            { className: 'btn', href: '#/home' },
+	            'quote.garden'
+	          ),
+	          this.props.urlId && _react2.default.createElement(
 	            'button',
 	            {
-	              key: tuple[1],
-	              className: 'btn btn-nav',
+	              className: 'btn',
+	              style: { marginLeft: '-20px' },
 	              disabled: true
 	            },
-	            tuple[1]
-	          ) : _react2.default.createElement(
-	            'a',
-	            {
-	              key: tuple[1],
-	              className: 'btn btn-nav',
-	              href: '#/' + tuple[0]
-	            },
-	            tuple[1]
-	          );
-	        })
+	            '\u2014 ',
+	            this.props.urlId
+	          )
+	        ),
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'pull-right' },
+	          items.map(function (item) {
+	            return item.key === _this2.props.view ? _react2.default.createElement(
+	              'button',
+	              {
+	                key: item.key,
+	                className: 'btn',
+	                disabled: true
+	              },
+	              item.txt
+	            ) : _react2.default.createElement(
+	              'a',
+	              {
+	                key: item.key,
+	                className: 'btn',
+	                href: '#/' + item.url
+	              },
+	              item.txt
+	            );
+	          })
+	        )
 	      );
 	    }
 	  }]);
 
-	  return SiteNav;
+	  return NavBar;
 	}(_react2.default.Component);
 
-	exports.default = SiteNav;
+	exports.default = NavBar;
 	;
 
 /***/ }

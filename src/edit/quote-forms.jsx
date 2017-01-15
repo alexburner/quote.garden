@@ -65,9 +65,9 @@ export default class QuoteForms extends React.Component {
                 userId={this.props.userId}
               />
             )) :
-            <small className="text-small text-muted">
-              No quotes yet, create one!
-            </small>
+            <p className="text-muted">
+              &nbsp; No quotes yet...
+            </p>
         }
       </div>
     );
