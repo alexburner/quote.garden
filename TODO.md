@@ -4,6 +4,8 @@
 
 - "home" view
 
+- clean up site nav / bottom bar tech debt (nav bar?)
+
 
 # TODO (deluxe)
 
