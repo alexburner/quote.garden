@@ -4,8 +4,6 @@
 
 - "home" view
 
-- clean up site nav / bottom bar tech debt (nav bar?)
-
 - mobile compatibility
 
 - get GitHub Pages running
