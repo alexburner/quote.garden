@@ -1,8 +1,12 @@
 html, body, #app {
-  background: white;
+  background: #EEE;
   height: 100%;
   width: 100%;
   overflow: auto;
+}
+
+#app {
+  padding-top: 30px;
 }
 
 h1:first-child {
@@ -80,15 +84,15 @@ form .fa-spin {
 }
 
 .nav-bar {
-  background: white;
-  border-top: 1px solid #CCC;
+  background: #EEE;
+  border-bottom: 1px solid #CCC;
   font-size: 14px;
   height: 30px;
-  line-height: 16px;
+  line-height: 17px;
   position: fixed;
+  top: 0;
   left: 0;
   right: 0;
-  bottom: 0;
   text-align: right;
   z-index: 1000;
 }
@@ -120,6 +124,11 @@ form .fa-spin {
  * Page-specific hacks!
  */
 
+.all #app,
+.shuffle #app {
+  background-color: white;
+}
+
 .edit #app,
 .account #app,
 .loading #app {
@@ -129,7 +138,7 @@ form .fa-spin {
 .all .quotes {
   color: black;
   font-family: Times, sans-serif;
-  padding: 9% 12% 128px;
+  padding: 8% 12% 128px;
   -webkit-font-smoothing: auto; /* unset Baseguide */
   -moz-osx-font-smoothing: auto; /* unset Baseguide */
 }
