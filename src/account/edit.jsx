@@ -4,7 +4,7 @@ import fireapp from 'shared/fireapp.jsx';
 
 import EditUser from 'account/edit-user.jsx';
 import EditUrl from 'account/edit-url.jsx';
-import TopNav from 'shared/top-nav.jsx';
+import SiteNav from 'shared/site-nav.jsx';
 
 export default class Edit extends React.Component {
   constructor(props) {
@@ -18,7 +18,9 @@ export default class Edit extends React.Component {
   render() {
     return (
       <div className="container">
-        <TopNav currentUser={this.props.currentUser} viewName="account" />
+        <div className="bottom-bar bottom-bar-small">
+          <SiteNav currentUser={this.props.currentUser} viewName="account" />
+        </div>
         <h1>
           Account
           &thinsp;

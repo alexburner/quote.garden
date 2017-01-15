@@ -303,12 +303,15 @@
 	    key: 'render',
 	    value: function render() {
 	      if (!this.state.isRouteLoaded || !this.state.isUserLoaded) {
+	        document.title = 'Loading... — quote.garden';
+	        document.body.className = 'loading';
 	        return _react2.default.createElement(_loading2.default, null);
 	      }
 
 	      switch (this.state.viewName) {
 	        case '404':
 	          document.title = '404 — quote.garden';
+	          document.body.className = '404';
 	          return _react2.default.createElement(
 	            'div',
 	            null,
@@ -346,6 +349,7 @@
 
 	        case 'home':
 	          document.title = 'Home — quote.garden';
+	          document.body.className = 'home';
 	          return _react2.default.createElement(
 	            'div',
 	            null,
@@ -383,14 +387,17 @@
 
 	        case 'account':
 	          document.title = 'Account — quote.garden';
+	          document.body.className = 'account';
 	          return _react2.default.createElement(_account2.default, { currentUser: this.state.currentUser });
 
 	        case 'edit':
 	          document.title = 'Edit — quote.garden';
+	          document.body.className = 'edit';
 	          return _react2.default.createElement(_edit2.default, { currentUser: this.state.currentUser });
 
 	        case 'all':
 	          document.title = 'All \u2014 ' + this.state.viewUrlId + ' \u2014 quote.garden';
+	          document.body.className = 'all';
 	          return _react2.default.createElement(_all2.default, {
 	            currentUser: this.state.currentUser,
 	            viewUserId: this.state.viewUserId
@@ -398,6 +405,7 @@
 
 	        case 'shuffle':
 	          document.title = 'Shuffle \u2014 ' + this.state.viewUrlId + ' \u2014 quote.garden';
+	          document.body.className = 'shuffle';
 	          return _react2.default.createElement(
 	            'div',
 	            null,
@@ -30381,9 +30389,9 @@
 
 	var _editUrl2 = _interopRequireDefault(_editUrl);
 
-	var _topNav = __webpack_require__(479);
+	var _siteNav = __webpack_require__(487);
 
-	var _topNav2 = _interopRequireDefault(_topNav);
+	var _siteNav2 = _interopRequireDefault(_siteNav);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -30414,7 +30422,11 @@
 	      return _react2.default.createElement(
 	        'div',
 	        { className: 'container' },
-	        _react2.default.createElement(_topNav2.default, { currentUser: this.props.currentUser, viewName: 'account' }),
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'bottom-bar bottom-bar-small' },
+	          _react2.default.createElement(_siteNav2.default, { currentUser: this.props.currentUser, viewName: 'account' })
+	        ),
 	        _react2.default.createElement(
 	          'h1',
 	          null,
@@ -30949,80 +30961,7 @@
 	;
 
 /***/ },
-/* 479 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(298);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _fireapp = __webpack_require__(468);
-
-	var _fireapp2 = _interopRequireDefault(_fireapp);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var TopNav = function (_React$Component) {
-	  _inherits(TopNav, _React$Component);
-
-	  function TopNav() {
-	    _classCallCheck(this, TopNav);
-
-	    return _possibleConstructorReturn(this, (TopNav.__proto__ || Object.getPrototypeOf(TopNav)).apply(this, arguments));
-	  }
-
-	  _createClass(TopNav, [{
-	    key: 'render',
-	    value: function render() {
-	      var view = this.props.viewName;
-	      var tuples = this.props.currentUser ? [['shuffle', 'Shuffle'], ['all', 'All'], ['edit', 'Edit'], ['account', 'Account']] : [['account', 'Login / Register']];
-	      return _react2.default.createElement(
-	        'div',
-	        { className: 'top-nav' },
-	        tuples.map(function (tuple) {
-	          return tuple[0] === view ? _react2.default.createElement(
-	            'button',
-	            {
-	              key: tuple[1],
-	              className: 'btn btn-empty',
-	              disabled: true
-	            },
-	            tuple[1]
-	          ) : _react2.default.createElement(
-	            'a',
-	            {
-	              key: tuple[1],
-	              className: 'btn btn-empty',
-	              href: '#/' + tuple[0]
-	            },
-	            tuple[1]
-	          );
-	        })
-	      );
-	    }
-	  }]);
-
-	  return TopNav;
-	}(_react2.default.Component);
-
-	exports.default = TopNav;
-	;
-
-/***/ },
+/* 479 */,
 /* 480 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -31380,9 +31319,9 @@
 
 	var _loading2 = _interopRequireDefault(_loading);
 
-	var _topNav = __webpack_require__(479);
+	var _siteNav = __webpack_require__(487);
 
-	var _topNav2 = _interopRequireDefault(_topNav);
+	var _siteNav2 = _interopRequireDefault(_siteNav);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -31455,8 +31394,12 @@
 	    value: function render() {
 	      return _react2.default.createElement(
 	        'div',
-	        { className: 'all' },
-	        _react2.default.createElement(_topNav2.default, { currentUser: this.props.currentUser, viewName: 'all' }),
+	        null,
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'bottom-bar bottom-bar-small' },
+	          _react2.default.createElement(_siteNav2.default, { currentUser: this.props.currentUser, viewName: 'all' })
+	        ),
 	        !this.state.isQuotesLoaded ? _react2.default.createElement(_loading2.default, null) : !this.state.quotes.length ? _react2.default.createElement(
 	          'small',
 	          { className: 'text-small text-muted' },
@@ -31521,9 +31464,9 @@
 
 	var _quoteForms2 = _interopRequireDefault(_quoteForms);
 
-	var _topNav = __webpack_require__(479);
+	var _siteNav = __webpack_require__(487);
 
-	var _topNav2 = _interopRequireDefault(_topNav);
+	var _siteNav2 = _interopRequireDefault(_siteNav);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -31548,7 +31491,11 @@
 	      return _react2.default.createElement(
 	        'div',
 	        { className: 'container' },
-	        _react2.default.createElement(_topNav2.default, { currentUser: this.props.currentUser, viewName: 'edit' }),
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'bottom-bar bottom-bar-small' },
+	          _react2.default.createElement(_siteNav2.default, { currentUser: this.props.currentUser, viewName: 'edit' })
+	        ),
 	        _react2.default.createElement(
 	          'h1',
 	          null,
@@ -31867,6 +31814,80 @@
 	}(_react2.default.Component);
 
 	exports.default = QuoteForms;
+
+/***/ },
+/* 487 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(298);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _fireapp = __webpack_require__(468);
+
+	var _fireapp2 = _interopRequireDefault(_fireapp);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var SiteNav = function (_React$Component) {
+	  _inherits(SiteNav, _React$Component);
+
+	  function SiteNav() {
+	    _classCallCheck(this, SiteNav);
+
+	    return _possibleConstructorReturn(this, (SiteNav.__proto__ || Object.getPrototypeOf(SiteNav)).apply(this, arguments));
+	  }
+
+	  _createClass(SiteNav, [{
+	    key: 'render',
+	    value: function render() {
+	      var view = this.props.viewName;
+	      var tuples = this.props.currentUser ? [['shuffle', 'Shuffle'], ['all', 'All'], ['edit', 'Edit'], ['account', 'Account']] : [['account', 'Login / Register']];
+	      return _react2.default.createElement(
+	        'div',
+	        { className: 'site-nav' },
+	        tuples.map(function (tuple) {
+	          return tuple[0] === view ? _react2.default.createElement(
+	            'button',
+	            {
+	              key: tuple[1],
+	              className: 'btn btn-nav',
+	              disabled: true
+	            },
+	            tuple[1]
+	          ) : _react2.default.createElement(
+	            'a',
+	            {
+	              key: tuple[1],
+	              className: 'btn btn-nav',
+	              href: '#/' + tuple[0]
+	            },
+	            tuple[1]
+	          );
+	        })
+	      );
+	    }
+	  }]);
+
+	  return SiteNav;
+	}(_react2.default.Component);
+
+	exports.default = SiteNav;
+	;
 
 /***/ }
 /******/ ]);

@@ -216,12 +216,15 @@ class App extends React.Component {
 
   render() {
     if (!this.state.isRouteLoaded || !this.state.isUserLoaded) {
+      document.title = 'Loading... — quote.garden';
+      document.body.className = 'loading';
       return <Loading />
     }
 
     switch (this.state.viewName) {
       case '404':
         document.title = '404 — quote.garden';
+        document.body.className = '404';
         return (
           <div>
             <div><code>this.state.viewName = {this.state.viewName}</code></div>
@@ -232,6 +235,7 @@ class App extends React.Component {
 
       case 'home':
         document.title = 'Home — quote.garden';
+        document.body.className = 'home';
         return (
           <div>
             <div><code>this.state.viewName = {this.state.viewName}</code></div>
@@ -242,14 +246,17 @@ class App extends React.Component {
 
       case 'account':
         document.title = 'Account — quote.garden';
+        document.body.className = 'account';
         return <Account currentUser={this.state.currentUser} />;
 
       case 'edit':
         document.title = 'Edit — quote.garden';
+        document.body.className = 'edit';
         return <Edit currentUser={this.state.currentUser} />;
 
       case 'all':
         document.title = `All — ${this.state.viewUrlId} — quote.garden`;
+        document.body.className = 'all';
         return <All
           currentUser={this.state.currentUser}
           viewUserId={this.state.viewUserId}
@@ -257,6 +264,7 @@ class App extends React.Component {
 
       case 'shuffle':
         document.title = `Shuffle — ${this.state.viewUrlId} — quote.garden`;
+        document.body.className = 'shuffle';
         return (
           <div>
             <div><code>this.state.viewName = {this.state.viewName}</code></div>

@@ -3,7 +3,7 @@ import React from 'react';
 import fireapp from 'shared/fireapp.jsx';
 
 import Loading from 'shared/loading.jsx';
-import TopNav from 'shared/top-nav.jsx';
+import SiteNav from 'shared/site-nav.jsx';
 
 export default class All extends React.Component {
   constructor(props) {
@@ -54,8 +54,10 @@ export default class All extends React.Component {
 
   render() {
     return (
-      <div className="all">
-        <TopNav currentUser={this.props.currentUser} viewName="all" />
+      <div>
+        <div className="bottom-bar bottom-bar-small">
+          <SiteNav currentUser={this.props.currentUser} viewName="all" />
+        </div>
         {!this.state.isQuotesLoaded ?
           <Loading /> :
           !this.state.quotes.length ?
