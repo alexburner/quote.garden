@@ -1,12 +1,12 @@
 html, body, #app {
-  background: #EEE;
+  background: #333;
   height: 100%;
   width: 100%;
   overflow: auto;
 }
 
 #app {
-  padding-top: 30px;
+  padding-top: calc(30px + 2%);
 }
 
 h1:first-child {
@@ -84,11 +84,11 @@ form .fa-spin {
 }
 
 .nav-bar {
-  background: #EEE;
-  border-bottom: 1px solid #CCC;
+  background: #333;
   font-size: 14px;
   height: 30px;
-  line-height: 17px;
+  line-height: 18px;
+  overflow: hidden;
   position: fixed;
   top: 0;
   left: 0;
@@ -99,7 +99,7 @@ form .fa-spin {
 
 .nav-bar .btn {
   background-color: transparent;
-  color: #333;
+  color: #EEE;
   font-size: 13px;
   padding-left: 0.9em;
   padding-right: 0.9em;
@@ -108,15 +108,15 @@ form .fa-spin {
 .nav-bar .btn:focus,
 .nav-bar .btn:hover,
 .nav-bar .btn:active {
-  background-color: #CCC;
+  background-color: #555;
   border-color: transparent;
-  color: black;
+  color: #FFF;
   text-decoration: underline;
 }
 
 .nav-bar .btn.disabled,
 .nav-bar .btn[disabled] {
-  color: #777;
+  color: #AAA;
   opacity: 1;
 }
 
@@ -125,12 +125,13 @@ form .fa-spin {
  */
 
 .all #app,
+.home #app,
 .shuffle #app {
   background-color: white;
 }
 
-.edit #app,
 .account #app,
+.edit #app,
 .loading #app {
   background-color: #EEE;
 }
@@ -138,7 +139,7 @@ form .fa-spin {
 .all .quotes {
   color: black;
   font-family: Times, sans-serif;
-  padding: 8% 12% 128px;
+  padding: 7% 14% 128px;
   -webkit-font-smoothing: auto; /* unset Baseguide */
   -moz-osx-font-smoothing: auto; /* unset Baseguide */
 }
