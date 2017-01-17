@@ -10,6 +10,7 @@ import * as queries from 'shared/queries.jsx';
 import Account from 'account/account.jsx';
 import All from 'all/all.jsx';
 import Edit from 'edit/edit.jsx';
+import Home from 'home/home.jsx';
 import Loading from 'shared/loading.jsx';
 import NavBar from 'shared/nav-bar.jsx';
 
@@ -232,7 +233,7 @@ class App extends React.Component {
       case 'home':
         document.title = 'Home — quote.garden';
         return (
-          <div>{this.state.routeView}</div>
+          <Home />
         );
 
       case 'account':
@@ -241,7 +242,7 @@ class App extends React.Component {
           <div>
             <Account user={this.state.user} />
             <NavBar
-              user={this.state.user}
+              isAuthenticated={Boolean(this.state.user)}
               urlId={this.state.profile && this.state.profile.urlId}
               view={this.state.routeView}
             />
@@ -254,7 +255,7 @@ class App extends React.Component {
           <div>
             <Edit user={this.state.user} />
             <NavBar
-              user={this.state.user}
+              isAuthenticated={Boolean(this.state.user)}
               urlId={this.state.profile.urlId}
               view={this.state.routeView}
             />
@@ -267,7 +268,7 @@ class App extends React.Component {
           <div>
             <All userId={this.state.routeUserId} />
             <NavBar
-              user={this.state.user}
+              isAuthenticated={Boolean(this.state.user)}
               urlId={this.state.routeUrlId}
               view={this.state.routeView}
             />
@@ -280,7 +281,7 @@ class App extends React.Component {
           <div>
             <div>{this.state.routeView}</div>
             <NavBar
-              user={this.state.user}
+              isAuthenticated={Boolean(this.state.user)}
               urlId={this.state.routeUrlId}
               view={this.state.routeView}
             />
@@ -293,7 +294,7 @@ class App extends React.Component {
           <div>
             <div>{this.state.routeView}</div>
             <NavBar
-              user={this.state.user}
+              isAuthenticated={Boolean(this.state.user)}
               urlId={this.state.routeUrlId}
             />
           </div>

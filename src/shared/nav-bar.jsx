@@ -2,19 +2,18 @@ import React from 'react';
 
 import fireapp from 'shared/fireapp.jsx';
 
-export default class NavBar extends React.Component {
-  render() {
-    const urlId = this.props.urlId || '';
-    const items = this.props.user ?
+export const getNavItems = (isAuthenticated, urlId) => {
+  urlId = urlId ? urlId + '/' : '';
+  return isAuthenticated ?
       [
         {
           key: 'shuffle',
-          url: urlId ? urlId + '/shuffle' : 'shuffle',
+          url: urlId + 'shuffle',
           txt: 'Shuffle',
         },
         {
           key: 'all',
-          url: urlId ? urlId + '/all' : 'all',
+          url: urlId + 'all',
           txt: 'All',
         },
         {
@@ -36,12 +35,12 @@ export default class NavBar extends React.Component {
       [
         {
           key: 'shuffle',
-          url: urlId ? urlId + '/shuffle' : 'shuffle',
+          url: urlId + 'shuffle',
           txt: 'Shuffle',
         },
         {
           key: 'all',
-          url: urlId ? urlId + '/all' : 'all',
+          url: urlId + 'all',
           txt: 'All',
         },
         {
@@ -51,7 +50,14 @@ export default class NavBar extends React.Component {
         },
       ]
     ;
+};
 
+export default class NavBar extends React.Component {
+  render() {
+    const items = getNavItems(
+      this.props.isAuthenticated,
+      this.props.urlId
+    );
     return (
       <div className="nav-bar">
         <div className="pull-left hidden-xs">

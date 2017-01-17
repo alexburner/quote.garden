@@ -74,13 +74,17 @@
 
 	var _account2 = _interopRequireDefault(_account);
 
-	var _all = __webpack_require__(483);
+	var _all = __webpack_require__(482);
 
 	var _all2 = _interopRequireDefault(_all);
 
-	var _edit = __webpack_require__(484);
+	var _edit = __webpack_require__(483);
 
 	var _edit2 = _interopRequireDefault(_edit);
+
+	var _home = __webpack_require__(486);
+
+	var _home2 = _interopRequireDefault(_home);
 
 	var _loading = __webpack_require__(478);
 
@@ -319,11 +323,7 @@
 	      switch (this.state.routeView) {
 	        case 'home':
 	          document.title = 'Home — quote.garden';
-	          return _react2.default.createElement(
-	            'div',
-	            null,
-	            this.state.routeView
-	          );
+	          return _react2.default.createElement(_home2.default, null);
 
 	        case 'account':
 	          document.title = 'Account — quote.garden';
@@ -332,7 +332,7 @@
 	            null,
 	            _react2.default.createElement(_account2.default, { user: this.state.user }),
 	            _react2.default.createElement(_navBar2.default, {
-	              user: this.state.user,
+	              isAuthenticated: Boolean(this.state.user),
 	              urlId: this.state.profile && this.state.profile.urlId,
 	              view: this.state.routeView
 	            })
@@ -345,7 +345,7 @@
 	            null,
 	            _react2.default.createElement(_edit2.default, { user: this.state.user }),
 	            _react2.default.createElement(_navBar2.default, {
-	              user: this.state.user,
+	              isAuthenticated: Boolean(this.state.user),
 	              urlId: this.state.profile.urlId,
 	              view: this.state.routeView
 	            })
@@ -358,7 +358,7 @@
 	            null,
 	            _react2.default.createElement(_all2.default, { userId: this.state.routeUserId }),
 	            _react2.default.createElement(_navBar2.default, {
-	              user: this.state.user,
+	              isAuthenticated: Boolean(this.state.user),
 	              urlId: this.state.routeUrlId,
 	              view: this.state.routeView
 	            })
@@ -375,7 +375,7 @@
 	              this.state.routeView
 	            ),
 	            _react2.default.createElement(_navBar2.default, {
-	              user: this.state.user,
+	              isAuthenticated: Boolean(this.state.user),
 	              urlId: this.state.routeUrlId,
 	              view: this.state.routeView
 	            })
@@ -392,7 +392,7 @@
 	              this.state.routeView
 	            ),
 	            _react2.default.createElement(_navBar2.default, {
-	              user: this.state.user,
+	              isAuthenticated: Boolean(this.state.user),
 	              urlId: this.state.routeUrlId
 	            })
 	          );
@@ -30284,7 +30284,7 @@
 
 	var _edit2 = _interopRequireDefault(_edit);
 
-	var _auth = __webpack_require__(480);
+	var _auth = __webpack_require__(479);
 
 	var _auth2 = _interopRequireDefault(_auth);
 
@@ -30894,8 +30894,7 @@
 	;
 
 /***/ },
-/* 479 */,
-/* 480 */
+/* 479 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -30910,11 +30909,11 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _login = __webpack_require__(481);
+	var _login = __webpack_require__(480);
 
 	var _login2 = _interopRequireDefault(_login);
 
-	var _register = __webpack_require__(482);
+	var _register = __webpack_require__(481);
 
 	var _register2 = _interopRequireDefault(_register);
 
@@ -30965,7 +30964,7 @@
 	exports.default = Auth;
 
 /***/ },
-/* 481 */
+/* 480 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31087,7 +31086,7 @@
 	exports.default = Login;
 
 /***/ },
-/* 482 */
+/* 481 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31229,7 +31228,7 @@
 	exports.default = Register;
 
 /***/ },
-/* 483 */
+/* 482 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31357,7 +31356,7 @@
 	exports.default = All;
 
 /***/ },
-/* 484 */
+/* 483 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31376,11 +31375,11 @@
 
 	var _fireapp2 = _interopRequireDefault(_fireapp);
 
-	var _quoteForm = __webpack_require__(485);
+	var _quoteForm = __webpack_require__(484);
 
 	var _quoteForm2 = _interopRequireDefault(_quoteForm);
 
-	var _quoteForms = __webpack_require__(486);
+	var _quoteForms = __webpack_require__(485);
 
 	var _quoteForms2 = _interopRequireDefault(_quoteForms);
 
@@ -31429,7 +31428,7 @@
 	exports.default = Edit;
 
 /***/ },
-/* 485 */
+/* 484 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31605,7 +31604,7 @@
 	;
 
 /***/ },
-/* 486 */
+/* 485 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31628,7 +31627,7 @@
 
 	var _loading2 = _interopRequireDefault(_loading);
 
-	var _quoteForm = __webpack_require__(485);
+	var _quoteForm = __webpack_require__(484);
 
 	var _quoteForm2 = _interopRequireDefault(_quoteForm);
 
@@ -31727,7 +31726,176 @@
 	exports.default = QuoteForms;
 
 /***/ },
-/* 487 */,
+/* 486 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(298);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _fireapp = __webpack_require__(468);
+
+	var _fireapp2 = _interopRequireDefault(_fireapp);
+
+	var _queries = __webpack_require__(473);
+
+	var queries = _interopRequireWildcard(_queries);
+
+	var _util = __webpack_require__(487);
+
+	var util = _interopRequireWildcard(_util);
+
+	var _loading = __webpack_require__(478);
+
+	var _loading2 = _interopRequireDefault(_loading);
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var Home = function (_React$Component) {
+	  _inherits(Home, _React$Component);
+
+	  function Home(props) {
+	    _classCallCheck(this, Home);
+
+	    var _this = _possibleConstructorReturn(this, (Home.__proto__ || Object.getPrototypeOf(Home)).call(this, props));
+
+	    _this.state = {
+	      quote: []
+	    };
+	    _this.imageUrl = '';
+	    _this.imageUrls = ['http://i.imgur.com/OyT0PvY.jpg', 'http://i.imgur.com/ifGsGZR.jpg', 'http://i.imgur.com/2wctpuH.jpg', 'http://i.imgur.com/uOjNgdA.jpg', 'http://i.imgur.com/HqHiwb9.jpg', 'http://i.imgur.com/eST3506.jpg', 'http://i.imgur.com/MrKfkwN.jpg', 'http://i.imgur.com/5GWLv0c.jpg', 'http://i.imgur.com/EvW3H0d.jpg', 'http://i.imgur.com/k3AgEO8.jpg', 'http://i.imgur.com/v5kFKUE.jpg', 'http://i.imgur.com/1CdU2JX.jpg', 'http://i.imgur.com/owyWGdo.jpg', 'http://i.imgur.com/BcqItX6.jpg', 'http://i.imgur.com/2k23gWp.jpg'];
+	    return _this;
+	  }
+
+	  _createClass(Home, [{
+	    key: 'componentWillMount',
+	    value: function componentWillMount() {
+	      this.imageStyle = {
+	        backgroundImage: 'url(' + util.getRandomElement(this.imageUrls) + ')'
+	      };
+	    }
+	  }, {
+	    key: 'componentDidMount',
+	    value: function componentDidMount() {
+	      var _this2 = this;
+
+	      queries.getDefaultUserId().then(function (userId) {
+	        _fireapp2.default.database().ref('quotes/' + userId).once('value', function (snapshot) {
+	          var quotes = [];
+	          if (snapshot && snapshot.val()) {
+	            snapshot.forEach(function (snapshot) {
+	              var quote = snapshot.val();
+	              quote.key = snapshot.key;
+	              quotes.unshift(quote);
+	            });
+	          }
+	          _this2.setState({
+	            quote: util.getRandomElement(quotes)
+	          });
+	        });
+	      });
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement(
+	        'div',
+	        { className: 'slide', style: this.imageStyle },
+	        this.state.quote && _react2.default.createElement(
+	          'div',
+	          { className: 'quote' },
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'quote-back' },
+	            _react2.default.createElement(
+	              'div',
+	              { className: 'quote-wrap' },
+	              _react2.default.createElement(
+	                'h2',
+	                { className: 'words' },
+	                _react2.default.createElement(
+	                  'span',
+	                  { className: 'bar' },
+	                  this.state.quote.words
+	                )
+	              ),
+	              _react2.default.createElement(
+	                'h4',
+	                { className: 'source' },
+	                _react2.default.createElement(
+	                  'span',
+	                  { className: 'bar' },
+	                  this.state.quote.source
+	                )
+	              )
+	            ),
+	            _react2.default.createElement(
+	              'div',
+	              { className: 'quote-fore' },
+	              _react2.default.createElement(
+	                'div',
+	                { className: 'quote-wrap' },
+	                _react2.default.createElement(
+	                  'h2',
+	                  { className: 'words' },
+	                  _react2.default.createElement(
+	                    'span',
+	                    { className: 'bar' },
+	                    this.state.quote.words
+	                  )
+	                ),
+	                _react2.default.createElement(
+	                  'h4',
+	                  { className: 'source' },
+	                  _react2.default.createElement(
+	                    'span',
+	                    { className: 'bar' },
+	                    this.state.quote.source
+	                  )
+	                )
+	              )
+	            )
+	          )
+	        )
+	      );
+	    }
+	  }]);
+
+	  return Home;
+	}(_react2.default.Component);
+
+	exports.default = Home;
+
+/***/ },
+/* 487 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	var getRandomElement = exports.getRandomElement = function getRandomElement(arr) {
+	    return arr[Math.floor(Math.random() * arr.length)];
+	};
+
+/***/ },
 /* 488 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -31736,6 +31904,7 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+	exports.getNavItems = undefined;
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -31755,6 +31924,43 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+	var getNavItems = exports.getNavItems = function getNavItems(isAuthenticated, urlId) {
+	  urlId = urlId ? urlId + '/' : '';
+	  return isAuthenticated ? [{
+	    key: 'shuffle',
+	    url: urlId + 'shuffle',
+	    txt: 'Shuffle'
+	  }, {
+	    key: 'all',
+	    url: urlId + 'all',
+	    txt: 'All'
+	  }, {
+	    key: 'edit',
+	    url: 'edit',
+	    txt: 'Edit'
+	  }, {
+	    key: 'account',
+	    url: 'account',
+	    txt: 'Account'
+	  }, {
+	    key: 'logout',
+	    url: 'logout',
+	    txt: 'Logout'
+	  }] : [{
+	    key: 'shuffle',
+	    url: urlId + 'shuffle',
+	    txt: 'Shuffle'
+	  }, {
+	    key: 'all',
+	    url: urlId + 'all',
+	    txt: 'All'
+	  }, {
+	    key: 'account',
+	    url: 'account',
+	    txt: 'Login/Register'
+	  }];
+	};
+
 	var NavBar = function (_React$Component) {
 	  _inherits(NavBar, _React$Component);
 
@@ -31769,41 +31975,7 @@
 	    value: function render() {
 	      var _this2 = this;
 
-	      var urlId = this.props.urlId || '';
-	      var items = this.props.user ? [{
-	        key: 'shuffle',
-	        url: urlId ? urlId + '/shuffle' : 'shuffle',
-	        txt: 'Shuffle'
-	      }, {
-	        key: 'all',
-	        url: urlId ? urlId + '/all' : 'all',
-	        txt: 'All'
-	      }, {
-	        key: 'edit',
-	        url: 'edit',
-	        txt: 'Edit'
-	      }, {
-	        key: 'account',
-	        url: 'account',
-	        txt: 'Account'
-	      }, {
-	        key: 'logout',
-	        url: 'logout',
-	        txt: 'Logout'
-	      }] : [{
-	        key: 'shuffle',
-	        url: urlId ? urlId + '/shuffle' : 'shuffle',
-	        txt: 'Shuffle'
-	      }, {
-	        key: 'all',
-	        url: urlId ? urlId + '/all' : 'all',
-	        txt: 'All'
-	      }, {
-	        key: 'account',
-	        url: 'account',
-	        txt: 'Login/Register'
-	      }];
-
+	      var items = getNavItems(this.props.isAuthenticated, this.props.urlId);
 	      return _react2.default.createElement(
 	        'div',
 	        { className: 'nav-bar' },

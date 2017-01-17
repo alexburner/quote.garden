@@ -5,8 +5,10 @@ html, body, #app {
   overflow: auto;
 }
 
-#app {
-  padding-top: calc(30px + 2%);
+.preload {
+  position: fixed;
+  visibility: hidden;
+  z-index: -1000;
 }
 
 h1:first-child {
@@ -120,9 +122,99 @@ form .fa-spin {
   opacity: 1;
 }
 
+.slide {
+  background: url("") center center / cover no-repeat fixed white;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+}
+
+.slide .quote-back,
+.slide .quote-fore {
+  padding: 64px 128px 96px;
+}
+
+/* omfg responsive gtfo */
+@media (max-width: 600px) {
+  .slide .quote-back,
+  .slide .quote-fore {
+    padding: 48px 64px 96px;
+  }
+}
+
+.slide .quote-back {
+  position: relative;
+}
+
+.slide .quote-fore {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 5;
+}
+
+.slide .quote-wrap {
+  margin: auto;
+  max-width: 800px;
+}
+
+.slide .words,
+.slide .source {
+  color: white;
+  font-family: "Times New Roman", serif;
+  line-height: 1.2em;
+  margin: 72px 0;
+  opacity: 0.66;
+  position: relative;
+  z-index: 3;
+  -webkit-font-smoothing: auto; /* unset Baseguide */
+  -moz-osx-font-smoothing: auto; /* unset Baseguide */
+}
+
+.slide .words {
+  font-size: 24px;
+}
+
+.slide .source {
+  font-size: 16px;
+  font-style: italic;
+}
+
+.slide .bar {
+  display: inline;
+  padding: 20px 0 24px;
+  background: white;
+  box-shadow: 30px 0 0 white, -28px 0 0 white;
+  box-decoration-break: clone;
+}
+
+.slide .source .bar {
+  padding: 12px 0 14px;
+  box-shadow: 16px 0 0 white, -15px 0 0 white;
+}
+
+.slide .quote-fore .words,
+.slide .quote-fore .source {
+  /*opacity: 0.77;*/
+  color: black;
+}
+.slide .quote-fore .bar{
+  background: none;
+  box-shadow: none;
+}
+
 /**
  * Page-specific hacks!
  */
+
+#app {
+  padding-top: calc(30px + 2%);
+}
 
 .all #app,
 .home #app,
