@@ -68,7 +68,11 @@ class App extends React.Component {
   }
 
   updateRoute() {
-    this.initPromise.then(() => this._updateRoute());
+    this.initPromise.then(() => {
+      this.setState({isRouteLoaded: false}, () => {
+        this._updateRoute();
+      });
+    });
   }
 
   _updateRoute() {
@@ -214,6 +218,17 @@ class App extends React.Component {
   }
 
   render() {
+
+
+    // TODO
+    // - always include nav bar
+    // - replace home with default/shuffle
+    // - abstract out route object:
+    //    - route.viewName
+    //    - route.displayName
+    //    - route.data (userId, publicId, quoteId)
+
+
     if (!this.state.isRouteLoaded || !this.state.isUserLoaded) {
       document.title = 'Loading... — quote.garden';
       document.body.className = 'loading';

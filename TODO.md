@@ -2,11 +2,13 @@
 
 - "shuffle" view
 
-- "home" view
+- "home" view >>> NO WAIT replace home with default/shuffle
 
 - mobile compatibility
 
 - get GitHub Pages running
+
+- imporove route loading (viewName, displayName, always nav bar)
 
 
 # TODO (deluxe)

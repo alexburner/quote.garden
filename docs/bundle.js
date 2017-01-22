@@ -178,7 +178,9 @@
 	      var _this3 = this;
 
 	      this.initPromise.then(function () {
-	        return _this3._updateRoute();
+	        _this3.setState({ isRouteLoaded: false }, function () {
+	          _this3._updateRoute();
+	        });
 	      });
 	    }
 	  }, {
@@ -305,6 +307,16 @@
 	  }, {
 	    key: 'render',
 	    value: function render() {
+
+	      // TODO
+	      // - always include nav bar
+	      // - replace home with default/shuffle
+	      // - abstract out route object:
+	      //    - route.viewName
+	      //    - route.displayName
+	      //    - route.data (userId, publicId, quoteId)
+
+
 	      if (!this.state.isRouteLoaded || !this.state.isUserLoaded) {
 	        document.title = 'Loading... — quote.garden';
 	        document.body.className = 'loading';

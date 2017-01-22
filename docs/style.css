@@ -67,7 +67,8 @@ hr {
 }
 
 form {
-  padding: 0.3em 0.2em 0.1em;
+  background-color: #EEE;
+  padding: 1em 1em 0.1em;
 }
 
 form .btn {
@@ -216,14 +217,14 @@ form .fa-spin {
   padding-top: calc(30px + 2%);
 }
 
+.account #app,
+.edit #app,
 .all #app,
 .home #app,
 .shuffle #app {
   background-color: white;
 }
 
-.account #app,
-.edit #app,
 .loading #app {
   background-color: #EEE;
 }
