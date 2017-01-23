@@ -94,6 +94,10 @@
 
 	var _navBar2 = _interopRequireDefault(_navBar);
 
+	var _shuffle = __webpack_require__(489);
+
+	var _shuffle2 = _interopRequireDefault(_shuffle);
+
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -381,11 +385,10 @@
 	          return _react2.default.createElement(
 	            'div',
 	            null,
-	            _react2.default.createElement(
-	              'div',
-	              null,
-	              this.state.routeView
-	            ),
+	            _react2.default.createElement(_shuffle2.default, {
+	              quoteId: this.state.routeQuoteId,
+	              userId: this.state.routeUserId
+	            }),
 	            _react2.default.createElement(_navBar2.default, {
 	              isAuthenticated: Boolean(this.state.user),
 	              urlId: this.state.routeUrlId,
@@ -31280,7 +31283,7 @@
 	    var _this = _possibleConstructorReturn(this, (All.__proto__ || Object.getPrototypeOf(All)).call(this, props));
 
 	    _this.state = {
-	      isQuotesLoaded: false,
+	      isLoaded: false,
 	      quotes: []
 	    };
 	    _this.handleQuotes = function (snapshot) {
@@ -31293,7 +31296,7 @@
 	        });
 	      }
 	      _this.setState({
-	        isQuotesLoaded: true,
+	        isLoaded: true,
 	        quotes: quotes
 	      });
 	    };
@@ -31332,7 +31335,7 @@
 	  }, {
 	    key: 'render',
 	    value: function render() {
-	      return !this.state.isQuotesLoaded ? _react2.default.createElement(_loading2.default, null) : _react2.default.createElement(
+	      return !this.state.isLoaded ? _react2.default.createElement(_loading2.default, null) : _react2.default.createElement(
 	        'div',
 	        { className: 'quotes' },
 	        !this.state.quotes.length ? _react2.default.createElement(
@@ -31907,6 +31910,30 @@
 	    return arr[Math.floor(Math.random() * arr.length)];
 	};
 
+	var shuffle = exports.shuffle = function shuffle(arr, copy) {
+	    if (copy) arr = arr.slice(0);
+
+	    // Fisher Yates implementation by mbostock
+	    // http://bost.ocks.org/mike/shuffle/
+	    var remaining = arr.length;
+	    var element = void 0;
+	    var index = void 0;
+
+	    // While there remain elements to shuffle…
+	    while (remaining) {
+
+	        // Pick a remaining element…
+	        index = Math.floor(Math.random() * remaining--);
+
+	        // And swap it with the current element.
+	        element = arr[remaining];
+	        arr[remaining] = arr[index];
+	        arr[index] = element;
+	    }
+
+	    return arr;
+	};
+
 /***/ },
 /* 488 */
 /***/ function(module, exports, __webpack_require__) {
@@ -32042,6 +32069,384 @@
 
 	exports.default = NavBar;
 	;
+
+/***/ },
+/* 489 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(298);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _fireapp = __webpack_require__(468);
+
+	var _fireapp2 = _interopRequireDefault(_fireapp);
+
+	var _queries = __webpack_require__(473);
+
+	var queries = _interopRequireWildcard(_queries);
+
+	var _util = __webpack_require__(487);
+
+	var util = _interopRequireWildcard(_util);
+
+	var _images = __webpack_require__(491);
+
+	var _images2 = _interopRequireDefault(_images);
+
+	var _loading = __webpack_require__(478);
+
+	var _loading2 = _interopRequireDefault(_loading);
+
+	var _slide = __webpack_require__(490);
+
+	var _slide2 = _interopRequireDefault(_slide);
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var Shuffle = function (_React$Component) {
+	  _inherits(Shuffle, _React$Component);
+
+	  function Shuffle(props) {
+	    _classCallCheck(this, Shuffle);
+
+	    var _this = _possibleConstructorReturn(this, (Shuffle.__proto__ || Object.getPrototypeOf(Shuffle)).call(this, props));
+
+	    _this.state = {
+	      isLoaded: false,
+	      quotes: null,
+	      slides: null
+	    };
+	    _this.images = new _images2.default();
+	    _this.quoteIndex = null;
+	    _this.slideCount = null;
+	    _this.handleQuotes = function (snapshot) {
+	      _this.quoteIndex = 0;
+	      _this.slideCount = 0;
+	      var quotes = [];
+	      var slides = [];
+	      if (snapshot && snapshot.val()) {
+	        snapshot.forEach(function (snapshot) {
+	          var quote = snapshot.val();
+	          quote.key = snapshot.key;
+	          quotes.unshift(quote);
+	        });
+	        if (quotes.length) {
+	          util.shuffle(quotes);
+	          slides.push(_this.makeSlide(quotes[_this.quoteIndex]));
+	        }
+	      }
+	      _this.setState({
+	        isLoaded: true,
+	        quotes: quotes,
+	        slides: slides
+	      });
+	    };
+	    _this.handleKeydown = function (e) {
+	      switch (e.which) {
+	        case 37:
+	          // left arrow key
+	          e.preventDefault();
+	          _this.showPrevQuote();
+	          break;
+	        case 39:
+	          // right arrow key
+	          e.preventDefault();
+	          _this.showNextQuote();
+	          break;
+	      }
+	    };
+	    return _this;
+	  }
+
+	  _createClass(Shuffle, [{
+	    key: 'makeSlide',
+	    value: function makeSlide(quote) {
+	      this.slideCount++;
+	      return {
+	        image: this.images.getRandom(),
+	        key: this.slideCount,
+	        quote: quote
+	      };
+	    }
+	  }, {
+	    key: 'showNewSlide',
+	    value: function showNewSlide(quote) {
+	      var _this2 = this;
+
+	      this.setState(function (state) {
+	        return {
+	          // immediately add new slide to end of array
+	          slides: state.slides.concat(_this2.makeSlide(quote))
+	        };
+	      }, function () {
+	        return setTimeout(function () {
+	          return _this2.setState(function (state) {
+	            return {
+	              // after 2s, remove old slide from beginning
+	              slides: state.slides.slice(1)
+	            };
+	          });
+	        }, 2000);
+	      });
+	    }
+	  }, {
+	    key: 'showNextQuote',
+	    value: function showNextQuote() {
+	      if (!this.hasQuotes()) return;
+	      this.quoteIndex += 1;
+	      this.quoteIndex %= this.state.quotes.length;
+	      this.showNewSlide(this.state.quotes[this.quoteIndex]);
+	    }
+	  }, {
+	    key: 'showPrevQuote',
+	    value: function showPrevQuote() {
+	      if (!this.hasQuotes()) return;
+	      this.quoteIndex -= 1;
+	      this.quoteIndex = this.quoteIndex < 0 ? this.state.quotes.length - 1 : this.quoteIndex;
+	      this.showNewSlide(this.state.quotes[this.quoteIndex]);
+	    }
+	  }, {
+	    key: 'hasQuotes',
+	    value: function hasQuotes() {
+	      return this.state.isLoaded && this.state.quotes && this.state.quotes.length;
+	    }
+	  }, {
+	    key: 'setupFirebase',
+	    value: function setupFirebase(userId) {
+	      var _this3 = this;
+
+	      this.setState({ isLoaded: false }, function () {
+	        _this3.quotesRef = _fireapp2.default.database().ref('quotes/' + userId);
+	        _this3.quotesRef.on('value', _this3.handleQuotes);
+	      });
+	    }
+	  }, {
+	    key: 'teardownFirebase',
+	    value: function teardownFirebase() {
+	      this.quotesRef.off('value', this.handleQuotes);
+	    }
+	  }, {
+	    key: 'componentDidMount',
+	    value: function componentDidMount() {
+	      window.addEventListener('keydown', this.handleKeydown);
+	      this.setupFirebase(this.props.userId);
+	    }
+	  }, {
+	    key: 'componentWillUnmount',
+	    value: function componentWillUnmount() {
+	      window.removeEventListener('keydown', this.handleKeydown);
+	      this.teardownFirebase();
+	    }
+	  }, {
+	    key: 'componentWillReceiveProps',
+	    value: function componentWillReceiveProps(nextProps) {
+	      if (this.props.userId !== nextProps.userId) {
+	        this.teardownFirebase();
+	        this.setupFirebase(nextProps.userId);
+	      }
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      return !this.state.isLoaded ? _react2.default.createElement(_loading2.default, null) : !this.state.quotes.length ? _react2.default.createElement(
+	        'h1',
+	        null,
+	        'No quotes yet...'
+	      ) : _react2.default.createElement(
+	        'div',
+	        { className: 'slides' },
+	        this.state.slides.map(function (slide, index) {
+	          return _react2.default.createElement(_slide2.default, {
+	            image: slide.image,
+	            key: slide.key,
+	            quote: slide.quote,
+	            zIndex: index + 1
+	          });
+	        })
+	      );
+	    }
+	  }]);
+
+	  return Shuffle;
+	}(_react2.default.Component);
+
+	exports.default = Shuffle;
+
+/***/ },
+/* 490 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(298);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var Slide = function (_React$Component) {
+	  _inherits(Slide, _React$Component);
+
+	  function Slide(props) {
+	    _classCallCheck(this, Slide);
+
+	    var _this = _possibleConstructorReturn(this, (Slide.__proto__ || Object.getPrototypeOf(Slide)).call(this, props));
+
+	    _this.state = {
+	      isShown: false
+	    };
+	    return _this;
+	  }
+
+	  _createClass(Slide, [{
+	    key: 'componentDidMount',
+	    value: function componentDidMount() {
+	      this.setState({
+	        isShown: true
+	      });
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      var className = this.state.isShown ? 'slide fade-in' : 'slide';
+	      var style = {
+	        backgroundImage: 'url(' + this.props.image + ')',
+	        zIndex: this.props.zIndex
+	      };
+	      return _react2.default.createElement(
+	        'div',
+	        { className: className, style: style },
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'quote' },
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'quote-back' },
+	            _react2.default.createElement(
+	              'div',
+	              { className: 'quote-wrap' },
+	              _react2.default.createElement(
+	                'h2',
+	                { className: 'words' },
+	                _react2.default.createElement(
+	                  'span',
+	                  { className: 'bar' },
+	                  this.props.quote.words
+	                )
+	              ),
+	              _react2.default.createElement(
+	                'h4',
+	                { className: 'source' },
+	                _react2.default.createElement(
+	                  'span',
+	                  { className: 'bar' },
+	                  this.props.quote.source
+	                )
+	              )
+	            ),
+	            _react2.default.createElement(
+	              'div',
+	              { className: 'quote-fore' },
+	              _react2.default.createElement(
+	                'div',
+	                { className: 'quote-wrap' },
+	                _react2.default.createElement(
+	                  'h2',
+	                  { className: 'words' },
+	                  _react2.default.createElement(
+	                    'span',
+	                    { className: 'bar' },
+	                    this.props.quote.words
+	                  )
+	                ),
+	                _react2.default.createElement(
+	                  'h4',
+	                  { className: 'source' },
+	                  _react2.default.createElement(
+	                    'span',
+	                    { className: 'bar' },
+	                    this.props.quote.source
+	                  )
+	                )
+	              )
+	            )
+	          )
+	        )
+	      );
+	    }
+	  }]);
+
+	  return Slide;
+	}(_react2.default.Component);
+
+	exports.default = Slide;
+
+/***/ },
+/* 491 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var images = ['http://i.imgur.com/OyT0PvY.jpg', 'http://i.imgur.com/ifGsGZR.jpg', 'http://i.imgur.com/2wctpuH.jpg', 'http://i.imgur.com/uOjNgdA.jpg', 'http://i.imgur.com/HqHiwb9.jpg', 'http://i.imgur.com/eST3506.jpg', 'http://i.imgur.com/MrKfkwN.jpg', 'http://i.imgur.com/5GWLv0c.jpg', 'http://i.imgur.com/EvW3H0d.jpg', 'http://i.imgur.com/k3AgEO8.jpg', 'http://i.imgur.com/v5kFKUE.jpg', 'http://i.imgur.com/1CdU2JX.jpg', 'http://i.imgur.com/owyWGdo.jpg', 'http://i.imgur.com/BcqItX6.jpg', 'http://i.imgur.com/2k23gWp.jpg'];
+
+	var Images = function () {
+	    function Images() {
+	        _classCallCheck(this, Images);
+
+	        this.index = 0;
+	    }
+
+	    _createClass(Images, [{
+	        key: 'getRandom',
+	        value: function getRandom() {
+	            var index = Math.floor(Math.random() * images.length);
+	            if (index === this.index) return this.getRandom(); // re-roll
+	            this.index = index;
+	            return images[index];
+	        }
+	    }]);
+
+	    return Images;
+	}();
+
+	exports.default = Images;
 
 /***/ }
 /******/ ]);

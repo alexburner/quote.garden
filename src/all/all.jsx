@@ -8,7 +8,7 @@ export default class All extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      isQuotesLoaded: false,
+      isLoaded: false,
       quotes: [],
     };
     this.handleQuotes = (snapshot) => {
@@ -21,7 +21,7 @@ export default class All extends React.Component {
         });
       }
       this.setState({
-        isQuotesLoaded: true,
+        isLoaded: true,
         quotes: quotes,
       });
     };
@@ -52,7 +52,7 @@ export default class All extends React.Component {
   }
 
   render() {
-    return !this.state.isQuotesLoaded ?
+    return !this.state.isLoaded ?
       <Loading /> :
       <div className="quotes">
         {!this.state.quotes.length ?

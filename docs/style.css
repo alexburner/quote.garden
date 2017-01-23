@@ -7,8 +7,7 @@ html, body, #app {
 
 .preload {
   position: fixed;
-  visibility: hidden;
-  z-index: -1000;
+  z-index: -1;
 }
 
 h1:first-child {
@@ -123,14 +122,82 @@ form .fa-spin {
   opacity: 1;
 }
 
-.slide {
-  background: url("") center center / cover no-repeat fixed white;
+/**
+ * Page-specific hacks
+ */
+
+#app {
+  padding-top: calc(30px + 2%);
+}
+
+.account #app,
+.edit #app,
+.all #app,
+.home #app,
+.shuffle #app {
+  background-color: white;
+}
+
+.loading #app {
+  background-color: #EEE;
+}
+
+.all .quotes {
+  color: black;
+  font-family: Times, sans-serif;
+  padding: 7% 14% 128px;
+  -webkit-font-smoothing: auto; /* unset Baseguide */
+  -moz-osx-font-smoothing: auto; /* unset Baseguide */
+}
+
+.all .quotes .quote {
+  margin-bottom: 96px;
+}
+
+.all .quotes h1 {
+  font-size: 32px;
+}
+
+.all .quotes h3 {
+  font-size: 18.72px;
+  font-weight: normal;
+}
+
+/**
+ * Slides get their own pile
+ */
+
+.slides {
   position: fixed;
-  top: 0;
+  top: 30px; /* for nav bar */
   left: 0;
   right: 0;
   bottom: 0;
   z-index: 10;
+}
+
+.slide {
+  background: url("") center center / cover no-repeat fixed white;
+  opacity: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.slide.fade-in {
+  -webkit-animation: fade 1s;
+  animation: fade 1s;
+  opacity: 1;
+}
+
+@-webkit-keyframes fade {
+    from {opacity: 0}
+    to {opacity: 1}
+}@keyframes fade {
+    from {opacity: 0}
+    to {opacity: 1}
 }
 
 .slide .quote-back,
@@ -204,48 +271,8 @@ form .fa-spin {
   /*opacity: 0.77;*/
   color: black;
 }
+
 .slide .quote-fore .bar{
   background: none;
   box-shadow: none;
-}
-
-/**
- * Page-specific hacks!
- */
-
-#app {
-  padding-top: calc(30px + 2%);
-}
-
-.account #app,
-.edit #app,
-.all #app,
-.home #app,
-.shuffle #app {
-  background-color: white;
-}
-
-.loading #app {
-  background-color: #EEE;
-}
-
-.all .quotes {
-  color: black;
-  font-family: Times, sans-serif;
-  padding: 7% 14% 128px;
-  -webkit-font-smoothing: auto; /* unset Baseguide */
-  -moz-osx-font-smoothing: auto; /* unset Baseguide */
-}
-
-.all .quotes .quote {
-  margin-bottom: 96px;
-}
-
-.all .quotes h1 {
-  font-size: 32px;
-}
-
-.all .quotes h3 {
-  font-size: 18.72px;
-  font-weight: normal;
 }

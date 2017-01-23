@@ -13,6 +13,7 @@ import Edit from 'edit/edit.jsx';
 import Home from 'home/home.jsx';
 import Loading from 'shared/loading.jsx';
 import NavBar from 'shared/nav-bar.jsx';
+import Shuffle from 'shuffle/shuffle.jsx';
 
 class App extends React.Component {
   constructor() {
@@ -294,7 +295,10 @@ class App extends React.Component {
         document.title = `Shuffle — ${this.state.routeUrlId} — quote.garden`;
         return (
           <div>
-            <div>{this.state.routeView}</div>
+            <Shuffle
+              quoteId={this.state.routeQuoteId}
+              userId={this.state.routeUserId}
+            />
             <NavBar
               isAuthenticated={Boolean(this.state.user)}
               urlId={this.state.routeUrlId}
