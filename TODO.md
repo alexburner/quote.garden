@@ -1,8 +1,8 @@
 # TODO (mvp)
 
-- "shuffle" view
+- "shuffle" view: prev/next/re-roll buttons
 
-- "home" view >>> NO WAIT replace home with default/shuffle
+- "shuffle" view: quoteId load & update
 
 - mobile compatibility
 

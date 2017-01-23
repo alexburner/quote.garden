@@ -61,7 +61,7 @@ export default class NavBar extends React.Component {
     return (
       <div className="nav-bar">
         <div className="pull-left hidden-xs">
-          <a className="btn" href="#/home">quote.garden</a>
+          <a className="btn" href="#/">quote.garden</a>
           {this.props.urlId &&
             <button
               className="btn"

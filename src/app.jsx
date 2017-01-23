@@ -10,7 +10,6 @@ import * as queries from 'shared/queries.jsx';
 import Account from 'account/account.jsx';
 import All from 'all/all.jsx';
 import Edit from 'edit/edit.jsx';
-import Home from 'home/home.jsx';
 import Loading from 'shared/loading.jsx';
 import NavBar from 'shared/nav-bar.jsx';
 import Shuffle from 'shuffle/shuffle.jsx';
@@ -88,7 +87,6 @@ class App extends React.Component {
     //  #/<404> (shows current/failed path)
     //
     // ROOT
-    //  #/home
     //  #/account
     //  #/edit
     //
@@ -99,9 +97,9 @@ class App extends React.Component {
 
     //
     // redirects:
-    //                        >>>  #/home
-    //  #                     >>>  #/home
-    //  #/                    >>>  #/home
+    //                        >>>  #/default
+    //  #                     >>>  #/default
+    //  #/                    >>>  #/default
     //  #<thing>              >>>  #/<thing>
     //  #/<thing>/            >>>  #/<thing>
     //  #/<userView>          >>>  #/default/<userView>
@@ -117,8 +115,12 @@ class App extends React.Component {
       // HASH =
       // HASH = #
       // HASH = #/
-      // empty-ish hash, reload with #/home
-      return window.location.replace('#/home');
+      // empty-ish hash, reload with user or default
+      if (this.state.profile && this.state.profile.urlId) {
+        return window.location.replace('#/' + this.state.profile.urlId);
+      } else {
+        return window.location.replace('#/default');
+      }
     }
 
     else if (parts[0] !== '#') {
@@ -223,7 +225,6 @@ class App extends React.Component {
 
     // TODO
     // - always include nav bar
-    // - replace home with default/shuffle
     // - abstract out route object:
     //    - route.viewName
     //    - route.displayName
@@ -246,12 +247,6 @@ class App extends React.Component {
 
     document.body.className = this.state.routeView;
     switch (this.state.routeView) {
-      case 'home':
-        document.title = 'Home — quote.garden';
-        return (
-          <Home />
-        );
-
       case 'account':
         document.title = 'Account — quote.garden';
         return (

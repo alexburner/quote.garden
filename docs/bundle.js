@@ -82,10 +82,6 @@
 
 	var _edit2 = _interopRequireDefault(_edit);
 
-	var _home = __webpack_require__(486);
-
-	var _home2 = _interopRequireDefault(_home);
-
 	var _loading = __webpack_require__(478);
 
 	var _loading2 = _interopRequireDefault(_loading);
@@ -203,7 +199,6 @@
 	      //  #/<404> (shows current/failed path)
 	      //
 	      // ROOT
-	      //  #/home
 	      //  #/account
 	      //  #/edit
 	      //
@@ -214,9 +209,9 @@
 
 	      //
 	      // redirects:
-	      //                        >>>  #/home
-	      //  #                     >>>  #/home
-	      //  #/                    >>>  #/home
+	      //                        >>>  #/default
+	      //  #                     >>>  #/default
+	      //  #/                    >>>  #/default
 	      //  #<thing>              >>>  #/<thing>
 	      //  #/<thing>/            >>>  #/<thing>
 	      //  #/<userView>          >>>  #/default/<userView>
@@ -228,8 +223,12 @@
 	        // HASH =
 	        // HASH = #
 	        // HASH = #/
-	        // empty-ish hash, reload with #/home
-	        return window.location.replace('#/home');
+	        // empty-ish hash, reload with user or default
+	        if (this.state.profile && this.state.profile.urlId) {
+	          return window.location.replace('#/' + this.state.profile.urlId);
+	        } else {
+	          return window.location.replace('#/default');
+	        }
 	      } else if (parts[0] !== '#') {
 	        // HASH = #thing
 	        // malformed hash, reload with first / inserted
@@ -314,7 +313,6 @@
 
 	      // TODO
 	      // - always include nav bar
-	      // - replace home with default/shuffle
 	      // - abstract out route object:
 	      //    - route.viewName
 	      //    - route.displayName
@@ -337,10 +335,6 @@
 
 	      document.body.className = this.state.routeView;
 	      switch (this.state.routeView) {
-	        case 'home':
-	          document.title = 'Home — quote.garden';
-	          return _react2.default.createElement(_home2.default, null);
-
 	        case 'account':
 	          document.title = 'Account — quote.garden';
 	          return _react2.default.createElement(
@@ -30226,8 +30220,7 @@
 	var views = exports.views = {
 	  ROOT: {
 	    account: true,
-	    edit: true,
-	    home: true
+	    edit: true
 	  },
 	  ROOT_AUTH: {
 	    edit: true
@@ -31741,163 +31734,7 @@
 	exports.default = QuoteForms;
 
 /***/ },
-/* 486 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(298);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _fireapp = __webpack_require__(468);
-
-	var _fireapp2 = _interopRequireDefault(_fireapp);
-
-	var _queries = __webpack_require__(473);
-
-	var queries = _interopRequireWildcard(_queries);
-
-	var _util = __webpack_require__(487);
-
-	var util = _interopRequireWildcard(_util);
-
-	var _loading = __webpack_require__(478);
-
-	var _loading2 = _interopRequireDefault(_loading);
-
-	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var Home = function (_React$Component) {
-	  _inherits(Home, _React$Component);
-
-	  function Home(props) {
-	    _classCallCheck(this, Home);
-
-	    var _this = _possibleConstructorReturn(this, (Home.__proto__ || Object.getPrototypeOf(Home)).call(this, props));
-
-	    _this.state = {
-	      quote: []
-	    };
-	    _this.imageUrl = '';
-	    _this.imageUrls = ['http://i.imgur.com/OyT0PvY.jpg', 'http://i.imgur.com/ifGsGZR.jpg', 'http://i.imgur.com/2wctpuH.jpg', 'http://i.imgur.com/uOjNgdA.jpg', 'http://i.imgur.com/HqHiwb9.jpg', 'http://i.imgur.com/eST3506.jpg', 'http://i.imgur.com/MrKfkwN.jpg', 'http://i.imgur.com/5GWLv0c.jpg', 'http://i.imgur.com/EvW3H0d.jpg', 'http://i.imgur.com/k3AgEO8.jpg', 'http://i.imgur.com/v5kFKUE.jpg', 'http://i.imgur.com/1CdU2JX.jpg', 'http://i.imgur.com/owyWGdo.jpg', 'http://i.imgur.com/BcqItX6.jpg', 'http://i.imgur.com/2k23gWp.jpg'];
-	    return _this;
-	  }
-
-	  _createClass(Home, [{
-	    key: 'componentWillMount',
-	    value: function componentWillMount() {
-	      this.imageStyle = {
-	        backgroundImage: 'url(' + util.getRandomElement(this.imageUrls) + ')'
-	      };
-	    }
-	  }, {
-	    key: 'componentDidMount',
-	    value: function componentDidMount() {
-	      var _this2 = this;
-
-	      queries.getDefaultUserId().then(function (userId) {
-	        _fireapp2.default.database().ref('quotes/' + userId).once('value', function (snapshot) {
-	          var quotes = [];
-	          if (snapshot && snapshot.val()) {
-	            snapshot.forEach(function (snapshot) {
-	              var quote = snapshot.val();
-	              quote.key = snapshot.key;
-	              quotes.unshift(quote);
-	            });
-	          }
-	          _this2.setState({
-	            quote: util.getRandomElement(quotes)
-	          });
-	        });
-	      });
-	    }
-	  }, {
-	    key: 'render',
-	    value: function render() {
-	      return _react2.default.createElement(
-	        'div',
-	        { className: 'slide', style: this.imageStyle },
-	        this.state.quote && _react2.default.createElement(
-	          'div',
-	          { className: 'quote' },
-	          _react2.default.createElement(
-	            'div',
-	            { className: 'quote-back' },
-	            _react2.default.createElement(
-	              'div',
-	              { className: 'quote-wrap' },
-	              _react2.default.createElement(
-	                'h2',
-	                { className: 'words' },
-	                _react2.default.createElement(
-	                  'span',
-	                  { className: 'bar' },
-	                  this.state.quote.words
-	                )
-	              ),
-	              _react2.default.createElement(
-	                'h4',
-	                { className: 'source' },
-	                _react2.default.createElement(
-	                  'span',
-	                  { className: 'bar' },
-	                  this.state.quote.source
-	                )
-	              )
-	            ),
-	            _react2.default.createElement(
-	              'div',
-	              { className: 'quote-fore' },
-	              _react2.default.createElement(
-	                'div',
-	                { className: 'quote-wrap' },
-	                _react2.default.createElement(
-	                  'h2',
-	                  { className: 'words' },
-	                  _react2.default.createElement(
-	                    'span',
-	                    { className: 'bar' },
-	                    this.state.quote.words
-	                  )
-	                ),
-	                _react2.default.createElement(
-	                  'h4',
-	                  { className: 'source' },
-	                  _react2.default.createElement(
-	                    'span',
-	                    { className: 'bar' },
-	                    this.state.quote.source
-	                  )
-	                )
-	              )
-	            )
-	          )
-	        )
-	      );
-	    }
-	  }]);
-
-	  return Home;
-	}(_react2.default.Component);
-
-	exports.default = Home;
-
-/***/ },
+/* 486 */,
 /* 487 */
 /***/ function(module, exports) {
 
@@ -31906,10 +31743,6 @@
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
-	var getRandomElement = exports.getRandomElement = function getRandomElement(arr) {
-	    return arr[Math.floor(Math.random() * arr.length)];
-	};
-
 	var shuffle = exports.shuffle = function shuffle(arr, copy) {
 	    if (copy) arr = arr.slice(0);
 
@@ -32023,7 +31856,7 @@
 	          { className: 'pull-left hidden-xs' },
 	          _react2.default.createElement(
 	            'a',
-	            { className: 'btn', href: '#/home' },
+	            { className: 'btn', href: '#/' },
 	            'quote.garden'
 	          ),
 	          this.props.urlId && _react2.default.createElement(

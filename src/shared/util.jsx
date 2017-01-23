@@ -1,7 +1,3 @@
-export const getRandomElement = (arr) => {
-    return arr[Math.floor(Math.random() * arr.length)];
-};
-
 export const shuffle = (arr, copy) => {
     if (copy) arr = arr.slice(0);
 
