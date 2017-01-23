@@ -10,6 +10,7 @@ import * as queries from 'shared/queries.jsx';
 import Account from 'account/account.jsx';
 import All from 'all/all.jsx';
 import Edit from 'edit/edit.jsx';
+import Images from 'shared/images.jsx';
 import Loading from 'shared/loading.jsx';
 import NavBar from 'shared/nav-bar.jsx';
 import Shuffle from 'shuffle/shuffle.jsx';
@@ -30,6 +31,8 @@ class App extends React.Component {
   }
 
   componentDidMount() {
+    // preload images
+    Images.preload();
     // add event listeners
     window.addEventListener('hashchange', () => this.updateRoute());
     this.initPromise = new Promise((resolve) => {

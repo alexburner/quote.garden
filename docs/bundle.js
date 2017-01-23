@@ -82,6 +82,10 @@
 
 	var _edit2 = _interopRequireDefault(_edit);
 
+	var _images = __webpack_require__(492);
+
+	var _images2 = _interopRequireDefault(_images);
+
 	var _loading = __webpack_require__(478);
 
 	var _loading2 = _interopRequireDefault(_loading);
@@ -130,6 +134,8 @@
 	    value: function componentDidMount() {
 	      var _this2 = this;
 
+	      // preload images
+	      _images2.default.preload();
 	      // add event listeners
 	      window.addEventListener('hashchange', function () {
 	        return _this2.updateRoute();
@@ -31931,7 +31937,7 @@
 
 	var util = _interopRequireWildcard(_util);
 
-	var _images = __webpack_require__(491);
+	var _images = __webpack_require__(492);
 
 	var _images2 = _interopRequireDefault(_images);
 
@@ -32244,7 +32250,8 @@
 	exports.default = Slide;
 
 /***/ },
-/* 491 */
+/* 491 */,
+/* 492 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -32257,7 +32264,8 @@
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	var images = ['http://i.imgur.com/OyT0PvY.jpg', 'http://i.imgur.com/ifGsGZR.jpg', 'http://i.imgur.com/2wctpuH.jpg', 'http://i.imgur.com/uOjNgdA.jpg', 'http://i.imgur.com/HqHiwb9.jpg', 'http://i.imgur.com/eST3506.jpg', 'http://i.imgur.com/MrKfkwN.jpg', 'http://i.imgur.com/5GWLv0c.jpg', 'http://i.imgur.com/EvW3H0d.jpg', 'http://i.imgur.com/k3AgEO8.jpg', 'http://i.imgur.com/v5kFKUE.jpg', 'http://i.imgur.com/1CdU2JX.jpg', 'http://i.imgur.com/owyWGdo.jpg', 'http://i.imgur.com/BcqItX6.jpg', 'http://i.imgur.com/2k23gWp.jpg'];
+	var _preload = void 0;
+	var urls = ['http://i.imgur.com/OyT0PvY.jpg', 'http://i.imgur.com/ifGsGZR.jpg', 'http://i.imgur.com/2wctpuH.jpg', 'http://i.imgur.com/uOjNgdA.jpg', 'http://i.imgur.com/HqHiwb9.jpg', 'http://i.imgur.com/eST3506.jpg', 'http://i.imgur.com/MrKfkwN.jpg', 'http://i.imgur.com/5GWLv0c.jpg', 'http://i.imgur.com/EvW3H0d.jpg', 'http://i.imgur.com/k3AgEO8.jpg', 'http://i.imgur.com/v5kFKUE.jpg', 'http://i.imgur.com/1CdU2JX.jpg', 'http://i.imgur.com/owyWGdo.jpg', 'http://i.imgur.com/BcqItX6.jpg', 'http://i.imgur.com/2k23gWp.jpg'];
 
 	var Images = function () {
 	    function Images() {
@@ -32269,10 +32277,19 @@
 	    _createClass(Images, [{
 	        key: 'getRandom',
 	        value: function getRandom() {
-	            var index = Math.floor(Math.random() * images.length);
+	            var index = Math.floor(Math.random() * urls.length);
 	            if (index === this.index) return this.getRandom(); // re-roll
 	            this.index = index;
-	            return images[index];
+	            return urls[index];
+	        }
+	    }], [{
+	        key: 'preload',
+	        value: function preload() {
+	            _preload = urls.map(function (url) {
+	                var img = new Image();
+	                img.src = url;
+	                return img;
+	            });
 	        }
 	    }]);
 

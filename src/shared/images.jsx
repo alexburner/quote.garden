@@ -1,4 +1,5 @@
-const images = [
+let preload;
+const urls = [
   'http://i.imgur.com/OyT0PvY.jpg',
   'http://i.imgur.com/ifGsGZR.jpg',
   'http://i.imgur.com/2wctpuH.jpg',
@@ -21,10 +22,18 @@ export default class Images {
         this.index = 0;
     }
 
+    static preload() {
+        preload = urls.map((url) => {
+            const img = new Image();
+            img.src = url;
+            return img;
+        });
+    }
+
     getRandom() {
-        let index = Math.floor(Math.random() * images.length);
+        let index = Math.floor(Math.random() * urls.length);
         if (index === this.index) return this.getRandom(); // re-roll
         this.index = index;
-        return images[index];
+        return urls[index];
     }
 }

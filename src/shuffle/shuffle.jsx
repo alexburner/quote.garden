@@ -4,7 +4,7 @@ import fireapp from 'shared/fireapp.jsx';
 import * as queries from 'shared/queries.jsx';
 import * as util from 'shared/util.jsx';
 
-import Images from 'shuffle/images.jsx';
+import Images from 'shared/images.jsx';
 import Loading from 'shared/loading.jsx';
 import Slide from 'shuffle/slide.jsx';
 
