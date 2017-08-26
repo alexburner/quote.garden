@@ -1,6 +1,7 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 import { Provider } from 'react-redux'
+import { HashRouter } from 'react-router-dom'
 import { createStore } from 'redux'
 
 import App from 'src/components/App'
@@ -14,7 +15,9 @@ const store = createStore(reducer, getInitState())
 
 ReactDOM.render(
   <Provider store={store}>
-    <App />
+    <HashRouter>
+      <App />
+    </HashRouter>
   </Provider>,
   document.getElementById('app'),
 )
