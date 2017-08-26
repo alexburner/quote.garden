@@ -2,22 +2,26 @@
 
 A place to save & serve your favorite quotes
 
-### Installation
+## install
+Install npm dependencies
 ```
-$ npm install
-```
-
-### Development
-```
-$ npm run dev
+npm install
 ```
 
-### Production
+## watch
+Run webpack dev server with watch
 ```
-$ npm run build
+npm run watch
 ```
 
-### Serving Locally
+## build
+Clean out `docs` + run webpack build with production optimizations
 ```
-$ cd docs && http-server
+npm run build
+```
+
+## style
+Apply `prettier` and `tslint --fix` formatting to `src` files
+```
+npm run style
 ```
