@@ -6,11 +6,13 @@ import { State } from 'src/singletons/interfaces'
 
 interface Props {}
 
+const Test = () => <div>Test</div>
+
 const App = ({  }: Props): JSX.Element => {
   return (
     <div>
       Hello App
-      <Route path="/cheese" render={() => <div>Test</div>} />
+      <Route path="/cheese" component={Test} />
     </div>
   )
 }
