@@ -22,12 +22,12 @@ export default (state: State, action: Action): State => {
     case 'path.curr': {
       // Current user path changed
       return loop(
-        {...state, path: { ...state.path, curr: action.path }},
+        { ...state, path: { ...state.path, curr: action.path } },
         Cmd.run(getQuotes, {
           args: [{ path: action.path }],
-          successActionCreator: (quotes) => ({ type: 'quotes.get', quotes }),
-          failActionCreator: (error) => ({ type: 'error', error }),
-        })
+          successActionCreator: quotes => ({ type: 'quotes.get', quotes }),
+          failActionCreator: error => ({ type: 'error', error }),
+        }),
       )
     }
     case 'quotes.get': {

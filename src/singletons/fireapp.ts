@@ -20,12 +20,20 @@ export const init = () => {
   })
 }
 
-export const getQuotes = async ({ path, uid }: { path?: string; uid?: string; }): Promise<Quote[]|void> => {
+export const getQuotes = async ({
+  path,
+  uid,
+}: {
+  path?: string
+  uid?: string
+}): Promise<Quote[] | void> => {
   if (!fireapp) init()
   if (!path && !uid) return console.error('Need user path or uid')
-  return [{
-    key: 'cheese',
-    words: 'Would I be a quote someday',
-    source: 'Somebody',
-  }];
+  return [
+    {
+      key: 'cheese',
+      words: 'Would I be a quote someday',
+      source: 'Somebody',
+    },
+  ]
 }
