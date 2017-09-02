@@ -19,8 +19,11 @@ interface ActionPathSelf {
   path: string
 }
 
-export type Action = ActionReduxInit | ActionLocation | ActionPathCurr
-| ActionPathSelf
+export type Action =
+  | ActionReduxInit
+  | ActionLocation
+  | ActionPathCurr
+  | ActionPathSelf
 
 export interface Quote {
   key: string // Firebase key

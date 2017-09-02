@@ -12,12 +12,12 @@ import { getInitState } from 'src/singletons/state'
 
 console.log(fireapp)
 
-const history = createHashHistory();
+const history = createHashHistory()
 const store = createStore(reducer, getInitState())
 
 // Keep react-router location synced with redux store
 store.dispatch({ type: 'location', location: history.location })
-history.listen((location) => store.dispatch({ type: 'location', location }))
+history.listen(location => store.dispatch({ type: 'location', location }))
 
 ReactDOM.render(
   <Provider store={store}>
