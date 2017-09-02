@@ -15,7 +15,7 @@ console.log(fireapp)
 const history = createHashHistory();
 const store = createStore(reducer, getInitState())
 
-// Keep redux synced with react-router location
+// Keep react-router location synced with redux store
 store.dispatch({ type: 'location', location: history.location })
 history.listen((location) => store.dispatch({ type: 'location', location }))
 

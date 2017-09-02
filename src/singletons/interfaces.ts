@@ -9,6 +9,39 @@ interface ActionLocation {
   location: Location
 }
 
-export type Action = ActionReduxInit | ActionLocation
+interface ActionPathCurr {
+  type: 'path.curr'
+  path: string
+}
 
-export interface State {}
+interface ActionPathSelf {
+  type: 'path.self'
+  path: string
+}
+
+export type Action = ActionReduxInit | ActionLocation | ActionPathCurr
+| ActionPathSelf
+
+export interface Quote {
+  key: string // Firebase key
+  source: string
+  words: string
+}
+
+export interface State {
+  auth?: UserAuth
+  path: {
+    curr?: string
+    self?: string
+  }
+  quotes?: Quote[]
+}
+
+export interface UserAuth {
+  email: string
+  uid: string
+}
+
+export interface UserProfile {
+  path: string
+}
