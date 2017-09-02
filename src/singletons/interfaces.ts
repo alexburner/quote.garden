@@ -4,6 +4,11 @@ interface ActionReduxInit {
   type: '@@redux/INIT'
 }
 
+interface ActionError {
+  type: 'error'
+  error: Error
+}
+
 interface ActionLocation {
   type: 'location'
   location: Location
@@ -19,11 +24,18 @@ interface ActionPathSelf {
   path: string
 }
 
+interface ActionQuotesGet {
+  type: 'quotes.get'
+  quotes: Quote[]
+}
+
 export type Action =
   | ActionReduxInit
+  | ActionError
   | ActionLocation
   | ActionPathCurr
   | ActionPathSelf
+  | ActionQuotesGet
 
 export interface Quote {
   key: string // Firebase key

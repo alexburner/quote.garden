@@ -3,17 +3,17 @@ import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 import { Provider } from 'react-redux'
 import { Router } from 'react-router-dom'
+import { install } from 'redux-loop'
 import { createStore } from 'redux'
 
 import App from 'src/components/App'
-import fireapp from 'src/singletons/fireapp'
+import { init } from 'src/singletons/fireapp'
 import reducer from 'src/singletons/reducer'
 import { getInitState } from 'src/singletons/state'
 
-console.log(fireapp)
-
+init() // initialize firebase app
 const history = createHashHistory()
-const store = createStore(reducer, getInitState())
+const store = createStore(reducer, getInitState(), install())
 
 // Keep react-router location synced with redux store
 store.dispatch({ type: 'location', location: history.location })
