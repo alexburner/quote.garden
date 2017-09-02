@@ -5,6 +5,10 @@ export default (state: State, action: Action): State => {
     case '@@redux/INIT': {
       return state
     }
+    case 'location': {
+      console.log(action)
+      return state
+    }
     default: {
       console.warn('Unhandled action:', action)
       return state
