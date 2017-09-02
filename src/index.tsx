@@ -12,8 +12,9 @@ import reducer from 'src/singletons/reducer'
 import { getInitState } from 'src/singletons/state'
 
 init() // initialize firebase app
-const history = createHashHistory()
+
 const store = createStore(reducer, getInitState(), install())
+const history = createHashHistory()
 
 // Keep react-router location synced with redux store
 store.dispatch({ type: 'location', location: history.location })
