@@ -2,7 +2,7 @@ import * as firebase from 'firebase/app'
 import 'firebase/auth'
 import 'firebase/database'
 
-import { Quote } from 'src/singletons/interfaces'
+import { Quote } from 'src/interfaces'
 
 // I KNOW I KNOW
 // this is an evil thing
@@ -31,6 +31,7 @@ export const getQuotes = async ({
   if (!path && !uid) return console.error('Need user path or uid')
   return [
     {
+      id: 1,
       key: 'cheese',
       words: 'Would I be a quote someday',
       source: 'Somebody',

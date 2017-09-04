@@ -7,18 +7,30 @@ import { createStore } from 'redux'
 import { install } from 'redux-loop'
 
 import App from 'src/components/App'
-import { init } from 'src/singletons/fireapp'
-import reducer from 'src/singletons/reducer'
-import { getInitState } from 'src/singletons/state'
+import { Action } from 'src/redux/actions'
+import reducer from 'src/redux/reducer'
+import { getInit } from 'src/redux/state'
+import { extractUserPath } from 'src/util'
 
-init() // initialize firebase app
-
-const store = createStore(reducer, getInitState(), install())
 const history = createHashHistory()
+const store = createStore(
+  reducer,
+  getInit({ currPath: extractUserPath(history.location) }),
+  install(),
+)
 
-// Keep react-router location synced with redux store
-store.dispatch({ type: 'location', location: history.location })
-history.listen(location => store.dispatch({ type: 'location', location }))
+// TODO where to put this?
+// Currently viewed user can be changed via URL hash
+// And new quotes must be fetched from firebase if that happens
+// But only react-router knows about that change
+// So here we listen to its history emitter
+// So we can pass updates to the redux store
+history.listen(location =>
+  store.dispatch<Action>({
+    type: 'path.curr',
+    path: extractUserPath(location),
+  }),
+)
 
 ReactDOM.render(
   <Provider store={store}>
