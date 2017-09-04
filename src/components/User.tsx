@@ -31,21 +31,16 @@ type Props = RouteComponentProps<RouteParams> & StateProps
   - if curr !== self >>> self/edit|account
 */
 
-const User = ({ path, match: { url } }: Props): JSX.Element =>
+const User = ({ path, match: { url } }: Props): JSX.Element => (
   <div>
-    {path.curr &&
-      <span>
-        This is User {path.curr}
-      </span>}
-    {path.self.success &&
-      <span>
-        You are User {path.self.success}
-      </span>}
+    {path.curr && <span>This is User {path.curr}</span>}
+    {path.self.success && <span>You are User {path.self.success}</span>}
     <Route path={`${url}/shuffle/:qnum`} component={Shuffle} />
     <Route path={`${url}/all/:qnum`} component={All} />
     <Route path={`${url}/edit/:qnum`} component={Edit} />
     <Route path={`${url}/account`} component={Account} />
   </div>
+)
 
 const mapStateToProps = ({ path }: State): StateProps => ({ path })
 
