@@ -1,8 +1,8 @@
 import { Cmd, loop } from 'redux-loop'
 
+import { getQuotes } from 'src/fireapp'
 import { State } from 'src/interfaces'
 import { Action } from 'src/redux/actions'
-import { getQuotes } from 'src/util/fireapp'
 
 export default (state: State, action: Action): State => {
   console.log('action!', action, state)

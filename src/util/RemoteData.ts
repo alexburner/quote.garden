@@ -10,14 +10,14 @@
 
  */
 
-export default class RemoteData<S, F> {
+export default class RemoteData<S, F = Error> {
   public notAsked: boolean = true
   public loading: boolean = false
   public failure: F | void
   public success: S | void
 }
 
-export async function ask<S, F>(
+export async function ask<S, F = Error>(
   fetcher: (...args: any[]) => Promise<S> | S,
   args: any[],
   rd: RemoteData<S, F>,
@@ -51,7 +51,7 @@ export async function ask<S, F>(
   }
 
   // 3. create the RemoteData object
-  const rUsers = new RemoteData<User[], Error>()
+  const rUsers = new RemoteData<User[]>()
 
   // elm-> NotAsked
   rUsers.notAsked // true
@@ -60,7 +60,7 @@ export async function ask<S, F>(
   rUsers.failure // void
 
   // 4. ask for data using RemoteData object
-  const usersPromise = ask<User[], Error>(fetchUsers, userParams, rUsers)
+  const usersPromise = ask<User[]>(fetchUsers, userParams, rUsers)
 
   // elm-> Loading
   rUsers.notAsked // false

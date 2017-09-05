@@ -13,16 +13,16 @@ export interface Quote {
 }
 
 export interface State {
-  auth: RemoteData<Auth, Error>
+  auth: RemoteData<Auth>
   edits: {
-    [quoteKey: string]: RemoteData<Quote, Error>
+    [quoteKey: string]: RemoteData<Quote>
   }
   path: {
     curr: string | null
-    self: RemoteData<string, Error>
+    self: RemoteData<string>
   }
   quotes: {
-    curr: RemoteData<Quote[], Error>
-    self: RemoteData<Quote[], Error>
+    curr: RemoteData<Quote[]>
+    self: RemoteData<Quote[]>
   }
 }
