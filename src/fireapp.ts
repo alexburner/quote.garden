@@ -254,6 +254,19 @@ export default class FireApp {
     resource.ref = this.app.database().ref(resource.path + uid)
     resource.ref.on('value', resource.handler)
 
+    // enumerating?
+    this.resources.forEach(resource => {
+      this.unlink(resource)
+      resource.ref = this.app.database().ref(resource.path + uid)
+      resource.ref.on('value', resource.handler)
+    })
+    // changes things
+    // name less important
+    // which could also mean:
+    if (!resource.ref) return
+    resource.ref.off('value', resource.handler)
+
+
  */
 
     this.destroyRef('profile')
