@@ -67,24 +67,29 @@ export default class FireApp {
       messagingSenderId: '936175857202',
     })
 
-    this.handlers.profile = profile => {
-      this.view.profile = null
-      if (profile && profile.val()) {
-        const value = profile.val()
+    this.handlers.profile = profileSnap => {
+      if (profileSnap && profileSnap.val()) {
+        const value = profileSnap.val()
+        const oldKey = this.view.profile && this.view.profile.key
         this.view.profile = {
-          key: profile.key,
+          key: profileSnap.key,
           urlId: String(value.urlId),
         }
+        if (oldKey !== this.view.profile.key) {
+          this.listenForQuotes(this.view.profile.key)
+        }
+      } else {
+        this.view.profile = null
       }
     }
 
-    this.handlers.quotes = quotes => {
-      this.view.quotes = [];
-      if (quotes && quotes.val()) {
-        quotes.forEach(quote => {
-          const value = quote.val()
+    this.handlers.quotes = quotesSnap => {
+      this.view.quotes = []
+      if (quotesSnap && quotesSnap.val()) {
+        quotesSnap.forEach(quoteSnap => {
+          const value = quoteSnap.val()
           this.view.quotes.push({
-            key: quote.key,
+            key: quoteSnap.key,
             number: Number(value.number),
             source: String(value.source),
             words: String(value.words),
@@ -94,7 +99,25 @@ export default class FireApp {
       }
     }
 
-    this.listenForAuth();
+    this.listenForAuth()
+  }
+
+  public destroy() {
+    this.destroyRef('profile')
+    this.destroyRef('quotes')
+    this.offAuth()
+  }
+
+  public createAccount(email: string, pass: string) {
+    return [email, pass]
+  }
+
+  public signIn(email: string, pass: string) {
+    return [email, pass]
+  }
+
+  public async setViewProfile(urlId: string) {
+    this.view.profile = await this.getProfile(urlId)
   }
 
   private listenForAuth() {
@@ -123,7 +146,6 @@ export default class FireApp {
   }
 
   private listenForProfile(uid: string) {
-
     // TODO this only listens for current view profile
     // what about listening to changes for user profile?
     // like on account page?
@@ -150,7 +172,6 @@ export default class FireApp {
   }
 
   private listenForQuotes(uid: string) {
-
     // TODO seems like a repeatable pattern?
     // - value handler
     // - resource ref
@@ -160,10 +181,6 @@ export default class FireApp {
     this.destroyRef('quotes')
     this.refs.quotes = this.app.database().ref('quotes/' + uid)
     this.refs.quotes.on('value', this.handlers.quotes)
-  }
-
-  private async setViewProfile(urlId: string) {
-    this.view.profile = await this.getProfile(urlId)
   }
 
   private async getProfile(urlId: string): Promise<Profile> {
@@ -179,20 +196,10 @@ export default class FireApp {
     return profile
   }
 
-  private createAccount(email: string, pass: string) {}
-
-  private signIn(email: string, pass: string) {}
-
   private destroyRef(key: 'profile' | 'quotes') {
     if (!this.refs[key]) return
     const ref = this.refs[key]
     const handler = this.handlers[key]
     ref.off('value', handler)
-  }
-
-  public destroy() {
-    this.destroyRef('profile')
-    this.destroyRef('quotes')
-    this.offAuth()
   }
 }
