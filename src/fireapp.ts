@@ -169,6 +169,93 @@ export default class FireApp {
 
     // + auth (which determines self)
 
+/*
+    interface Resource {
+      handler: (snapshot: firebase.database.DataSnapshot) => void
+      ref: firebase.database.Reference | null
+    }
+
+    const resources: {
+      [name: string]: Resource
+    } = {
+      currProfile: null,
+      currQuotes: null,
+      selfProfile: null,
+      selfQuotes: null,
+    }
+
+    resources.forEach(resource => {
+
+    })
+
+
+    // hmmm
+
+    // need each handler by hand right
+    handlers: {
+      currProfile
+      currQuotes
+      selfProfile
+      selfQuotes
+    }
+
+    // and refs need their names
+    this.app.database().ref(REF_NAME + uid)
+
+    // then destroy:
+    const ref = this.refs[propName]
+    const handler = this.handlers[propName]
+    if (!ref || !handler) return
+    ref.off('value', handler)
+
+    // and add:
+    this.destroyRef(resourceName)
+    this.refs[propName] = this.app.database().ref(resourceName + '/' + uid)
+    this.refs[propName].on('value', this.handlers[propName])
+
+
+
+    // waddabout
+
+    // interface
+    interface Resource {
+      path: string
+      handler: (snapshot: firebase.database.DataSnapshot) => void
+      ref: firebase.database.Reference | null
+    }
+
+    // class field
+    private resources: {
+      [name: string]: Resource
+    } = {
+      currProfile: { ... },
+      currQuotes: { ... },
+      selfProfile: { ... },
+      selfQuotes: {
+        path: 'quotes/',
+        handler: quotesSnap => {
+          ...
+        },
+        ref: null,
+      },
+    }
+
+    // destruction (unlink)
+    const resource = this.resources[name]
+    if (!resource) return
+    const handler = resource.handler
+    const ref = resource.ref
+    if (!ref) return
+    ref.off('value', handler)
+
+    // creation (link)
+    this.unlink(name)
+    const resource = this.resources[name]
+    resource.ref = this.app.database().ref(resource.path + uid)
+    resource.ref.on('value', resource.handler)
+
+ */
+
     this.destroyRef('profile')
     this.refs.profile = this.app.database().ref('profiles/' + uid)
     this.refs.profile.on('value', this.handlers.profile)
