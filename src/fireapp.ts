@@ -76,6 +76,7 @@ export default class FireApp {
           urlId: String(value.urlId),
         }
         if (oldKey !== this.view.profile.key) {
+          // this profile is new, reset quote listener
           this.listenForQuotes(this.view.profile.key)
         }
       } else {
@@ -119,7 +120,7 @@ export default class FireApp {
   }
 
   public async setViewProfile(urlId: string) {
-    this.view.profile = await this.getProfile(urlId)
+    this.view.profile = await this.getProfileByUrlId(urlId)
   }
 
   private listenForAuth() {
@@ -185,7 +186,14 @@ export default class FireApp {
     this.refs.quotes.on('value', this.handlers.quotes)
   }
 
-  private async getProfile(urlId: string): Promise<Profile> {
+  private destroyRef(key: 'profile' | 'quotes') {
+    const ref = this.refs[key]
+    const handler = this.handlers[key]
+    if (!ref || !handler) return
+    ref.off('value', handler)
+  }
+
+  private async getProfileByUrlId(urlId: string): Promise<Profile> {
     const profile: Profile = await this.app
       .database()
       .ref('profiles')
@@ -196,12 +204,5 @@ export default class FireApp {
       throw new Error('Unable to find profile for urlId:' + urlId)
     }
     return profile
-  }
-
-  private destroyRef(key: 'profile' | 'quotes') {
-    const ref = this.refs[key]
-    const handler = this.handlers[key]
-    if (!ref || !handler) return
-    ref.off('value', handler)
   }
 }
