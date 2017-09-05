@@ -68,7 +68,7 @@ export default class FireApp {
     })
 
     this.handlers.profile = profileSnap => {
-      if (profileSnap && profileSnap.val()) {
+      if (profileSnap && profileSnap.key && profileSnap.val()) {
         const value = profileSnap.val()
         const oldKey = this.view.profile && this.view.profile.key
         this.view.profile = {
@@ -87,6 +87,8 @@ export default class FireApp {
       this.view.quotes = []
       if (quotesSnap && quotesSnap.val()) {
         quotesSnap.forEach(quoteSnap => {
+          if (!quoteSnap.key) return false
+          if (!this.view.quotes) return false // TODO: tsc bug?
           const value = quoteSnap.val()
           this.view.quotes.push({
             key: quoteSnap.key,
@@ -122,7 +124,7 @@ export default class FireApp {
 
   private listenForAuth() {
     this.offAuth = this.app.auth().onAuthStateChanged((user: firebase.User) => {
-      if (!user) {
+      if (!user || !user.uid || !user.email) {
         // Logged out
         this.self.account = null
         this.self.profile = null
@@ -197,9 +199,9 @@ export default class FireApp {
   }
 
   private destroyRef(key: 'profile' | 'quotes') {
-    if (!this.refs[key]) return
     const ref = this.refs[key]
     const handler = this.handlers[key]
+    if (!ref || !handler) return
     ref.off('value', handler)
   }
 }
