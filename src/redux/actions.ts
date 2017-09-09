@@ -1,49 +1,66 @@
-import { Quote } from 'src/interfaces'
+import { Account, Profile, Quote } from 'src/fireapp'
 
-/*** Individual actions ***************************************/
-
-export interface AuthRequest {
-  type: 'auth.request'
+interface AccountChange {
+  type: 'AccountChange'
+  account: Account | null
 }
 
-export interface AuthResponse {
-  type: 'auth.response'
-  email: string
-  uid: string
+interface CurrProfileChange {
+  type: 'CurrProfileChange'
+  profile: Profile | null
 }
 
-export interface Failure {
-  type: 'error'
-  error: Error
-}
-
-export interface PathCurr {
-  type: 'path.curr'
-  path: string | null
-}
-
-export interface QuotesRequest {
-  type: 'quotes.request'
-  path: string
-  uid: string
-}
-
-export interface QuotesResponse {
-  type: 'quotes.response'
+interface CurrQuotesChange {
+  type: 'CurrQuotesChange'
   quotes: Quote[]
 }
 
-export interface Redux {
+interface FireappRemoveCurr {
+  type: 'FireappRemoveCurr'
+}
+
+interface FireappRemoveSelf {
+  type: 'FireappRemoveSelf'
+}
+
+interface FireappUpdateCurr {
+  type: 'FireappUpdateCurr'
+  urlId: string
+}
+
+interface FireappUpdateSelf {
+  type: 'FireappUpdateSelf'
+  uid: string
+}
+
+interface SelfProfileChange {
+  type: 'SelfProfileChange'
+  profile: Profile | null
+}
+
+interface SelfQuotesChange {
+  type: 'SelfQuotesChange'
+  quotes: Quote[]
+}
+
+interface UrlIdChange {
+  type: 'UrlIdChange'
+  urlId: string | null
+}
+
+interface Redux {
   type: '@@redux/INIT'
 }
 
-/*** Whole union ***************************************/
-
-export type Action =
-  | AuthRequest
-  | AuthResponse
-  | Failure
-  | PathCurr
-  | QuotesRequest
-  | QuotesResponse
+export type Actions =
+  | AccountChange
+  | CurrProfileChange
+  | CurrQuotesChange
+  | FireappRemoveCurr
+  | FireappRemoveSelf
+  | FireappUpdateCurr
+  | FireappUpdateSelf
+  | SelfProfileChange
+  | SelfQuotesChange
+  | UrlIdChange
   | Redux

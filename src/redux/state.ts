@@ -1,15 +1,26 @@
-import { Auth, Quote, State } from 'src/interfaces'
-import RemoteData from 'src/util/RemoteData'
+import { Account, Profile, Quote } from 'src/fireapp'
 
-export const getInit = ({ currPath }: { currPath: string | null }): State => ({
-  auth: new RemoteData<Auth, Error>(),
-  edits: {},
-  path: {
-    curr: currPath,
-    self: new RemoteData<string, Error>(),
+interface UserData {
+  profile: Profile | null
+  quotes: Quote[]
+}
+
+export interface State {
+  account: Account | null
+  curr: UserData
+  self: UserData
+  urlId: string | null
+}
+
+export const getInit = (): State => ({
+  account: null,
+  curr: {
+    profile: null,
+    quotes: [],
   },
-  quotes: {
-    curr: new RemoteData<Quote[], Error>(),
-    self: new RemoteData<Quote[], Error>(),
+  self: {
+    profile: null,
+    quotes: [],
   },
+  urlId: null,
 })

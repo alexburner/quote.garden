@@ -1,56 +1,91 @@
+import { isEqual } from 'lodash'
 import { Cmd, loop } from 'redux-loop'
 
-import { getQuotes } from 'src/fireapp'
-import { State } from 'src/interfaces'
-import { Action } from 'src/redux/actions'
+import { Actions } from 'src/redux/actions'
+import { State } from 'src/redux/state'
 
-export default (state: State, action: Action): State => {
+export default (state: State, action: Actions): State => {
   console.log('action!', action, state)
+
+  if (action.type.startsWith('Fireapp')) {
+    // Special action, handled in fireapp.ts
+    return state
+  }
+
   switch (action.type) {
     case '@@redux/INIT': {
       // Redux startup
       return state
     }
 
-    // TODO actual actions:
-    // -- authstart / authcomplete
-
-    // wait wait wait
-    // firebase style?
-
-    // resources to listen to:
-    // -> auth
-    // -> profile (currently just urlId)
-    // -> quotes
-
-    // and then also:
-    // -> current urlId
-    // +> associated quotes
-
-    case 'path.curr': {
-      if (action.path === state.path.curr) return state
-      // Current user path has changed
-      return loop(
-        { ...state, path: { ...state.path, curr: action.path } },
-        Cmd.run(getQuotes, {
-          args: [{ path: action.path }],
-          successActionCreator: (quotes): Action => ({
-            type: 'quotes.response',
-            quotes,
-          }),
-          failActionCreator: (error): Action => ({ type: 'error', error }),
-        }),
-      )
+    case 'AccountChange': {
+      if (isEqual(action.account, state.account)) {
+        // No change
+        return state
+      } else if (!action.account) {
+        // No account
+        return loop(
+          { ...state, account: null },
+          Cmd.action({ type: 'FireappRemoveSelf' }),
+        )
+      } else {
+        // Account changed
+        return loop(
+          { ...state, account: action.account },
+          Cmd.action({ type: 'FireappUpdateSelf', uid: action.account.uid }),
+        )
+      }
     }
 
-    case 'quotes.request': {
-      // TODO
-      return state
+    case 'CurrProfileChange': {
+      if (isEqual(action.profile, state.curr.profile)) {
+        return state
+      } else {
+        return { ...state, curr: { ...state.curr, profile: action.profile } }
+      }
     }
 
-    case 'quotes.response': {
-      // TODO
-      return state
+    case 'CurrQuotesChange': {
+      if (isEqual(action.quotes, state.curr.quotes)) {
+        return state
+      } else {
+        return { ...state, curr: { ...state.curr, quotes: action.quotes } }
+      }
+    }
+
+    case 'SelfProfileChange': {
+      if (isEqual(action.profile, state.self.profile)) {
+        return state
+      } else {
+        return { ...state, self: { ...state.self, profile: action.profile } }
+      }
+    }
+
+    case 'SelfQuotesChange': {
+      if (isEqual(action.quotes, state.self.quotes)) {
+        return state
+      } else {
+        return { ...state, self: { ...state.self, quotes: action.quotes } }
+      }
+    }
+
+    case 'UrlIdChange': {
+      if (isEqual(action.urlId, state.urlId)) {
+        // No change
+        return state
+      } else if (!action.urlId) {
+        // No current
+        return loop(
+          { ...state, urlId: null },
+          Cmd.action({ type: 'FireappRemoveCurr' }),
+        )
+      } else {
+        // Current changed
+        return loop(
+          { ...state, urlId: action.urlId },
+          Cmd.action({ type: 'FireappUpdateCurr', urlId: action.urlId }),
+        )
+      }
     }
 
     default: {

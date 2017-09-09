@@ -1,4 +1,4 @@
-import { createHashHistory } from 'history'
+import { createHashHistory, Location } from 'history'
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 import { Provider } from 'react-redux'
@@ -7,30 +7,13 @@ import { createStore } from 'redux'
 import { install } from 'redux-loop'
 
 import App from 'src/components/App'
-import { Action } from 'src/redux/actions'
+import { Actions } from 'src/redux/actions'
 import reducer from 'src/redux/reducer'
-import { getInit } from 'src/redux/state'
-import { extractUserPath } from 'src/util'
+import { getInit, State } from 'src/redux/state'
+import { extractUrlId } from 'src/util'
 
 const history = createHashHistory()
-const store = createStore(
-  reducer,
-  getInit({ currPath: extractUserPath(history.location) }),
-  install(),
-)
-
-// TODO where to put this?
-// Currently viewed user can be changed via URL hash
-// And new quotes must be fetched from firebase if that happens
-// But only react-router knows about that change
-// So here we listen to its history emitter
-// So we can pass updates to the redux store
-history.listen(location =>
-  store.dispatch<Action>({
-    type: 'path.curr',
-    path: extractUserPath(location),
-  }),
-)
+const store = createStore<State>(reducer, getInit(), install())
 
 ReactDOM.render(
   <Provider store={store}>
@@ -40,3 +23,17 @@ ReactDOM.render(
   </Provider>,
   document.getElementById('app'),
 )
+
+// TODO where to put this?
+// currently viewed user can be changed via URL hash
+// and new quotes must be fetched from firebase if that happens
+// but only react-router knows about that change
+// so here we listen to its history emitter
+// so we can pass updates to the redux store
+const dispatchUrlId = (location: Location) =>
+  store.dispatch<Actions>({
+    type: 'UrlIdChange',
+    urlId: extractUrlId(location),
+  })
+dispatchUrlId(history.location) // init
+history.listen(dispatchUrlId) // update
