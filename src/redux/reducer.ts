@@ -6,12 +6,6 @@ import { State } from 'src/redux/state'
 
 export default (state: State, action: Actions): State => {
   console.log('action!', action, state)
-
-  if (action.type.startsWith('Fireapp')) {
-    // Special action, handled in fireapp.ts
-    return state
-  }
-
   switch (action.type) {
     case '@@redux/INIT': {
       // Redux startup
@@ -38,35 +32,27 @@ export default (state: State, action: Actions): State => {
     }
 
     case 'CurrProfileChange': {
-      if (isEqual(action.profile, state.curr.profile)) {
-        return state
-      } else {
-        return { ...state, curr: { ...state.curr, profile: action.profile } }
-      }
+      return !isEqual(action.profile, state.curr.profile)
+        ? { ...state, curr: { ...state.curr, profile: action.profile } }
+        : state
     }
 
     case 'CurrQuotesChange': {
-      if (isEqual(action.quotes, state.curr.quotes)) {
-        return state
-      } else {
-        return { ...state, curr: { ...state.curr, quotes: action.quotes } }
-      }
+      return !isEqual(action.quotes, state.curr.quotes)
+        ? { ...state, curr: { ...state.curr, quotes: action.quotes } }
+        : state
     }
 
     case 'SelfProfileChange': {
-      if (isEqual(action.profile, state.self.profile)) {
-        return state
-      } else {
-        return { ...state, self: { ...state.self, profile: action.profile } }
-      }
+      return !isEqual(action.profile, state.self.profile)
+        ? { ...state, self: { ...state.self, profile: action.profile } }
+        : state
     }
 
     case 'SelfQuotesChange': {
-      if (isEqual(action.quotes, state.self.quotes)) {
-        return state
-      } else {
-        return { ...state, self: { ...state.self, quotes: action.quotes } }
-      }
+      return !isEqual(action.quotes, state.self.quotes)
+        ? { ...state, self: { ...state.self, quotes: action.quotes } }
+        : state
     }
 
     case 'UrlIdChange': {

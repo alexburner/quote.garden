@@ -3,18 +3,31 @@ import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 import { Provider } from 'react-redux'
 import { Router } from 'react-router-dom'
-import { createStore } from 'redux'
+import {
+  applyMiddleware,
+  compose,
+  createStore,
+  GenericStoreEnhancer,
+} from 'redux'
 import { install } from 'redux-loop'
 
-import App from 'src/components/App'
+import Fireapp from 'src/fireapp'
 import { Actions } from 'src/redux/actions'
 import reducer from 'src/redux/reducer'
 import { getInit, State } from 'src/redux/state'
 import { extractUrlId } from 'src/util'
 
-const history = createHashHistory()
-const store = createStore<State>(reducer, getInit(), install())
+import App from 'src/components/App'
 
+const fireapp = new Fireapp()
+const enhancer = compose(
+  applyMiddleware(fireapp.middleware),
+  install(),
+) as GenericStoreEnhancer
+const store = createStore<State>(reducer, getInit(), enhancer)
+const history = createHashHistory()
+
+// Mount component tree
 ReactDOM.render(
   <Provider store={store}>
     <Router history={history}>
@@ -23,6 +36,9 @@ ReactDOM.render(
   </Provider>,
   document.getElementById('app'),
 )
+
+// Initialize firebase
+fireapp.init(store)
 
 // TODO where to put this?
 // currently viewed user can be changed via URL hash

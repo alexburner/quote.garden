@@ -2,7 +2,7 @@ import * as firebase from 'firebase/app'
 import 'firebase/auth'
 import 'firebase/database'
 import { each } from 'lodash'
-import { Store } from 'redux'
+import { Middleware, Store } from 'redux'
 
 import { Actions } from 'src/redux/actions'
 import { State } from 'src/redux/state'
@@ -67,7 +67,9 @@ const quotesListener = (
 }
 
 export default class FireApp {
+  public middleware: Middleware
   private app: firebase.app.App
+  private store: Store<State> | null
   private offAuth: firebase.Unsubscribe
   private resources: {
     [name: string]: Resource
@@ -76,6 +78,7 @@ export default class FireApp {
       ref: null,
       path: (uid: string) => 'profiles/' + uid,
       listener: profileListener(profile => {
+        if (!this.store) return
         this.store.dispatch<Actions>({
           type: 'CurrProfileChange',
           profile,
@@ -86,6 +89,7 @@ export default class FireApp {
       ref: null,
       path: (uid: string) => 'quotes/' + uid,
       listener: quotesListener(quotes => {
+        if (!this.store) return
         this.store.dispatch<Actions>({
           type: 'CurrQuotesChange',
           quotes,
@@ -96,6 +100,7 @@ export default class FireApp {
       ref: null,
       path: (uid: string) => 'profiles/' + uid,
       listener: profileListener(profile => {
+        if (!this.store) return
         this.store.dispatch<Actions>({
           type: 'SelfProfileChange',
           profile,
@@ -106,6 +111,7 @@ export default class FireApp {
       ref: null,
       path: (uid: string) => 'quotes/' + uid,
       listener: quotesListener(quotes => {
+        if (!this.store) return
         this.store.dispatch<Actions>({
           type: 'SelfQuotesChange',
           quotes,
@@ -114,7 +120,7 @@ export default class FireApp {
     },
   }
 
-  constructor(private store: Store<State>) {
+  constructor() {
     this.app = firebase.initializeApp({
       apiKey: 'AIzaSyDR2zyCGLTU9cx6SZmsTvzUq31DLfoAd3U',
       authDomain: 'quotes-92672.firebaseapp.com',
@@ -123,6 +129,46 @@ export default class FireApp {
       messagingSenderId: '936175857202',
     })
 
+    // Redux middleware for intercepting "Fireapp" actions
+    this.middleware = api => next => async (action: Actions) => {
+      switch (action.type) {
+        case 'FireappRemoveCurr': {
+          this.unlink(this.resources.currProfile)
+          this.unlink(this.resources.currQuotes)
+          return
+        }
+
+        case 'FireappRemoveSelf': {
+          this.unlink(this.resources.selfProfile)
+          this.unlink(this.resources.selfQuotes)
+          return
+        }
+
+        case 'FireappUpdateCurr': {
+          const uid = await this.getUid(action.urlId)
+          // TODO handle uid not found (404?)
+          this.link(this.resources.currProfile, uid)
+          this.link(this.resources.currQuotes, uid)
+          return
+        }
+
+        case 'FireappUpdateSelf': {
+          this.link(this.resources.selfProfile, action.uid)
+          this.link(this.resources.selfQuotes, action.uid)
+          return
+        }
+
+        default: {
+          // Only non-"Fireapp" actions
+          // continue on to real reducer
+          return next(action)
+        }
+      }
+    }
+  }
+
+  public init(store: Store<State>) {
+    this.store = store
     this.listenForAuth()
   }
 
@@ -131,21 +177,9 @@ export default class FireApp {
     each(this.resources, resource => this.unlink(resource))
   }
 
-  public async getUid(urlId: string): Promise<string> {
-    const profile: Profile = await this.app
-      .database()
-      .ref('profiles')
-      .orderByChild('urlId')
-      .equalTo(urlId)
-      .once('value')
-    if (!profile || !profile.key) {
-      throw new Error('Unable to find profile for urlId:' + urlId)
-    }
-    return profile.key
-  }
-
   private listenForAuth() {
     this.offAuth = this.app.auth().onAuthStateChanged((user: firebase.User) => {
+      if (!this.store) return
       const account: Account | null =
         user && user.email && user.uid
           ? { email: user.email, uid: user.uid }
@@ -163,5 +197,18 @@ export default class FireApp {
   private unlink(resource: Resource) {
     if (!resource.ref) return
     resource.ref.off('value', resource.listener)
+  }
+
+  private async getUid(urlId: string): Promise<string> {
+    const profile = (await this.app
+      .database()
+      .ref('profiles')
+      .orderByChild('urlId')
+      .equalTo(urlId)
+      .once('value')) as Profile | null
+    if (!profile || !profile.key) {
+      throw new Error('Unable to find profile for urlId:' + urlId)
+    }
+    return profile.key
   }
 }
