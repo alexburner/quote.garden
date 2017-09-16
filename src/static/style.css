@@ -5,10 +5,6 @@ html, body, #app {
   overflow: auto;
 }
 
-#app {
-  padding-top: calc(30px + 2%); /* for nav bar */
-}
-
 h1:first-child {
   margin-top: 0.8em; /* unset Baseguide */
 }
