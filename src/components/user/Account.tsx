@@ -13,8 +13,7 @@ interface StateProps {}
 type Props = RouteComponentProps<RouteParams> & StateProps
 
 const Account = (props: Props): JSX.Element => {
-  console.log('Account', props.match.params.qnum, props)
-  return <div>Account</div>
+  return <div>Account, qnum={props.match.params.qnum}</div>
 }
 
 const mapStateToProps = ({  }: State): StateProps => ({})

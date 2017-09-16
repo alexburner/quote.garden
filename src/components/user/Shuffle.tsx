@@ -13,8 +13,7 @@ interface StateProps {}
 type Props = RouteComponentProps<RouteParams> & StateProps
 
 const Shuffle = (props: Props): JSX.Element => {
-  console.log('Shuffle', props.match.params.qnum, props)
-  return <div>Shuffle</div>
+  return <div>Shuffle, qnum={props.match.params.qnum}</div>
 }
 
 const mapStateToProps = ({  }: State): StateProps => ({})

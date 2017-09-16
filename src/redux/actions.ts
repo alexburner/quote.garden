@@ -1,8 +1,19 @@
-import { Account, Profile, Quote } from 'src/fireapp'
+import { Account, Profile, Quote } from 'src/Fireapp'
 
 interface AccountChange {
   type: 'AccountChange'
   account: Account | null
+}
+
+interface AttemptAuth {
+  type: 'AttemptAuth'
+  email: string
+  pass: string
+}
+
+interface AuthError {
+  type: 'AuthError'
+  message: string
 }
 
 interface CurrProfileChange {
@@ -13,6 +24,12 @@ interface CurrProfileChange {
 interface CurrQuotesChange {
   type: 'CurrQuotesChange'
   quotes: Quote[]
+}
+
+interface FireappAuthenticate {
+  type: 'FireappAuthenticate'
+  email: string
+  pass: string
 }
 
 interface FireappRemoveCurr {
@@ -54,8 +71,11 @@ interface Redux {
 
 export type Actions =
   | AccountChange
+  | AttemptAuth
+  | AuthError
   | CurrProfileChange
   | CurrQuotesChange
+  | FireappAuthenticate
   | FireappRemoveCurr
   | FireappRemoveSelf
   | FireappUpdateCurr

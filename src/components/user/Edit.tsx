@@ -13,8 +13,7 @@ interface StateProps {}
 type Props = RouteComponentProps<RouteParams> & StateProps
 
 const Edit = (props: Props): JSX.Element => {
-  console.log('Edit', props.match.params.qnum, props)
-  return <div>Edit</div>
+  return <div>Edit, qnum={props.match.params.qnum}</div>
 }
 
 const mapStateToProps = ({  }: State): StateProps => ({})

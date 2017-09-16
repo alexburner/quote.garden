@@ -19,16 +19,27 @@ export default (state: State, action: Actions): State => {
       } else if (!action.account) {
         // No account
         return loop(
-          { ...state, account: null },
+          { ...state, account: null, isAuthenticating: false },
           Cmd.action({ type: 'FireappRemoveSelf' }),
         )
       } else {
         // Account changed
         return loop(
-          { ...state, account: action.account },
+          { ...state, account: action.account, isAuthenticating: false },
           Cmd.action({ type: 'FireappUpdateSelf', uid: action.account.uid }),
         )
       }
+    }
+
+    case 'AttemptAuth': {
+      return loop(
+        { ...state, isAuthenticating: true },
+        Cmd.action({ ...action, type: 'FireappAuthenticate' }),
+      )
+    }
+
+    case 'AuthError': {
+      return { ...state, isAuthenticating: false }
     }
 
     case 'CurrProfileChange': {

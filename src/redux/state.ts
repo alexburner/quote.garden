@@ -1,4 +1,4 @@
-import { Account, Profile, Quote } from 'src/fireapp'
+import { Account, Profile, Quote } from 'src/Fireapp'
 
 interface UserData {
   profile: Profile | null
@@ -10,6 +10,7 @@ export interface State {
   curr: UserData
   self: UserData
   urlId: string | null
+  isAuthenticating: boolean
 }
 
 export const getInit = (): State => ({
@@ -23,4 +24,5 @@ export const getInit = (): State => ({
     quotes: [],
   },
   urlId: null,
+  isAuthenticating: false,
 })

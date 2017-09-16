@@ -11,7 +11,7 @@ import {
 } from 'redux'
 import { install } from 'redux-loop'
 
-import Fireapp from 'src/fireapp'
+import Fireapp from 'src/Fireapp'
 import { Actions } from 'src/redux/actions'
 import reducer from 'src/redux/reducer'
 import { getInit, State } from 'src/redux/state'
@@ -21,8 +21,8 @@ import App from 'src/components/App'
 
 const fireapp = new Fireapp()
 const enhancer = compose(
-  applyMiddleware(fireapp.middleware),
   install(),
+  applyMiddleware(fireapp.middleware),
 ) as GenericStoreEnhancer
 const store = createStore<State>(reducer, getInit(), enhancer)
 const history = createHashHistory()
@@ -40,8 +40,7 @@ ReactDOM.render(
 // Initialize firebase
 fireapp.init(store)
 
-// TODO where to put this?
-// currently viewed user can be changed via URL hash
+// Currently viewed user can be changed via URL hash
 // and new quotes must be fetched from firebase if that happens
 // but only react-router knows about that change
 // so here we listen to its history emitter

@@ -131,7 +131,14 @@ export default class FireApp {
 
     // Redux middleware for intercepting "Fireapp" actions
     this.middleware = api => next => async (action: Actions) => {
+      console.log('middleware!', action)
+
       switch (action.type) {
+        case 'FireappAuthenticate': {
+          this.authenticate(action.email, action.pass)
+          return
+        }
+
         case 'FireappRemoveCurr': {
           this.unlink(this.resources.currProfile)
           this.unlink(this.resources.currQuotes)
@@ -186,6 +193,21 @@ export default class FireApp {
           : null
       this.store.dispatch<Actions>({ type: 'AccountChange', account })
     })
+  }
+
+  private authenticate(email: string, pass: string) {
+    this.app
+      .auth()
+      .signInWithEmailAndPassword(email, pass)
+      .catch(e => {
+        alert(e)
+        if (this.store) {
+          this.store.dispatch<Actions>({
+            type: 'AuthError',
+            message: e && e.message,
+          })
+        }
+      })
   }
 
   private link(resource: Resource, uid: string) {

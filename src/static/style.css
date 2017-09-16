@@ -77,6 +77,11 @@ http://beautifytools.com/scss-compiler.php
   font-size: 14px;
 }
 
+.btn.disabled,
+.btn[disabled] {
+  opacity: 0.4;
+}
+
 .btn:focus {
   background-color: #0275d8;
   border-color: #333;
