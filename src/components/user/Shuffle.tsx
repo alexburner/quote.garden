@@ -2,7 +2,7 @@ import * as React from 'react'
 import { connect } from 'react-redux'
 import { RouteComponentProps, withRouter } from 'react-router-dom'
 
-import { State } from 'src/interfaces'
+import { State } from 'src/redux/state'
 
 interface RouteParams {
   qnum: string

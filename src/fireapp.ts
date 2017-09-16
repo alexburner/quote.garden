@@ -2,7 +2,7 @@ import * as firebase from 'firebase/app'
 import 'firebase/auth'
 import 'firebase/database'
 import { each } from 'lodash'
-import { Middleware, Store } from 'redux'
+import { Store } from 'redux'
 
 import { Actions } from 'src/redux/actions'
 import { State } from 'src/redux/state'
@@ -67,7 +67,7 @@ const quotesListener = (
 }
 
 export default class FireApp {
-  public middleware: Middleware
+  public middleware: any // TODO: redux Middleware
   private app: firebase.app.App
   private store: Store<State> | null
   private offAuth: firebase.Unsubscribe

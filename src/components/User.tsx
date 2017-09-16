@@ -6,16 +6,12 @@ import Account from 'src/components/user/Account'
 import All from 'src/components/user/All'
 import Edit from 'src/components/user/Edit'
 import Shuffle from 'src/components/user/Shuffle'
-import { State } from 'src/interfaces'
-import RemoteData from 'src/util/RemoteData'
+import { State } from 'src/redux/state'
 
 interface RouteParams {}
 
 interface StateProps {
-  path: {
-    curr: string | null
-    self: RemoteData<string, Error>
-  }
+  urlId: string | null
 }
 
 type Props = RouteComponentProps<RouteParams> & StateProps
@@ -31,10 +27,9 @@ type Props = RouteComponentProps<RouteParams> & StateProps
   - if curr !== self >>> self/edit|account
 */
 
-const User = ({ path, match: { url } }: Props): JSX.Element => (
+const User = ({ urlId, match: { url } }: Props): JSX.Element => (
   <div>
-    {path.curr && <span>This is User {path.curr}</span>}
-    {path.self.success && <span>You are User {path.self.success}</span>}
+    {urlId && <span>Detected urlId: {urlId}</span>}
     <Route path={`${url}/shuffle/:qnum`} component={Shuffle} />
     <Route path={`${url}/all/:qnum`} component={All} />
     <Route path={`${url}/edit/:qnum`} component={Edit} />
@@ -42,6 +37,6 @@ const User = ({ path, match: { url } }: Props): JSX.Element => (
   </div>
 )
 
-const mapStateToProps = ({ path }: State): StateProps => ({ path })
+const mapStateToProps = ({ urlId }: State): StateProps => ({ urlId })
 
 export default withRouter(connect(mapStateToProps)(User))
