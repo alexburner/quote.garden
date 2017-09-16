@@ -5,6 +5,7 @@ import { withRouter } from 'react-router-dom'
 import { State } from 'src/redux/state'
 
 import Login from 'src/components/auth/Login'
+import Register from 'src/components/auth/Register'
 
 interface Props {}
 
@@ -16,7 +17,7 @@ const Auth = ({  }: Props): JSX.Element => {
           <Login />
         </div>
         <div className="col col-sm-6">
-          <Login />
+          <Register />
         </div>
       </div>
     </div>

@@ -11,6 +11,7 @@ export interface State {
   self: UserData
   urlId: string | null
   isAuthenticating: boolean
+  isRegistering: boolean
 }
 
 export const getInit = (): State => ({
@@ -25,4 +26,5 @@ export const getInit = (): State => ({
   },
   urlId: null,
   isAuthenticating: false,
+  isRegistering: false,
 })

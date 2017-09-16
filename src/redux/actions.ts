@@ -11,9 +11,10 @@ interface AttemptAuth {
   pass: string
 }
 
-interface AuthError {
-  type: 'AuthError'
-  message: string
+interface AttemptRegister {
+  type: 'AttemptRegister'
+  email: string
+  pass: string
 }
 
 interface CurrProfileChange {
@@ -26,8 +27,24 @@ interface CurrQuotesChange {
   quotes: Quote[]
 }
 
+interface ErrorAuth {
+  type: 'ErrorAuth'
+  message: string
+}
+
+interface ErrorRegister {
+  type: 'ErrorRegister'
+  message: string
+}
+
 interface FireappAuthenticate {
   type: 'FireappAuthenticate'
+  email: string
+  pass: string
+}
+
+interface FireappRegister {
+  type: 'FireappRegister'
   email: string
   pass: string
 }
@@ -72,10 +89,13 @@ interface Redux {
 export type Actions =
   | AccountChange
   | AttemptAuth
-  | AuthError
+  | AttemptRegister
   | CurrProfileChange
   | CurrQuotesChange
+  | ErrorAuth
+  | ErrorRegister
   | FireappAuthenticate
+  | FireappRegister
   | FireappRemoveCurr
   | FireappRemoveSelf
   | FireappUpdateCurr

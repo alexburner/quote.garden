@@ -139,6 +139,11 @@ export default class FireApp {
           return
         }
 
+        case 'FireappRegister': {
+          this.register(action.email, action.pass)
+          return
+        }
+
         case 'FireappRemoveCurr': {
           this.unlink(this.resources.currProfile)
           this.unlink(this.resources.currQuotes)
@@ -200,11 +205,36 @@ export default class FireApp {
       .auth()
       .signInWithEmailAndPassword(email, pass)
       .catch(e => {
-        alert(e)
+        alert(e.message)
         if (this.store) {
           this.store.dispatch<Actions>({
-            type: 'AuthError',
-            message: e && e.message,
+            type: 'ErrorAuth',
+            message: e.message,
+          })
+        }
+      })
+  }
+
+  private register(email: string, pass: string) {
+    this.app
+      .auth()
+      .createUserWithEmailAndPassword(email, pass)
+      .then(user => {
+        if (!user) throw new Error('Something went wrong.')
+        // Initialize user profile with uid as urlId
+        return this.app
+          .database()
+          .ref('profiles/' + user.uid)
+          .set({
+            urlId: user.uid,
+          })
+      })
+      .catch(e => {
+        alert(e.message)
+        if (this.store) {
+          this.store.dispatch<Actions>({
+            type: 'ErrorRegister',
+            message: e.message,
           })
         }
       })

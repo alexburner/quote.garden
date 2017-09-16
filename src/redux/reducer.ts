@@ -19,13 +19,23 @@ export default (state: State, action: Actions): State => {
       } else if (!action.account) {
         // No account
         return loop(
-          { ...state, account: null, isAuthenticating: false },
+          {
+            ...state,
+            account: null,
+            isAuthenticating: false,
+            isRegistering: false,
+          },
           Cmd.action({ type: 'FireappRemoveSelf' }),
         )
       } else {
         // Account changed
         return loop(
-          { ...state, account: action.account, isAuthenticating: false },
+          {
+            ...state,
+            account: action.account,
+            isAuthenticating: false,
+            isRegistering: false,
+          },
           Cmd.action({ type: 'FireappUpdateSelf', uid: action.account.uid }),
         )
       }
@@ -38,8 +48,11 @@ export default (state: State, action: Actions): State => {
       )
     }
 
-    case 'AuthError': {
-      return { ...state, isAuthenticating: false }
+    case 'AttemptRegister': {
+      return loop(
+        { ...state, isRegistering: true },
+        Cmd.action({ ...action, type: 'FireappRegister' }),
+      )
     }
 
     case 'CurrProfileChange': {
@@ -52,6 +65,14 @@ export default (state: State, action: Actions): State => {
       return !isEqual(action.quotes, state.curr.quotes)
         ? { ...state, curr: { ...state.curr, quotes: action.quotes } }
         : state
+    }
+
+    case 'ErrorAuth': {
+      return { ...state, isAuthenticating: false }
+    }
+
+    case 'ErrorRegister': {
+      return { ...state, isRegistering: false }
     }
 
     case 'SelfProfileChange': {
