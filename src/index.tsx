@@ -19,6 +19,16 @@ import { extractUrlId } from 'src/util'
 
 import App from 'src/components/App'
 
+/**
+ * TODO TODO TODO
+ *
+ *   how to pause app initialization
+ *   until first authentication?
+ *   to prevent mis-redirects
+ *   from async responses
+ *
+ */
+
 const fireapp = new Fireapp()
 const enhancer = compose(
   install(),

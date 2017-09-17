@@ -32,45 +32,59 @@ const Person = ({
   profile,
   match: { params: { urlId } },
 }: Props): JSX.Element => {
+
+  /**
+   * TODO TODO TODO
+   *
+   *   how to pause app initialization
+   *   until first authentication?
+   *   to prevent mis-redirects
+   *   from async responses
+   *
+   */
+
+  const paths = {
+    base: `/${urlId}`,
+    shuffle: `/${urlId}/shuffle/:qnum?`,
+    all: `/${urlId}/all/:qnum?`,
+    edit: `/${urlId}/edit/:qnum?`,
+    account: `/${urlId}/account`,
+    self: {
+      edit: profile ? `${profile.urlId}/edit/:qnum?` : '',
+      account: profile ? `${profile.urlId}/account` : '',
+    },
+  }
   if (user && profile && profile.urlId === urlId) {
     // Authenticated user viewing themselves
     return (
       <Switch>
-        <Route path={`/${urlId}/shuffle/:qnum?`} component={Shuffle} />
-        <Route path={`/${urlId}/all/:qnum?`} component={All} />
-        <Route path={`/${urlId}/edit/:qnum?`} component={Edit} />
-        <Route path={`/${urlId}/account`} component={Account} />
-        <Redirect exact from={`/${urlId}`} to={`/${urlId}/shuffle`} />
+        <Route path={paths.shuffle} component={Shuffle} />
+        <Route path={paths.all} component={All} />
+        <Route path={paths.edit} component={Edit} />
+        <Route path={paths.account} component={Account} />
+        <Redirect exact from={paths.base} to={paths.shuffle} />
       </Switch>
     )
   } else if (user && profile) {
     // Authenticated user viewing someone else
     return (
       <Switch>
-        <Route path={`/${urlId}/shuffle/:qnum?`} component={Shuffle} />
-        <Route path={`/${urlId}/all/:qnum?`} component={All} />
-        <Redirect exact from={`/${urlId}`} to={`/${urlId}/shuffle`} />
-        <Redirect
-          exact
-          from={`/${urlId}/edit/:qnum?`}
-          to={`${profile.urlId}/edit/:qnum?`}
-        />
-        <Redirect
-          exact
-          from={`/${urlId}/account`}
-          to={`${profile.urlId}/account`}
-        />
+        <Route path={paths.shuffle} component={Shuffle} />
+        <Route path={paths.all} component={All} />
+        <Redirect exact from={paths.base} to={paths.shuffle} />
+        <Redirect exact from={paths.edit} to={paths.self.edit} />
+        <Redirect exact from={paths.account} to={paths.self.account} />
       </Switch>
     )
   } else {
     // Unauthenticated user
     return (
       <Switch>
-        <Route path={`/${urlId}/shuffle/:qnum?`} component={Shuffle} />
-        <Route path={`/${urlId}/all/:qnum?`} component={All} />
-        <Redirect exact from={`/${urlId}`} to={`/${urlId}/shuffle`} />
-        <Redirect exact from={`/${urlId}/edit/:qnum?`} to="auth" />
-        <Redirect exact from={`/${urlId}/account`} to="auth" />
+        <Route path={paths.shuffle} component={Shuffle} />
+        <Route path={paths.all} component={All} />
+        <Redirect exact from={paths.base} to={paths.shuffle} />
+        <Redirect exact from={paths.edit} to="auth" />
+        <Redirect exact from={paths.account} to="auth" />
       </Switch>
     )
   }
