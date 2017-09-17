@@ -1,9 +1,4 @@
-import { Account, Profile, Quote } from 'src/Fireapp'
-
-interface AccountChange {
-  type: 'AccountChange'
-  account: Account | null
-}
+import { Profile, Quote, User } from 'src/Fireapp'
 
 interface AttemptAuth {
   type: 'AttemptAuth'
@@ -82,12 +77,16 @@ interface UrlIdChange {
   urlId: string | null
 }
 
+interface UserChange {
+  type: 'UserChange'
+  user: User | null
+}
+
 interface Redux {
   type: '@@redux/INIT'
 }
 
 export type Actions =
-  | AccountChange
   | AttemptAuth
   | AttemptRegister
   | CurrProfileChange
@@ -103,4 +102,5 @@ export type Actions =
   | SelfProfileChange
   | SelfQuotesChange
   | UrlIdChange
+  | UserChange
   | Redux

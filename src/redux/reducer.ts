@@ -25,36 +25,6 @@ export default (state: State, action: Actions): State => {
       return state
     }
 
-    case 'AccountChange': {
-      if (isEqual(action.account, state.account)) {
-        // No change
-        return state
-      } else if (!action.account) {
-        // No account
-        const nState: State = {
-          ...state,
-          account: null,
-          isAuthenticating: false,
-          isRegistering: false,
-        }
-        const nAction: Actions = { type: 'FireappRemoveSelf' }
-        return loop(nState, Cmd.action(nAction))
-      } else {
-        // Account changed
-        const nState: State = {
-          ...state,
-          account: action.account,
-          isAuthenticating: false,
-          isRegistering: false,
-        }
-        const nAction: Actions = {
-          type: 'FireappUpdateSelf',
-          uid: action.account.uid,
-        }
-        return loop(nState, Cmd.action(nAction))
-      }
-    }
-
     case 'AttemptAuth': {
       const nState: State = { ...state, isAuthenticating: true }
       const nAction: Actions = { ...action, type: 'FireappAuthenticate' }
@@ -114,6 +84,36 @@ export default (state: State, action: Actions): State => {
         const nAction: Actions = {
           type: 'FireappUpdateCurr',
           urlId: action.urlId,
+        }
+        return loop(nState, Cmd.action(nAction))
+      }
+    }
+
+    case 'UserChange': {
+      if (isEqual(action.user, state.user)) {
+        // No change
+        return state
+      } else if (!action.user) {
+        // No user
+        const nState: State = {
+          ...state,
+          user: null,
+          isAuthenticating: false,
+          isRegistering: false,
+        }
+        const nAction: Actions = { type: 'FireappRemoveSelf' }
+        return loop(nState, Cmd.action(nAction))
+      } else {
+        // User changed
+        const nState: State = {
+          ...state,
+          user: action.user,
+          isAuthenticating: false,
+          isRegistering: false,
+        }
+        const nAction: Actions = {
+          type: 'FireappUpdateSelf',
+          uid: action.user.uid,
         }
         return loop(nState, Cmd.action(nAction))
       }

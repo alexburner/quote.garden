@@ -1,14 +1,33 @@
 import * as React from 'react'
-import { Route } from 'react-router-dom'
+import { connect } from 'react-redux'
+import { Redirect, Route, Switch, withRouter } from 'react-router-dom'
+
+import { ROOT_USER } from 'src/constants'
+import { Profile, User } from 'src/Fireapp'
+import { State } from 'src/redux/state'
 
 import Auth from 'src/components/Auth'
-import User from 'src/components/User'
+import Person from 'src/components/Person'
 
-export default (): JSX.Element => {
+interface Props {
+  user: User | null
+  profile: Profile | null
+}
+
+const App = ({ user, profile }: Props): JSX.Element => {
+  const urlId = user && profile ? profile.urlId : ROOT_USER
   return (
-    <div>
+    <Switch>
       <Route path="/auth" component={Auth} />
-      <Route path="/:userKey" component={User} />
-    </div>
+      <Route path="/:urlId" component={Person} />
+      <Redirect exact from="/" to={`/${urlId}`} />
+    </Switch>
   )
 }
+
+const mapStateToProps = ({ user, self: { profile } }: State): Props => ({
+  user,
+  profile,
+})
+
+export default withRouter(connect(mapStateToProps)(App))

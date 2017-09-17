@@ -8,13 +8,13 @@ import * as shortid from 'shortid'
 import { Actions } from 'src/redux/actions'
 import { State } from 'src/redux/state'
 
-export interface Account {
+export interface User {
   email: string
   uid: string
 }
 
 export interface Profile {
-  key: string // Firebase id (Account uid)
+  key: string // Firebase id (User uid)
   urlId: string
 }
 
@@ -191,14 +191,16 @@ export default class FireApp {
   }
 
   private listenForAuth() {
-    this.offAuth = this.app.auth().onAuthStateChanged((user: firebase.User) => {
-      if (!this.store) return
-      const account: Account | null =
-        user && user.email && user.uid
-          ? { email: user.email, uid: user.uid }
-          : null
-      this.store.dispatch<Actions>({ type: 'AccountChange', account })
-    })
+    this.offAuth = this.app
+      .auth()
+      .onAuthStateChanged((fUser: firebase.User) => {
+        if (!this.store) return
+        const user: User | null =
+          fUser && fUser.email && fUser.uid
+            ? { email: fUser.email, uid: fUser.uid }
+            : null
+        this.store.dispatch<Actions>({ type: 'UserChange', user })
+      })
   }
 
   private authenticate(email: string, pass: string) {
@@ -220,12 +222,12 @@ export default class FireApp {
     this.app
       .auth()
       .createUserWithEmailAndPassword(email, pass)
-      .then(user => {
-        if (!user) throw new Error('Something went wrong.')
+      .then((fUser: firebase.User | null) => {
+        if (!fUser) throw new Error('Something went wrong.')
         // Initialize user profile with a random urlId
         return this.app
           .database()
-          .ref('profiles/' + user.uid)
+          .ref('profiles/' + fUser.uid)
           .set({ urlId: shortid.generate() })
       })
       .catch(e => {

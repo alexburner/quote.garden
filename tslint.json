@@ -8,6 +8,7 @@
   "rules": {
     "curly": false,
     "interface-name": false,
+    "jsx-boolean-value": [true, "never"],
     "no-console": ["error", {"allow": ["warn", "error"]}],
     "no-empty-interface": false,
     "no-unused-variable": [true, {"ignore-pattern": "^_"}],
