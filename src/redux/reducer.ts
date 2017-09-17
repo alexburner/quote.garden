@@ -4,6 +4,19 @@ import { Cmd, loop } from 'redux-loop'
 import { Actions } from 'src/redux/actions'
 import { State } from 'src/redux/state'
 
+/**
+ * TODO all these
+ *
+ *   const nState: State = ...
+ *   const nAction: Actions = ...
+ *
+ *  are because redux-loop doesn't have typings
+ *  or not good typings, or something
+ *  (i need to dig deeper / ask Ashish)
+ *
+ *  so for now we enforce types like this
+ */
+
 export default (state: State, action: Actions): State => {
   console.log('action!', action, state)
   switch (action.type) {
@@ -18,41 +31,40 @@ export default (state: State, action: Actions): State => {
         return state
       } else if (!action.account) {
         // No account
-        return loop(
-          {
-            ...state,
-            account: null,
-            isAuthenticating: false,
-            isRegistering: false,
-          },
-          Cmd.action({ type: 'FireappRemoveSelf' }),
-        )
+        const nState: State = {
+          ...state,
+          account: null,
+          isAuthenticating: false,
+          isRegistering: false,
+        }
+        const nAction: Actions = { type: 'FireappRemoveSelf' }
+        return loop(nState, Cmd.action(nAction))
       } else {
         // Account changed
-        return loop(
-          {
-            ...state,
-            account: action.account,
-            isAuthenticating: false,
-            isRegistering: false,
-          },
-          Cmd.action({ type: 'FireappUpdateSelf', uid: action.account.uid }),
-        )
+        const nState: State = {
+          ...state,
+          account: action.account,
+          isAuthenticating: false,
+          isRegistering: false,
+        }
+        const nAction: Actions = {
+          type: 'FireappUpdateSelf',
+          uid: action.account.uid,
+        }
+        return loop(nState, Cmd.action(nAction))
       }
     }
 
     case 'AttemptAuth': {
-      return loop(
-        { ...state, isAuthenticating: true },
-        Cmd.action({ ...action, type: 'FireappAuthenticate' }),
-      )
+      const nState: State = { ...state, isAuthenticating: true }
+      const nAction: Actions = { ...action, type: 'FireappAuthenticate' }
+      return loop(nState, Cmd.action(nAction))
     }
 
     case 'AttemptRegister': {
-      return loop(
-        { ...state, isRegistering: true },
-        Cmd.action({ ...action, type: 'FireappRegister' }),
-      )
+      const nState: State = { ...state, isRegistering: true }
+      const nAction: Actions = { ...action, type: 'FireappRegister' }
+      return loop(nState, Cmd.action(nAction))
     }
 
     case 'CurrProfileChange': {
@@ -93,16 +105,17 @@ export default (state: State, action: Actions): State => {
         return state
       } else if (!action.urlId) {
         // No current
-        return loop(
-          { ...state, urlId: null },
-          Cmd.action({ type: 'FireappRemoveCurr' }),
-        )
+        const nState: State = { ...state, urlId: null }
+        const nAction: Actions = { type: 'FireappRemoveCurr' }
+        return loop(nState, Cmd.action(nAction))
       } else {
         // Current changed
-        return loop(
-          { ...state, urlId: action.urlId },
-          Cmd.action({ type: 'FireappUpdateCurr', urlId: action.urlId }),
-        )
+        const nState: State = { ...state, urlId: action.urlId }
+        const nAction: Actions = {
+          type: 'FireappUpdateCurr',
+          urlId: action.urlId,
+        }
+        return loop(nState, Cmd.action(nAction))
       }
     }
 
