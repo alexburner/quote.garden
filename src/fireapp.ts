@@ -3,6 +3,7 @@ import 'firebase/auth'
 import 'firebase/database'
 import { each } from 'lodash'
 import { Store } from 'redux'
+import * as shortid from 'shortid'
 
 import { Actions } from 'src/redux/actions'
 import { State } from 'src/redux/state'
@@ -221,13 +222,11 @@ export default class FireApp {
       .createUserWithEmailAndPassword(email, pass)
       .then(user => {
         if (!user) throw new Error('Something went wrong.')
-        // Initialize user profile with uid as urlId
+        // Initialize user profile with a random urlId
         return this.app
           .database()
           .ref('profiles/' + user.uid)
-          .set({
-            urlId: user.uid,
-          })
+          .set({ urlId: shortid.generate() })
       })
       .catch(e => {
         alert(e.message)
