@@ -202,9 +202,9 @@ export default class FireApp {
   }
 
   private listenForAuth(): Promise<void> {
-
     /**
-     * TODO authenticated user & their account
+     * TODO TODO TODO
+     * authenticated user & their account
      * need to be more strongly linked together
      * so that redux doesn't go through 3 stages
      * everytime authenication changes
@@ -214,19 +214,20 @@ export default class FireApp {
      * and sad pandas all around
      */
 
-    return new Promise<void>(resolve =>
-      this.offAuth = this.app
-        .auth()
-        .onAuthStateChanged((fUser: firebase.User) => {
-          if (!this.store) return
-          const user: User | null =
-            fUser && fUser.email && fUser.uid
-              ? { email: fUser.email, uid: fUser.uid }
-              : null
-          this.store.dispatch<Actions>({ type: 'UserChange', user })
-          // Resolve promise once we've got a response
-          resolve()
-        })
+    return new Promise<void>(
+      resolve =>
+        (this.offAuth = this.app
+          .auth()
+          .onAuthStateChanged((fUser: firebase.User) => {
+            if (!this.store) return
+            const user: User | null =
+              fUser && fUser.email && fUser.uid
+                ? { email: fUser.email, uid: fUser.uid }
+                : null
+            this.store.dispatch<Actions>({ type: 'UserChange', user })
+            // Resolve promise once we've got a response
+            resolve()
+          })),
     )
   }
 

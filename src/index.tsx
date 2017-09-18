@@ -42,7 +42,6 @@ history.listen(dispatchUrlId) // update
 
 // Initialize firebase
 fireapp.init(store).then(() =>
-
   /**
    * TODO authenticated user & their account
    * need to be more strongly linked together
@@ -62,7 +61,5 @@ fireapp.init(store).then(() =>
       </Router>
     </Provider>,
     document.getElementById('app'),
-  )
+  ),
 )
-
-

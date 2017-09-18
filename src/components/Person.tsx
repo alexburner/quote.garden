@@ -32,17 +32,6 @@ const Person = ({
   profile,
   match: { params: { urlId } },
 }: Props): JSX.Element => {
-
-  /**
-   * TODO TODO TODO
-   *
-   *   how to pause app initialization
-   *   until first authentication?
-   *   to prevent mis-redirect
-   *   from async responses
-   *
-   */
-
   const path = {
     base: `/${urlId}`,
     shuffle: `/${urlId}/shuffle/:qnum?`,
@@ -56,8 +45,7 @@ const Person = ({
     self: {
       edit: profile ? `/${profile.urlId}/edit` : '',
       account: profile ? `/${profile.urlId}/account` : '',
-    }
-
+    },
   }
   if (user && profile && profile.urlId === urlId) {
     // Authenticated user viewing themselves
