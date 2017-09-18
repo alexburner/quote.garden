@@ -19,16 +19,6 @@ import { extractUrlId } from 'src/util'
 
 import App from 'src/components/App'
 
-/**
- * TODO TODO TODO
- *
- *   how to pause app initialization
- *   until first authentication?
- *   to prevent mis-redirects
- *   from async responses
- *
- */
-
 const fireapp = new Fireapp()
 const enhancer = compose(
   install(),
@@ -36,19 +26,6 @@ const enhancer = compose(
 ) as GenericStoreEnhancer
 const store = createStore<State>(reducer, getInit(), enhancer)
 const history = createHashHistory()
-
-// Mount component tree
-ReactDOM.render(
-  <Provider store={store}>
-    <Router history={history}>
-      <App />
-    </Router>
-  </Provider>,
-  document.getElementById('app'),
-)
-
-// Initialize firebase
-fireapp.init(store)
 
 // Currently viewed user can be changed via URL hash
 // and new quotes must be fetched from firebase if that happens
@@ -62,3 +39,30 @@ const dispatchUrlId = (location: Location) =>
   })
 dispatchUrlId(history.location) // init
 history.listen(dispatchUrlId) // update
+
+// Initialize firebase
+fireapp.init(store).then(() =>
+
+  /**
+   * TODO authenticated user & their account
+   * need to be more strongly linked together
+   * so that redux doesn't go through 3 stages
+   * everytime authenication changes
+   *
+   * this non-transactional non-atomic flow
+   * makes for broken midway states
+   * and sad pandas all around
+   */
+
+  // Mount component tree
+  ReactDOM.render(
+    <Provider store={store}>
+      <Router history={history}>
+        <App />
+      </Router>
+    </Provider>,
+    document.getElementById('app'),
+  )
+)
+
+

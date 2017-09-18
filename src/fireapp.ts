@@ -180,9 +180,9 @@ export default class FireApp {
     }
   }
 
-  public init(store: Store<State>) {
+  public init(store: Store<State>): Promise<void> {
     this.store = store
-    this.listenForAuth()
+    return this.listenForAuth()
   }
 
   public destroy() {
@@ -190,17 +190,44 @@ export default class FireApp {
     each(this.resources, resource => this.unlink(resource))
   }
 
-  private listenForAuth() {
-    this.offAuth = this.app
-      .auth()
-      .onAuthStateChanged((fUser: firebase.User) => {
-        if (!this.store) return
-        const user: User | null =
-          fUser && fUser.email && fUser.uid
-            ? { email: fUser.email, uid: fUser.uid }
-            : null
-        this.store.dispatch<Actions>({ type: 'UserChange', user })
-      })
+  private link(resource: Resource, uid: string) {
+    this.unlink(resource)
+    resource.ref = this.app.database().ref(resource.path(uid))
+    resource.ref.on('value', resource.listener)
+  }
+
+  private unlink(resource: Resource) {
+    if (!resource.ref) return
+    resource.ref.off('value', resource.listener)
+  }
+
+  private listenForAuth(): Promise<void> {
+
+    /**
+     * TODO authenticated user & their account
+     * need to be more strongly linked together
+     * so that redux doesn't go through 3 stages
+     * everytime authenication changes
+     *
+     * this non-transactional non-atomic flow
+     * makes for broken midway states
+     * and sad pandas all around
+     */
+
+    return new Promise<void>(resolve =>
+      this.offAuth = this.app
+        .auth()
+        .onAuthStateChanged((fUser: firebase.User) => {
+          if (!this.store) return
+          const user: User | null =
+            fUser && fUser.email && fUser.uid
+              ? { email: fUser.email, uid: fUser.uid }
+              : null
+          this.store.dispatch<Actions>({ type: 'UserChange', user })
+          // Resolve promise once we've got a response
+          resolve()
+        })
+    )
   }
 
   private authenticate(email: string, pass: string) {
@@ -239,17 +266,6 @@ export default class FireApp {
           })
         }
       })
-  }
-
-  private link(resource: Resource, uid: string) {
-    this.unlink(resource)
-    resource.ref = this.app.database().ref(resource.path(uid))
-    resource.ref.on('value', resource.listener)
-  }
-
-  private unlink(resource: Resource) {
-    if (!resource.ref) return
-    resource.ref.off('value', resource.listener)
   }
 
   private async getUid(urlId: string): Promise<string> {
