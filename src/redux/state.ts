@@ -1,30 +1,27 @@
-import { Profile, Quote, User } from 'src/Fireapp'
+import { Quote } from 'src/Fireapp'
 
-interface UserData {
-  profile: Profile | null
+// Firebase auth + profile + quotes
+export interface User {
   quotes: Quote[]
+  uid: string
+  urlId: string
+}
+
+// Signed in user
+export interface Self extends User {
+  email: string
 }
 
 export interface State {
-  user: User | null
-  curr: UserData
-  self: UserData
-  urlId: string | null
+  curr: User
+  self: Self
   isAuthenticating: boolean
   isRegistering: boolean
 }
 
 export const getInit = (): State => ({
-  user: null,
-  curr: {
-    profile: null,
-    quotes: [],
-  },
-  self: {
-    profile: null,
-    quotes: [],
-  },
-  urlId: null,
+  curr: null,
+  self: null,
   isAuthenticating: false,
   isRegistering: false,
 })

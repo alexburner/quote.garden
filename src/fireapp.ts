@@ -8,16 +8,20 @@ import * as shortid from 'shortid'
 import { Actions } from 'src/redux/actions'
 import { State } from 'src/redux/state'
 
-export interface User {
+
+// Firebase's special auth object
+export interface Auth {
   email: string
   uid: string
 }
 
+// Firebase "profiles" resource
 export interface Profile {
-  key: string // Firebase id (User uid)
+  key: string // Auth uid
   urlId: string
 }
 
+// Firebase "quotes" resource
 export interface Quote {
   key: string // Firebase id
   number: number // incremental id
@@ -25,6 +29,7 @@ export interface Quote {
   words: string
 }
 
+// Abstraction for Firebase resource listening
 interface Resource {
   ref: firebase.database.Reference | null
   path: (uid: string) => string
@@ -158,7 +163,7 @@ export default class FireApp {
         }
 
         case 'FireappUpdateCurr': {
-          const uid = await this.getUid(action.urlId)
+          const uid = await this.uidFromUrlId(action.urlId)
           // TODO handle uid not found (404?)
           this.link(this.resources.currProfile, uid)
           this.link(this.resources.currQuotes, uid)
@@ -218,14 +223,20 @@ export default class FireApp {
       resolve =>
         (this.offAuth = this.app
           .auth()
-          .onAuthStateChanged((fUser: firebase.User) => {
+          .onAuthStateChanged(async (user: firebase.User) => {
             if (!this.store) return
-            const user: User | null =
-              fUser && fUser.email && fUser.uid
-                ? { email: fUser.email, uid: fUser.uid }
-                : null
-            this.store.dispatch<Actions>({ type: 'UserChange', user })
-            // Resolve promise once we've got a response
+            if (!user || !user.email || !user.uid) {
+              this.store.dispatch<Actions>({ type: 'AuthChange', self: null })
+              return resolve()
+            }
+            const auth: Auth = { email: user.email, uid: user.uid }
+            this.link(this.resources.selfProfile, auth.uid)
+            this.link(this.resources.selfQuotes, auth.uid)
+            const profile = await this.resources.selfProfile.ref.once('value')
+            const quotes = await this.resources.selfQuotes.ref.once('value')
+            this.store.dispatch<Actions>({ type: 'AuthChange', self: {
+              uid: auth.uid,
+            } })
             resolve()
           })),
     )
@@ -250,12 +261,12 @@ export default class FireApp {
     this.app
       .auth()
       .createUserWithEmailAndPassword(email, pass)
-      .then((fUser: firebase.User | null) => {
-        if (!fUser) throw new Error('Something went wrong.')
+      .then((user: firebase.User | null) => {
+        if (!user) throw new Error('Something went wrong.')
         // Initialize user profile with a random urlId
         return this.app
           .database()
-          .ref('profiles/' + fUser.uid)
+          .ref('profiles/' + user.uid)
           .set({ urlId: shortid.generate() })
       })
       .catch(e => {
@@ -269,7 +280,7 @@ export default class FireApp {
       })
   }
 
-  private async getUid(urlId: string): Promise<string> {
+  private async uidFromUrlId(urlId: string): Promise<string> {
     const profile = (await this.app
       .database()
       .ref('profiles')

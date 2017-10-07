@@ -20,11 +20,7 @@ import { extractUrlId } from 'src/util'
 import App from 'src/components/App'
 
 const fireapp = new Fireapp()
-const enhancer = compose(
-  install(),
-  applyMiddleware(fireapp.middleware),
-) as GenericStoreEnhancer
-const store = createStore<State>(reducer, getInit(), enhancer)
+const store = createStore<State>(reducer, getInit(), install())
 const history = createHashHistory()
 
 // Currently viewed user can be changed via URL hash
@@ -42,17 +38,6 @@ history.listen(dispatchUrlId) // update
 
 // Initialize firebase
 fireapp.init(store).then(() =>
-  /**
-   * TODO authenticated user & their account
-   * need to be more strongly linked together
-   * so that redux doesn't go through 3 stages
-   * everytime authenication changes
-   *
-   * this non-transactional non-atomic flow
-   * makes for broken midway states
-   * and sad pandas all around
-   */
-
   // Mount component tree
   ReactDOM.render(
     <Provider store={store}>
