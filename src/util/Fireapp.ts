@@ -1,25 +1,25 @@
 import * as firebase from 'firebase/app'
 import 'firebase/auth'
 import 'firebase/database'
-import { each } from 'lodash'
-import { Store } from 'redux'
 import * as shortid from 'shortid'
 
-// Our own user (Firebase auth user + profile)
-export interface User {
-  email?: string
+// Amalgamation of firebase data
+export interface UserData {
+  email: string | null
   uid: string
   urlId: string
+  quotes: Quote[]
 }
 
-// Firebase auth user object
-export interface AuthUser {
+// Firebase Auth User
+export interface User {
   email: string
   uid: string
 }
 
 // Firebase "profiles" resource
 export interface Profile {
+  key: string // Firebase Auth User uid
   urlId: string
 }
 
@@ -31,28 +31,33 @@ export interface Quote {
   words: string
 }
 
-const handleAuthUser = (user: firebase.User): AuthUser => ({
-  email: user.email,
-  uid: user.uid,
-});
-
-const handleProfileSnap = (snap: firebase.database.DataSnapshot): Profile => {
-  if (snap && snap.key && snap.val()) {
-    const value = snap.val()
-    return { urlId: String(value.urlId) }
+const handleUser = (user: firebase.User | void): User | null => {
+  if (user && user.uid && user.email) {
+    return { email: user.email, uid: user.uid }
   } else {
     return null
   }
 }
 
-const handleQuotesSnap = (snap: firebase.database.DataSnapshot): Quote[] => {
+const handleProfile = (
+  snap: firebase.database.DataSnapshot | void,
+): Profile | null => {
+  if (snap && snap.key && snap.val()) {
+    const value = snap.val()
+    return { key: snap.key, urlId: String(value.urlId) }
+  } else {
+    return null
+  }
+}
+
+const handleQuotes = (snap: firebase.database.DataSnapshot): Quote[] => {
   const quotes: Quote[] = []
   if (snap && snap.val()) {
-    snap.forEach(snapChild => {
-      if (!snapChild.key) return false
-      const value = snapChild.val()
+    snap.forEach(child => {
+      if (!child.key) return false
+      const value = child.val()
       quotes.push({
-        key: snapChild.key,
+        key: child.key,
         number: Number(value.number),
         source: String(value.source),
         words: String(value.words),
@@ -60,7 +65,7 @@ const handleQuotesSnap = (snap: firebase.database.DataSnapshot): Quote[] => {
       return false // XXX: for firebase .forEach type
     })
   }
-  return quotes;
+  return quotes
 }
 
 export default class FireApp {
@@ -76,59 +81,89 @@ export default class FireApp {
     })
   }
 
-  public authenticate(email: string, pass: string): Promise<AuthUser> {
-    // Authenticates user, only returns subset of result we care about
+  public authenticate(email: string, pass: string): Promise<UserData | null> {
     return this.app
       .auth()
       .signInWithEmailAndPassword(email, pass)
-      .then(handleAuthUser)
+      .catch(e => console.error(e))
+      .then(handleUser)
+      .then((u: User) => this.getUserData(u)) as Promise<UserData | null>
   }
 
-  public register(email: string, pass: string): Promise<AuthUser> {
+  public register(email: string, pass: string): Promise<UserData | null> {
     return this.app
       .auth()
       .createUserWithEmailAndPassword(email, pass)
-      .then(handleAuthUser)
+      .catch(e => console.error(e))
+      .then(handleUser)
+      .then((u: User) => this.getUserData(u)) as Promise<UserData | null>
   }
 
-  public getProfile(uid: string): Promise<Profile> {
+  public async getUserDataByUrlId(urlId: string): Promise<UserData | null> {
+    const profile = await this.getProfileByUrlId(urlId)
+    if (!profile) return null // assume bad urlId
+    return {
+      urlId,
+      email: null,
+      quotes: await this.getQuotes(profile.key),
+      uid: profile.key,
+    }
+  }
+
+  private async getUserData(user: User | void): Promise<UserData | null> {
+    if (!user) return null
+    const profile = await this.getProfile(user.uid)
+    if (!profile) return null // assume bad uid
+    return {
+      email: user.email,
+      quotes: await this.getQuotes(user.uid),
+      uid: user.uid,
+      urlId: profile.urlId,
+    }
+  }
+
+  private getProfile(uid: string): Promise<Profile | null> {
     return this.app
       .database()
       .ref('profiles/' + uid)
       .once('value')
-      .then(handleProfileSnap) as Promise<Profile>
+      .catch(e => console.error(e))
+      .then(handleProfile) as Promise<Profile | null>
   }
 
-  public getProfileByUrlId(urlId: string): Promise<Profile> {
+  private getProfileByUrlId(urlId: string): Promise<Profile | null> {
     return this.app
       .database()
       .ref('profiles')
       .orderByChild('urlId')
       .equalTo(urlId)
       .once('value')
-      .then(handleProfileSnap) as Promise<Profile>
+      .catch(e => console.error(e))
+      .then(handleProfile) as Promise<Profile | null>
   }
 
-  public createProfile(uid: string): Promise<Profile> {
+  private createProfile(uid: string): Promise<Profile | null> {
     const urlId = shortid.generate();
     return this.app
       .database()
       .ref('profiles/' + uid)
       .set({ urlId  })
-      .then(() => ({ urlId })) as Promise<Profile>
+      .catch(e => console.error(e))
+      .then(() => ({ urlId })) as Promise<Profile | null>
   }
 
-  public updateProfile () {}
+  private updateProfile () {}
 
-  public getQuotes(uid: string): Promise<Quote[]> {
+  private getQuotes(uid: string): Promise<Quote[]> {
     return this.app
       .database()
       .ref('quotes/' + uid)
       .once('value')
-      .then(handleQuotesSnap) as Promise<Quote[]>
+      .catch(e => console.error(e))
+      .then(handleQuotes) as Promise<Quote[]>
   }
 
-  public createQuote() {}
+  private createQuote() {}
 
-  public updateQuote() {}
+  private updateQuote() {}
 }

@@ -42,4 +42,4 @@ export const RD = {
     failure: false,
     success,
   }),
-};
+}

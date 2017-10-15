@@ -3,15 +3,10 @@ import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 import { Provider } from 'react-redux'
 import { Router } from 'react-router-dom'
-import {
-  applyMiddleware,
-  compose,
-  createStore,
-  GenericStoreEnhancer,
-} from 'redux'
+import { createStore } from 'redux'
 import { install } from 'redux-loop'
 
-import Fireapp from 'src/Fireapp'
+import Fireapp from 'src/util/Fireapp'
 import { Actions } from 'src/redux/actions'
 import reducer from 'src/redux/reducer'
 import { getInit, State } from 'src/redux/state'
@@ -36,15 +31,36 @@ const dispatchUrlId = (location: Location) =>
 dispatchUrlId(history.location) // init
 history.listen(dispatchUrlId) // update
 
-// Initialize firebase
-fireapp.init(store).then(() =>
-  // Mount component tree
-  ReactDOM.render(
-    <Provider store={store}>
-      <Router history={history}>
-        <App />
-      </Router>
-    </Provider>,
-    document.getElementById('app'),
-  ),
+// Currently authenticated firebase user can only be detected
+// by using their library's state change event listener (vs direct query)
+// so we must hook that listener and its updates into our redux store
+/*
+
+  TODO
+  fireapp.onAuthStateChange((user) => {
+    store.dispatch<Actions>({
+      type: 'AuthStateChange',
+      user: user,
+    })
+  })
+
+  // AND THEN
+  case 'AuthStateChange':
+    // update state.auth
+    // update state.self
+    // update state.quotes ? hrmmm depending on location... that gets shitty
+                             maybe this right here makes it worth storing
+                             separate instances for "self" and "curr" quotes
+
+ */
+
+// Mount component tree
+ReactDOM.render(
+  <Provider store={store}>
+    <Router history={history}>
+      <App />
+    </Router>
+  </Provider>,
+  document.getElementById('app'),
 )
+
